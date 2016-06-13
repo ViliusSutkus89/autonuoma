@@ -1,0 +1,19 @@
+# Apache configuration override - treats files as directories,
+# turns off PHP register_globals directive, turns off PHP safe_mode
+
+# If using multiple languages in website use directive at following line
+#Options +Indexes +FollowSymlinks +Multiviews
+
+# Prevent site configuration and htaccess files from being accessed
+# directly from browser even PHP engine is stopped
+<Files ~ "config.php|.htaccess">
+    Order Deny,Allow 
+    Deny from all
+</Files>
+
+<Files ~ "controls|libraries|utils">
+    <Limit GET POST PUT>
+        Order Allow,Deny
+        Deny from all
+    </Limit>
+</Files>

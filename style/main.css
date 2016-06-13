@@ -1,0 +1,565 @@
+@CHARSET "UTF-8";
+@import url("reset.css");
+
+body {
+	color: #6e6e6e; /* teksto spalva */
+	font-family: Verdana, Geneva, sans-serif; /* šriftas */
+	font-size: 12px; /* teksto dydis */
+	background-color: #e3e3e3;
+	width: 900px;
+	margin: 0px auto; /* bloko centravimas puslapio viduje */
+}
+
+a {
+        color: #6e6e6e;
+        /*text-decoration: none;*/
+}
+
+a:hover {
+    /*color: #ca4c44;*/
+    border-bottom: 1px solid #6e6e6e;
+}
+
+.float-left {
+    float: left;
+}
+
+.float-right {
+    float: right;
+}
+
+.float-clear {
+    clear: both;
+}
+
+.disabledInput {
+    pointer-events:none;
+    color: #6e6e6e;
+    background-color: #eaeaea;
+}
+
+.hidden {
+    display: none;
+}
+
+/* viršutinė puslapio dalis */
+#header {
+	width: 900px;
+	height: 70px;
+	background-color: #fff;
+	border: 1px solid #c0c0c0; /* rėmelis */
+	float: left;
+}
+
+#slogan {
+	margin: 20px 0px 0px 15px;
+	color: #E3564F;
+	font-size: 22px;
+}
+
+#slogan a:hover {
+    color: #6e6e6e;
+}
+
+/* turinio blokelis */
+#content {
+	width: 900px;
+	background-color: #fff;
+	border-left: 1px solid #c0c0c0;
+	border-right: 1px solid #c0c0c0;
+	float: left;
+}
+
+/* pagrindinio meniu blokelis */
+#topMenu {
+	width: 900px;
+	height: 45px;
+	border-bottom: 1px solid #c0c0c0;
+	float: left;
+    background: -webkit-linear-gradient(#fff, #f5f5f5); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(#fff, #f5f5f5); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(#fff, #f5f5f5); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(#fff, #f5f5f5); /* Standard syntax */
+}
+
+#topMenu li {
+	float: left; /* nustatome horizontalųjį meniu punktų lygiavimą */
+	list-style: none; /* paslepiame sąrašo stiliaus savybes */
+	margin: 12px 15px 12px 15px; /* nustatome meniu punktų ribas */
+}
+
+#topMenu li a {
+	/*text-decoration: none;*/ /* paslepiame nuorodos pabraukimą */
+        font-size: 15px;
+}
+
+#topMenu li a.active, #paging li.active a {
+	color: #ca4c44; /* nustatome aktyvaus meniu punkto pabraukimą */
+        /*background: url(images/active-menu-arrow.png) 0px 6px no-repeat;*/
+}
+
+#topMenu li a.active:hover {
+    border-bottom: 1px solid #ca4c44;
+}
+
+/* pradinio puslapio meniu */
+#homeMenu {
+    width: 100%;
+    float: left;
+    margin: 50px 0px 50px 15px;
+}
+
+#homeMenu ul li {
+    float: left;
+    list-style: none;
+}
+
+#homeMenu ul li a {
+    display: block;
+    width: 100px;
+    height: 32px;
+    background-color: #c3c3c3;
+    margin-right: 15px;
+    color: #fff;
+    text-decoration: none;
+    text-align: center;
+    padding-top: 18px;
+}
+
+#homeMenu ul li a:hover {
+    background-color: #E3564F;
+}
+
+
+/* turinio blokelis */
+#contentMain {
+    width: 870px;
+    min-height: 470px; /* minimalus blokelio aukštis */
+    float: left; /* blokelio pozicija */
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+h2#pageTitle {
+	font-size: 26px;
+	margin: 10px 0px 0px 15px;
+	font-weight: normal;
+}
+
+#contentMain table {
+    margin-top: 3px;
+    width: 100%;
+    border-collapse: collapse;
+    border-top: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+}
+
+#contentMain table.reportTable {
+    border-width: 0px;
+}
+
+#contentMain table.reportTable td, #contentMain table.reportTable th {
+    text-align: center;
+}
+
+#contentMain table th {
+    /*background-color: #E3564F;*/
+    /*color: #fff;*/
+    text-align: left;
+    padding: 8px 25px;
+    font-weight: bold;
+}
+
+#contentMain table th:last-child {
+    width: 40px;
+}    
+
+#contentMain table th:first-child {
+    border-top-left-radius: 5px;
+    moz-border-top-left-radius: 5px;
+}
+
+#contentMain table th:last-child {
+    border-top-right-radius: 5px;
+    moz-border-top-right-radius: 5px;
+}
+
+#contentMain table tr:nth-child(even) {
+    /*background-color: #f5f5f5;*/
+    background-color: #f1f1f1;
+}
+
+#contentMain table td {
+    padding: 8px 25px;
+    text-align: center;
+    line-height: 22px;
+    /*font-size: 15px;*/
+    text-align: left;
+}
+
+#contentMain table tr:last-child td:first-child {
+    border-bottom-left-radius: 5px;
+    moz-border-bottom-left-radius: 5px;
+}
+
+#contentMain table tr:last-child td:last-child {
+    border-bottom-right-radius: 5px;
+    moz-border-bottom-right-radius: 5px;
+}
+
+#contentMain table tr:nth-child(odd) {
+    /*background-color: #dfdfdf;*/
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+#contentMain #pagePath {
+    margin: 10px 0px 10px 0px;
+    display: block;
+    float: left;
+}
+
+#contentMain #pagePath li {
+    float: left;
+    display: block;
+    margin-right: 5px;
+    background: url(images/page-path-separator.png) center right no-repeat;
+    padding-right: 15px;
+}
+
+#contentMain #pagePath li:last-child {
+    background: none;
+}
+
+#contentMain #actions {
+    float: right;
+    margin: 10px 0px 0px 0px;
+}
+
+.newsItem {
+	border-bottom: 1px solid #c0c0c0;
+}
+
+.newsItemLast {
+	border: 0px;
+}
+
+#contentMain p {
+
+}
+
+#contentMain .childRowContainer {
+    margin-left: 5px;
+    margin-bottom: 0px;
+}
+
+#contentMain .childRowContainer select {
+    display: block;
+    margin-bottom: 10px;
+    margin-right: 8px;
+    float: left;
+}
+
+#contentMain .childRowContainer a {
+    margin-top: 2px;
+    float: left;
+}
+
+#contentMain p#newItemButtonContainer {
+    margin-left: 5px;
+    padding: 0px;
+    margin-top: 0px;
+}
+
+#contentMain .page {
+	border: 1px solid #ddd;
+	padding: 8px;
+	min-height: 405px;
+}
+
+.newsItem p#title {
+	font-weight: bold;
+}
+
+
+/* duomenų įvedimo formos */
+#formContainer {
+    margin: 20px auto 17px auto;
+    width: 500px;
+}
+#formContainer span.input-value {
+    display: block;
+    margin-top: 3px;
+    font-style: italic;
+}
+#formContainer p.required-note {
+    margin-bottom: 10px;
+    font-size: 11px;
+}
+
+fieldset {
+    width: 478px;
+    margin-bottom: 15px;
+    border: 1px solid #c0c0c0;
+    color: #7D7764;
+    padding: 25px 0px 25px 20px;
+}
+
+legend {
+    font-size: 14px;
+}
+
+label.field {
+    text-align: right;
+    width: 165px;
+    float: left;
+    margin-top: 3px;
+    margin-right: 6px;
+}
+
+input.textbox-150 {
+    width: 150px;
+    float: left;
+    margin-bottom: 10px;
+}
+
+input.textbox-100 {
+    width: 100px;
+    float: left;
+    margin-bottom: 10px;
+}
+
+input.textbox-70 {
+    width: 70px;
+    float: left;
+    margin-bottom: 10px;
+}
+
+input.textbox-30 {
+    width: 30px;
+    float: left;
+    margin-bottom: 10px;
+}
+
+fieldset p {
+    clear: both;
+    padding: 5px;
+}
+
+fieldset textarea {
+    width: 150px;
+    float: left;
+}
+
+fieldset p span.max-len, fieldset p span.units {
+    font-size: 9px;
+    margin-left: 5px;
+    line-height: 18px;
+}
+
+fieldset p span.units {
+    font-size: 12px;
+}
+
+fieldset .submit {
+    margin-top: 10px;
+    margin-left: 105px;
+}
+
+.errorBox {
+    background-color: #FDE4E1;
+    text-align: left;
+    border: solid 1px #FBD3C6;
+    color: #CB4721;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.errorBox ul {
+    margin-top: 5px;
+}
+
+.errorBox ul li {
+    list-style: disc;
+    margin-left: 20px;
+}
+
+.warningBox {
+    background-color: #FEEFB3;
+    text-align: left;
+    border: solid 1px #f7a220;
+    color: #9F6000;
+    padding: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.childRow input {
+    float: left;
+    margin-right: 5px;
+}
+
+.childRowContainer .labelLeft, .childRowContainer .labelRight {
+    float: left;
+    width: 82px;
+    margin-bottom: 5px;
+}
+
+.childRowContainer .labelLeft.wide {
+    width: 375px;
+}
+
+/* apatinė puslapio dalis */
+#footer {
+	width: 900px;
+	height: 40px;
+	border: 1px solid #c0c0c0;
+	float: left;
+	background-color: #6E6E6E;
+	color: #fff;
+}
+
+/* kalendorius */
+.datepick a:hover {
+    border-bottom: none;
+}
+
+/* puslapiavimas */
+#pagingLabel {
+    float: left;
+    margin: 15px 5px 17px 380px;
+}
+#paging {
+    margin-top: 14px;
+    float: left;
+}
+#paging li {
+    float: left;
+    margin-right: 5px;
+}
+
+/* ataskaitos */
+.report {
+    background: none;
+    margin-top: 20px;
+}
+
+.report #header {
+    background-color: #d9d9d9;
+    height: auto;
+}
+
+.report #content {
+    border-left-width: 0px;
+    border-right-width: 0px;
+}
+
+.report #contentMain {
+    padding-left: 0px;
+    padding-right: 0px;
+    width: 902px;
+}
+
+.report #contentMain table {
+    margin-top: 25px;
+    margin-bottom: 50px;
+}
+
+.report #contentMain table th {
+    background-color: #fff;
+    color: #6e6e6e;
+    padding-top: 8px;
+    font-weight: bold;
+}
+
+.report #contentMain table td.separator {
+    background-color: #d9d9d9;
+    height: 12px;
+}
+
+.report #contentMain table td.groupSeparator {
+    background-color: #d9d9d9;
+    height: 12px;
+    font-weight: bold;
+}
+
+.report #contentMain table tr {
+    background-color: #fff;
+    border: 1px solid #6e6e6e;
+}
+
+.report #contentMain table tr.rowSeparator, .report #contentMain table tr.rowSeparator td {
+    border: none;
+}
+
+.report #contentMain table tr.aggregate {
+    border-width: 0px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.report #contentMain table tr.aggregate td {
+    border-width: 0px;
+}
+
+.report #contentMain table tr.aggregate td.label {
+    text-align: right;
+    padding-right: 5px;
+}
+
+.report #contentMain table tr.aggregate td.border {
+    border: 1px solid #6e6e6e;
+}
+
+.report #contentMain table th:first-child {
+    border-top-left-radius: 0px;
+    moz-border-top-left-radius: 0px;
+}
+
+.report #contentMain table th:last-child {
+    border-top-right-radius: 0px;
+    moz-border-top-right-radius: 0px;
+}
+
+.report #contentMain table td {
+    border-left: 1px solid #6e6e6e;
+    border-right: 1px solid #6e6e6e;
+}
+
+.report #contentMain table td:last-child {
+    width: 160px;
+}
+
+#reportInfo {
+    font-size: 15px;
+    margin: 10px 0px 10px 10px;
+    text-align: center;
+}
+
+#reportInfo li.title {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+    
+#reportInfo span {
+    font-size: 12px;
+}
+
+#reportInfo a.newReport {
+	float: right;
+	margin-right: 5px;
+}
+
+.reportList p:first-child  {
+	font-size: 14px;
+	margin-bottom: 5px;
+}
+
+.reportList p:last-child {
+	margin-left: 5px;
+}
+
+.reportList li {
+	margin-bottom: 20px;
+}
