@@ -73,7 +73,7 @@ class mysql {
      * @return string Database error message
      */
     public static function error() {
-        $connection = mysq::connect();
+        $connection = mysql::connect();
         return $connection->error;
     }
 
