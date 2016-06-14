@@ -10,8 +10,6 @@ require 'model/services.class.php';
 // sukuriame sutarčių klasės objektą
 $contractsObj = new contracts();
 
-// sukuriame puslapiavimo klasės objektą
-$paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
 
 if (!empty($id) || $action == 'new') {
   $servicesObj = new services();
@@ -144,6 +142,9 @@ else if(!empty($removeId)) {
 else {
   // suskaičiuojame bendrą įrašų kiekį
   $elementCount = $contractsObj->getContractListCount();
+
+  // sukuriame puslapiavimo klasės objektą
+  $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
 
   // suformuojame sąrašo puslapius
   $paging->process($elementCount, $pageId);
