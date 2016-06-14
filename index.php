@@ -1,9 +1,9 @@
 <?php
 	// nuskaitome konfigūracijų failą
-	include 'config.php';
+	require 'config.php';
 
 	// iškviečiame prisijungimo prie duomenų bazės klasę
-	include 'utils/mysql.class.php';
+	require 'utils/mysql.class.php';
 	
 	// nustatome pasirinktą modulį
 	$module = '';
