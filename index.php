@@ -4,6 +4,8 @@
 
 	// iškviečiame prisijungimo prie duomenų bazės klasę
 	require 'utils/mysql.class.php';
+
+  require 'utils/template.class.php';
 	
 	// nustatome pasirinktą modulį
 	$module = '';
@@ -35,9 +37,7 @@
 	if(!empty($_GET['page'])) {
 		$pageId = mysql::escape($_GET['page']);
 	}
-
-  require 'utils/template.class.php';
-
+	
   $template = new template();
   $template->assign('module', $module);
   $template->assign('id', $id);
