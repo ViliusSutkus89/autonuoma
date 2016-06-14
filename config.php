@@ -7,4 +7,6 @@ class config {
 	const DB_PASSWORD  = '4dfg8fdg';
 }
 
-?>
+// nustatome, kiek įrašų rodysime elementų sąraše
+define('NUMBER_OF_ROWS_IN_PAGE', 10);
+

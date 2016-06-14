@@ -35,9 +35,6 @@
 	if(!empty($_GET['page'])) {
 		$pageId = mysql::escape($_GET['page']);
 	}
-	
-	// nustatome, kiek įrašų rodysime elementų sąraše
-	define('NUMBER_OF_ROWS_IN_PAGE', 10);
 
   require 'utils/template.class.php';
 
