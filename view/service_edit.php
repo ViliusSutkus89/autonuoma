@@ -1,103 +1,4 @@
-<?php
-	
-	include 'libraries/contracts.class.php';
-	$contractsObj = new contracts();
-
-	include 'libraries/services.class.php';
-	$servicesObj = new services();
-	
-	$formErrors = null;
-	$fields = array();
-	
-	// nustatome privalomus laukus
-	$required = array('pavadinimas', 'kainos', 'datos');
-	
-	// maksimalūs leidžiami laukų ilgiai
-	$maxLengths = array (
-		'pavadinimas' => 40,
-		'aprasymas' => 300
-	);
-	
-	// paspaustas išsaugojimo mygtukas
-	if(!empty($_POST['submit'])) {
-		// nustatome laukų validatorių tipus
-		$validations = array (
-			'pavadinimas' => 'anything',
-			'aprasymas' => 'anything',
-			'kainos' => 'price',
-			'datos' => 'date');
-		
-		// sukuriame validatoriaus objektą
-		include 'utils/validator.class.php';
-		$validator = new validator($validations, $required, $maxLengths);
-		
-		// laukai įvesti be klaidų
-		if($validator->validate($_POST)) {
-			// suformuojame laukų reikšmių masyvą SQL užklausai
-			$data = $validator->preparePostFieldsForSQL();
-			if(isset($data['id'])) {
-				// atnaujiname duomenis
-				$servicesObj->updateService($data);
-				
-				// pašaliname paslaugos kainas, kurios nėra naudojamos sutartyse
-				$deleteQueryClause = "";
-				foreach($data['kainos'] as $key=>$val) {
-					if($data['neaktyvus'][$key] == 1) {
-						$deleteQueryClause .= " AND NOT `galioja_nuo`='" . $data['datos'][$key] . "'";
-					}
-				}
-				$servicesObj->deleteServicePrices($data['id'], $deleteQueryClause);
-				
-				// atnaujiname paslaugos kainas, kurios nėra naudojamos sutartyse
-				$servicesObj->insertServicePrices($data);
-			} else {
-				// randame didžiausią paslaugos numeri duomenų bazėje
-				$latestId = $servicesObj->getMaxIdOfService();
-				
-				// įrašome naują įrašą
-				$data['id'] = $latestId + 1;
-				$servicesObj->insertService($data);
-
-				// įrašome paslaugų kainas
-				$servicesObj->insertServicePrices($data);
-			}
-			
-			// nukreipiame į modelių puslapį
-			header("Location: index.php?module={$module}");
-			die();
-		} else {
-			// gauname klaidų pranešimą
-			$formErrors = $validator->getErrorHTML();
-			// gauname įvestus laukus
-			$fields = $_POST;
-			if(isset($_POST['kainos']) && sizeof($_POST['kainos']) > 0) {
-				$i = 0;
-				foreach($_POST['kainos'] as $key => $val) {
-					$fields['paslaugos_kainos'][$i]['kaina'] = $val;
-					$fields['paslaugos_kainos'][$i]['galioja_nuo'] = $_POST['datos'][$key];
-					$fields['paslaugos_kainos'][$i]['neaktyvus'] = $_POST['neaktyvus'][$key];
-					$i++;
-				}
-			}
-		}
-	} else {
-		// tikriname, ar nurodytas elemento id. Jeigu taip, išrenkame elemento duomenis ir jais užpildome formos laukus.
-		if(!empty($id)) {
-			$fields = $servicesObj->getService($id);
-			$tmp = $servicesObj->getServicePrices($id);
-			if(sizeof($tmp) > 0) {
-				foreach($tmp as $key => $val) {
-					// jeigu paslaugos kaina yra naudojama, jos koreguoti neleidziame ir įvedimo laukelį padarome neaktyvų
-					$priceCount = $contractsObj->getPricesCountOfOrderedServices($id, $val['galioja_nuo']);
-					if($priceCount > 0) {
-						$val['neaktyvus'] = 1;
-					}
-					$fields['paslaugos_kainos'][] = $val;
-				}
-			}
-		}
-	}
-?>
+<?php require('header.php'); ?>
 <ul id="pagePath">
 	<li><a href="index.php">Pradžia</a></li>
 	<li><a href="index.php?module=<?php echo $module; ?>">Papildomos paslaugos</a></li>
@@ -105,7 +6,7 @@
 </ul>
 <div class="float-clear"></div>
 <div id="formContainer">
-	<?php if($formErrors != null) { ?>
+	<?php if(!empty($formErrors)) { ?>
 		<div class="errorBox">
 			Neįvesti arba neteisingai įvesti šie laukai:
 			<?php 
@@ -176,3 +77,6 @@
 		<?php } ?>
 	</form>
 </div>
+<?php
+require('footer.php');
+
