@@ -10,7 +10,8 @@
 	// nustatome pasirinktą modulį
 	$module = '';
 	if(isset($_GET['module'])) {
-		$module = mysql::escape($_GET['module']);
+    // Module name can only be a-Z0-9._-
+    $module = preg_replace('/[^a-zA-Z0-9\.\-\_]/', '', $_GET['module']);
 	}
 	
 	// jeigu pasirinktas elementas (sutartis, automobilis ir kt.), nustatome elemento id
@@ -43,7 +44,6 @@
   $template->assign('id', $id);
 
 	if(!empty($module)) {
-    //@TODO: filter
     require "controller/${module}.php";
 	} else
     $template->setView("index");
