@@ -1,100 +1,4 @@
-<?php
-
-	include 'libraries/cars.class.php';
-	$carsObj = new cars();
-
-	include 'libraries/brands.class.php';
-	$brandsObj = new brands();
-
-	include 'libraries/models.class.php';
-	$modelsObj = new models();
-	
-	$formErrors = null;
-	$fields = array();
-
-	// nustatome privalomus laukus
-	$required = array('modelis', 'valstybinis_nr', 'pagaminimo_data', 'pavaru_deze', 'degalu_tipas', 'kebulas', 'bagazo_dydis', 'busena', 'rida', 'vietu_skaicius', 'registravimo_data', 'verte');
-	
-	// maksimalūs leidžiami laukų ilgiai
-	$maxLengths = array (
-		'valstybinis_nr' => 6
-	);
-	
-	// vartotojas paspaudė išsaugojimo mygtuką
-	if(!empty($_POST['submit'])) {
-		// nustatome laukų validatorių tipus
-		$validations = array (
-			'modelis' => 'positivenumber',
-			'valstybinis_nr' => 'alfanum',
-			'pavaru_deze' => 'positivenumber',
-			'degalu_tipas' => 'positivenumber',
-			'kebulas' => 'positivenumber',
-			'bagazo_dydis' => 'positivenumber',
-			'busena' => 'positivenumber',
-			'pagaminimo_data' => 'date',
-			'rida' => 'positivenumber',
-			'vietu_skaicius' => 'positivenumber',
-			'registravimo_data' => 'date',
-			'verte' => 'price'
-			);
-				
-		// sukuriame laukų validatoriaus objektą
-		include 'utils/validator.class.php';
-		$validator = new validator($validations, $required, $maxLengths);
-
-		// laukai įvesti be klaidų
-		if($validator->validate($_POST)) {
-			// suformuojame laukų reikšmių masyvą SQL užklausai
-			$data = $validator->preparePostFieldsForSQL();
-			
-			// sutvarkome checkbox reikšmes
-			if(isset($data['radijas']) && $data['radijas'] == 'on') {
-				$data['radijas'] = 1;
-			} else {
-				$data['radijas'] = 0;
-			}
-
-			if(isset($data['grotuvas']) && $data['grotuvas'] == 'on') {
-				$data['grotuvas'] = 1;
-			} else {
-				$data['grotuvas'] = 0;
-			}
-
-			if(isset($data['kondicionierius']) && $data['kondicionierius'] == 'on') {
-				$data['kondicionierius'] = 1;
-			} else {
-				$data['kondicionierius'] = 0;
-			}
-			
-			if(isset($data['id'])) {
-				// atnaujiname duomenis
-				$carsObj->updateCar($data);
-			} else {
-				// randame didžiausią automobilio id duomenų bazėje
-				$latestId = $carsObj->getMaxIdOfCar();
-
-				// įrašome naują įrašą
-				$data['id'] = $latestId + 1;
-				$carsObj->insertCar($data);
-			}
-			
-			// nukreipiame vartotoją į automobilių puslapį
-			header("Location: index.php?module={$module}");
-			die();
-		} else {
-			// gauname klaidų pranešimą
-			$formErrors = $validator->getErrorHTML();
-			// laukų reikšmių kintamajam priskiriame įvestų laukų reikšmes
-			$fields = $_POST;
-		}
-	} else {
-		// tikriname, ar nurodytas elemento id. Jeigu taip, išrenkame elemento duomenis ir jais užpildome formos laukus.
-		if(!empty($id)) {
-			// išrenkame automobilį
-			$fields = $carsObj->getCar($id);
-		}
-	}
-?>
+<?php require('header.php'); ?>
 <ul id="pagePath">
 	<li><a href="index.php">Pradžia</a></li>
 	<li><a href="index.php?module=<?php echo $module; ?>">Automobiliai</a></li>
@@ -102,7 +6,7 @@
 </ul>
 <div class="float-clear"></div>
 <div id="formContainer">
-	<?php if($formErrors != null) { ?>
+	<?php if(!empty($formErrors)) { ?>
 		<div class="errorBox">
 			Neįvesti arba neteisingai įvesti šie laukai:
 			<?php 
@@ -119,12 +23,10 @@
 					<option value="-1">---------------</option>
 					<?php
 						// išrenkame visas kategorijas sugeneruoti pasirinkimų lauką
-						$brands = $brandsObj->getBrandList();
 						foreach($brands as $key => $val) {
 							echo "<optgroup label='{$val['pavadinimas']}'>";
 
-							$models = $modelsObj->getModelListByBrand($val['id']);
-							foreach($models as $key2 => $val2) {
+							foreach($models[$val['id']] as $key2 => $val2) {
 								$selected = "";
 								if(isset($fields['modelis']) && $fields['modelis'] == $val2['id']) {
 									$selected = " selected='selected'";
@@ -149,7 +51,6 @@
 					<option value="-1">---------------</option>
 					<?php
 						// išrenkame visas kategorijas sugeneruoti pasirinkimų lauką
-						$gearboxes = $carsObj->getGearboxList();
 						foreach($gearboxes as $key => $val) {
 							$selected = "";
 							if(isset($fields['pavaru_deze']) && $fields['pavaru_deze'] == $val['id']) {
@@ -166,7 +67,6 @@
 					<option value="-1">---------------</option>
 					<?php
 						// išrenkame visas kategorijas sugeneruoti pasirinkimų lauką
-						$fueltypes = $carsObj->getFuelTypeList();
 						foreach($fueltypes as $key => $val) {
 							$selected = "";
 							if(isset($fields['degalu_tipas']) && $fields['degalu_tipas'] == $val['id']) {
@@ -183,7 +83,6 @@
 					<option value="-1">---------------</option>
 					<?php
 						// išrenkame visas kategorijas sugeneruoti pasirinkimų lauką
-						$bodytypes = $carsObj->getBodyTypeList();
 						foreach($bodytypes as $key => $val) {
 							$selected = "";
 							if(isset($fields['kebulas']) && $fields['kebulas'] == $val['id']) {
@@ -200,8 +99,7 @@
 					<option value="-1">---------------</option>
 					<?php
 						// išrenkame visas kategorijas sugeneruoti pasirinkimų lauką
-						$lugage = $carsObj->getLugageTypeList();
-						foreach($lugage as $key => $val) {
+						foreach($luggage as $key => $val) {
 							$selected = "";
 							if(isset($fields['bagazo_dydis']) && $fields['bagazo_dydis'] == $val['id']) {
 								$selected = " selected='selected'";
@@ -217,7 +115,6 @@
 					<option value="-1">---------------</option>
 					<?php
 						// išrenkame visas kategorijas sugeneruoti pasirinkimų lauką
-						$car_states = $carsObj->getCarStateList();
 						foreach($car_states as $key => $val) {
 							$selected = "";
 							if(isset($fields['busena']) && $fields['busena'] == $val['id']) {
@@ -266,3 +163,7 @@
 		<?php } ?>
 	</form>
 </div>
+
+<?php
+require('footer.php');
+
