@@ -9,7 +9,7 @@
     'model' => 'Modeliai'
   );
   $menuRight = array(
-    'Report' => 'Ataskaitos'
+    'report' => 'Ataskaitos'
   );
 ?>
 
