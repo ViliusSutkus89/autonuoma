@@ -3,7 +3,7 @@
 require_once 'config.php';
 
 // iškviečiame prisijungimo prie duomenų bazės klasę
-require_once 'utils/mysql.class.php';
+require_once 'utils/mysql_pdo.class.php';
 
 require_once 'utils/template.class.php';
 

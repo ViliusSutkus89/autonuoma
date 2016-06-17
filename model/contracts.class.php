@@ -32,8 +32,22 @@ class contracts {
 						LEFT JOIN `klientai`
 							ON `sutartys`.`fk_klientas`=`klientai`.`asmens_kodas`
 						LEFT JOIN `sutarties_busenos`
-							ON `sutartys`.`busena`=`sutarties_busenos`.`id` LIMIT {$limit} OFFSET {$offset}";
-		$data = mysql::select($query);
+              ON `sutartys`.`busena`=`sutarties_busenos`.`id`";
+
+    $parameters = array();
+
+		if(isset($limit)) {
+      $query .= " LIMIT ?";
+      $parameters[] = $limit;
+		}
+		if(isset($offset)) {
+      $query .= " OFFSET ?";
+      $parameters[] = $offset;
+		}
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute($parameters);
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}
@@ -51,7 +65,9 @@ class contracts {
 							ON `sutartys`.`fk_klientas`=`klientai`.`asmens_kodas`
 						LEFT JOIN `sutarties_busenos`
 							ON `sutartys`.`busena`=`sutarties_busenos`.`id`";
-		$data = mysql::select($query);
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		
 		return $data[0]['kiekis'];
 	}
@@ -82,8 +98,15 @@ class contracts {
 					FROM `sutartys`
 						LEFT JOIN `uzsakytos_paslaugos`
 							ON `sutartys`.`nr`=`uzsakytos_paslaugos`.`fk_sutartis`
-					WHERE `sutartys`.`nr`='{$id}' GROUP BY `sutartys`.`nr`";
-		$data = mysql::select($query);
+					WHERE `sutartys`.`nr`= ? GROUP BY `sutartys`.`nr`";
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
+    $data = $stmt->fetchAll();
+
+    if (count($data) == 0) {
+      return false;
+    }
 		
 		return $data[0];
 	}
@@ -96,8 +119,10 @@ class contracts {
 	public function getOrderedServices($orderId) {
 		$query = "  SELECT *
 					FROM `uzsakytos_paslaugos`
-					WHERE `fk_sutartis`='{$orderId}'";
-		$data = mysql::select($query);
+          WHERE `fk_sutartis`= ?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($orderId));
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}
@@ -108,23 +133,43 @@ class contracts {
 	 */
 	public function updateContract($data) {
 		$query = "  UPDATE `sutartys`
-					SET    `sutarties_data`='{$data['sutarties_data']}',
-						   `nuomos_data_laikas`='{$data['nuomos_data_laikas']}',
-						   `planuojama_grazinimo_data_laikas`='{$data['planuojama_grazinimo_data_laikas']}',
-						   `faktine_grazinimo_data_laikas`='{$data['faktine_grazinimo_data_laikas']}',
-						   `pradine_rida`='{$data['pradine_rida']}',
-						   `galine_rida`='{$data['galine_rida']}',
-						   `kaina`='{$data['kaina']}',
-						   `degalu_kiekis_paimant`='{$data['degalu_kiekis_paimant']}',
-						   `dagalu_kiekis_grazinus`='{$data['dagalu_kiekis_grazinus']}',
-						   `busena`='{$data['busena']}',
-						   `fk_klientas`='{$data['fk_klientas']}',
-						   `fk_darbuotojas`='{$data['fk_darbuotojas']}',
-						   `fk_automobilis`='{$data['fk_automobilis']}',
-						   `fk_grazinimo_vieta`='{$data['fk_grazinimo_vieta']}',
-						   `fk_paemimo_vieta`='{$data['fk_paemimo_vieta']}'
-					WHERE `nr`='{$data['nr']}'";
-		mysql::query($query);
+          SET
+               `sutarties_data`= ?,
+						   `nuomos_data_laikas`= ?,
+						   `planuojama_grazinimo_data_laikas`= ?,
+						   `faktine_grazinimo_data_laikas`= ?,
+						   `pradine_rida`= ?,
+						   `galine_rida`= ?,
+						   `kaina`= ?,
+						   `degalu_kiekis_paimant`= ?,
+						   `dagalu_kiekis_grazinus`= ?,
+						   `busena`= ?,
+						   `fk_klientas`= ?,
+						   `fk_darbuotojas`= ?,
+						   `fk_automobilis`= ?,
+						   `fk_grazinimo_vieta`= ?,
+						   `fk_paemimo_vieta`= ?
+          WHERE `nr`= ?";
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array(
+      $data['sutarties_data'],
+      $data['nuomos_data_laikas'],
+      $data['planuojama_grazinimo_data_laikas'],
+      $data['faktine_grazinimo_data_laikas'],
+      $data['pradine_rida'],
+      $data['galine_rida'],
+      $data['kaina'],
+      $data['degalu_kiekis_paimant'],
+      $data['dagalu_kiekis_grazinus'],
+      $data['busena'],
+      $data['fk_klientas'],
+      $data['fk_darbuotojas'],
+      $data['fk_automobilis'],
+      $data['fk_grazinimo_vieta'],
+      $data['fk_paemimo_vieta'],
+      $data['nr']
+    ));
 	}
 	
 	/**
@@ -153,24 +198,30 @@ class contracts {
 								)
 								VALUES
 								(
-									'{$data['nr']}',
-									'{$data['sutarties_data']}',
-									'{$data['nuomos_data_laikas']}',
-									'{$data['planuojama_grazinimo_data_laikas']}',
-									'{$data['faktine_grazinimo_data_laikas']}',
-									'{$data['pradine_rida']}',
-									'{$data['galine_rida']}',
-									'{$data['kaina']}',
-									'{$data['degalu_kiekis_paimant']}',
-									'{$data['dagalu_kiekis_grazinus']}',
-									'{$data['busena']}',
-									'{$data['fk_klientas']}',
-									'{$data['fk_darbuotojas']}',
-									'{$data['fk_automobilis']}',
-									'{$data['fk_grazinimo_vieta']}',
-									'{$data['fk_paemimo_vieta']}'
+                  ?, ?, ?, ?,
+                  ?, ?, ?, ?,
+                  ?, ?, ?, ?,
+                  ?, ?, ?, ?
 								)";
-		mysql::query($query);
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array(
+      $data['nr'],
+      $data['sutarties_data'],
+      $data['nuomos_data_laikas'],
+      $data['planuojama_grazinimo_data_laikas'],
+      $data['faktine_grazinimo_data_laikas'],
+      $data['pradine_rida'],
+      $data['galine_rida'],
+      $data['kaina'],
+      $data['degalu_kiekis_paimant'],
+      $data['dagalu_kiekis_grazinus'],
+      $data['busena'],
+      $data['fk_klientas'],
+      $data['fk_darbuotojas'],
+      $data['fk_automobilis'],
+      $data['fk_grazinimo_vieta'],
+      $data['fk_paemimo_vieta']
+    ));
 	}
 	
 	/**
@@ -179,8 +230,9 @@ class contracts {
 	 */
 	public function deleteContract($id) {
 		$query = "  DELETE FROM `sutartys`
-					WHERE `nr`='{$id}'";
-		mysql::query($query);
+          WHERE `nr`=?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
 	}
 	
 	/**
@@ -189,8 +241,9 @@ class contracts {
 	 */
 	public function deleteOrderedServices($contractId) {
 		$query = "  DELETE FROM `uzsakytos_paslaugos`
-					WHERE `fk_sutartis`='{$contractId}'";
-		mysql::query($query);
+          WHERE `fk_sutartis` = ?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($contractId));
 	}
 	
 	/**
@@ -214,15 +267,18 @@ class contracts {
 										`kaina`
 									)
 									VALUES
-									(
-										'{$data['nr']}',
-										'{$date_from}',
-										'{$serviceId}',
-										'{$data['kiekiai'][$key]}',
-										'{$price}'
+                  (
+                    ?, ?, ?, ?, ?
 									)";
-				mysql::query($query);
-		}
+      $stmt = mysql::getInstance()->prepare($query);
+      $stmt->execute(array(
+		  								$data['nr'],
+		  								$date_from,
+		  								$serviceId,
+		  								$data['kiekiai'][$key],
+		  								$price
+      ));
+    }
 	}
 	
 	/**
@@ -232,7 +288,9 @@ class contracts {
 	public function getContractStates() {
 		$query = "  SELECT *
 					FROM `sutarties_busenos`";
-		$data = mysql::select($query);
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}
@@ -244,7 +302,9 @@ class contracts {
 	public function getParkingLots() {
 		$query = "  SELECT *
 					FROM `aiksteles`";
-		$data = mysql::select($query);
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}
@@ -260,24 +320,38 @@ class contracts {
 					FROM `paslaugu_kainos`
 						INNER JOIN `uzsakytos_paslaugos`
 							ON `paslaugu_kainos`.`fk_paslauga`=`uzsakytos_paslaugos`.`fk_paslauga` AND `paslaugu_kainos`.`galioja_nuo`=`uzsakytos_paslaugos`.`fk_kaina_galioja_nuo`
-					WHERE `paslaugu_kainos`.`fk_paslauga`='{$serviceId}' AND `paslaugu_kainos`.`galioja_nuo`='{$validFrom}'";
-		$data = mysql::select($query);
+					WHERE `paslaugu_kainos`.`fk_paslauga`=:serviceId' AND `paslaugu_kainos`.`galioja_nuo`=:validFrom";
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute(array(
+      "serviceId" => $serviceId,
+      "validFrom" => $validFrom
+    ));
+    $data = $stmt->fetchAll();
 		
 		return $data[0]['kiekis'];
 	}
 
 	public function getCustomerContracts($dateFrom, $dateTo) {
 		$whereClauseString = "";
+    $parameters = array();
+
 		if(!empty($dateFrom)) {
-			$whereClauseString .= " WHERE `sutartys`.`sutarties_data`>='{$dateFrom}'";
+      $whereClauseString .= " WHERE `sutartys`.`sutarties_data` >= ?";
+      $parameters[] = $dateFrom;
 			if(!empty($dateTo)) {
-				$whereClauseString .= " AND `sutartys`.`sutarties_data`<='{$dateTo}'";
+        $whereClauseString .= " AND `sutartys`.`sutarties_data` <= ?";
+        $parameters[] = $dateTo;
 			}
 		} else {
 			if(!empty($dateTo)) {
-				$whereClauseString .= " WHERE `sutartys`.`sutarties_data`<='{$dateTo}'";
+        $whereClauseString .= " WHERE `sutartys`.`sutarties_data`<=?";
+        $parameters[] = $dateTo;
 			}
 		}
+
+    // $whereClauseString is used three times in this query
+    // We need it to have the same amount of parameters.
+    $parameters = array_join($parameters, $parameters, $parameters);
 		
 		$query = "  SELECT  `sutartys`.`nr`,
 							`sutartys`.`sutarties_data`,
@@ -315,42 +389,57 @@ class contracts {
 						) `s` ON `s`.`asmens_kodas`=`klientai`.`asmens_kodas`
 					{$whereClauseString}
 					GROUP BY `sutartys`.`nr` ORDER BY `klientai`.`pavarde` ASC";
-		$data = mysql::select($query);
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute($parameters);
+    $data = $stmt->fetchAll();
 
 		return $data;
 	}
 	
 	public function getSumPriceOfContracts($dateFrom, $dateTo) {
 		$whereClauseString = "";
+    $parameters = array();
+
 		if(!empty($dateFrom)) {
-			$whereClauseString .= " WHERE `sutartys`.`sutarties_data`>='{$dateFrom}'";
+      $whereClauseString .= " WHERE `sutartys`.`sutarties_data` >= ?";
+      $parameters[] = $dateFrom;
 			if(!empty($dateTo)) {
-				$whereClauseString .= " AND `sutartys`.`sutarties_data`<='{$dateTo}'";
+        $whereClauseString .= " AND `sutartys`.`sutarties_data` <= ?";
+        $parameters[] = $dateTo;
 			}
 		} else {
 			if(!empty($dateTo)) {
-				$whereClauseString .= " WHERE `sutartys`.`sutarties_data`<='{$dateTo}'";
+        $whereClauseString .= " WHERE `sutartys`.`sutarties_data`<=?";
+        $parameters[] = $dateTo;
 			}
 		}
 		
 		$query = "  SELECT sum(`sutartys`.`kaina`) AS `nuomos_suma`
 					FROM `sutartys`
 					{$whereClauseString}";
-		$data = mysql::select($query);
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute($parameters);
+    $data = $stmt->fetchAll();
 
 		return $data;
 	}
 
 	public function getSumPriceOfOrderedServices($dateFrom, $dateTo) {
 		$whereClauseString = "";
+    $parameters = array();
+
 		if(!empty($dateFrom)) {
-			$whereClauseString .= " WHERE `sutartys`.`sutarties_data`>='{$dateFrom}'";
+      $whereClauseString .= " WHERE `sutartys`.`sutarties_data` >= ?";
+      $parameters[] = $dateFrom;
 			if(!empty($dateTo)) {
-				$whereClauseString .= " AND `sutartys`.`sutarties_data`<='{$dateTo}'";
+        $whereClauseString .= " AND `sutartys`.`sutarties_data` <= ?";
+        $parameters[] = $dateTo;
 			}
 		} else {
 			if(!empty($dateTo)) {
-				$whereClauseString .= " WHERE `sutartys`.`sutarties_data`<='{$dateTo}'";
+        $whereClauseString .= " WHERE `sutartys`.`sutarties_data`<=?";
+        $parameters[] = $dateTo;
 			}
 		}
 		
@@ -359,21 +448,28 @@ class contracts {
 						INNER JOIN `uzsakytos_paslaugos`
 							ON `sutartys`.`nr`=`uzsakytos_paslaugos`.`fk_sutartis`
 					{$whereClauseString}";
-		$data = mysql::select($query);
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute($parameters);
+    $data = $stmt->fetchAll();
 
 		return $data;
 	}
 	
 	public function getDelayedCars($dateFrom, $dateTo) {
 		$whereClauseString = "";
+    $parameters = array();
+
 		if(!empty($dateFrom)) {
-			$whereClauseString .= " AND `sutartys`.`sutarties_data`>='{$dateFrom}'";
+      $whereClauseString .= " WHERE `sutartys`.`sutarties_data` >= ?";
+      $parameters[] = $dateFrom;
 			if(!empty($dateTo)) {
-				$whereClauseString .= " AND `sutartys`.`sutarties_data`<='{$dateTo}'";
+        $whereClauseString .= " AND `sutartys`.`sutarties_data` <= ?";
+        $parameters[] = $dateTo;
 			}
 		} else {
 			if(!empty($dateTo)) {
-				$whereClauseString .= " AND `sutartys`.`sutarties_data`<='{$dateTo}'";
+        $whereClauseString .= " WHERE `sutartys`.`sutarties_data`<=?";
+        $parameters[] = $dateTo;
 			}
 		}
 		
@@ -389,7 +485,10 @@ class contracts {
 					WHERE (DATEDIFF(`faktine_grazinimo_data_laikas`, `planuojama_grazinimo_data_laikas`) >= 1 OR
 						(`faktine_grazinimo_data_laikas` = '0000-00-00 00:00:00' AND DATEDIFF(NOW(), `planuojama_grazinimo_data_laikas`) >= 1))
 					{$whereClauseString}";
-		$data = mysql::select($query);
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute($parameters);
+    $data = $stmt->fetchAll();
 
 		return $data;
 	}

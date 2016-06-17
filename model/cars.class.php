@@ -35,8 +35,15 @@ class cars {
 						   `automobiliai`.`busena`,
 						   `automobiliai`.`fk_modelis` AS `modelis`
 					FROM `automobiliai`
-					WHERE `automobiliai`.`id`='{$id}'";
-		$data = mysql::select($query);
+          WHERE `automobiliai`.`id`= ?";
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
+    $data = $stmt->fetchAll();
+
+    if (count($data) == 0) {
+      return false;
+    }
 		
 		return $data[0];
 	}
@@ -46,24 +53,44 @@ class cars {
 	 * @param type $data
 	 */
 	public function updateCar($data) {
-		$query = "  UPDATE `automobiliai`
-					SET    `valstybinis_nr`='{$data['valstybinis_nr']}',
-						   `pagaminimo_data`='{$data['pagaminimo_data']}',
-						   `rida`='{$data['rida']}',
-						   `radijas`='{$data['radijas']}',
-						   `grotuvas`='{$data['grotuvas']}',
-						   `kondicionierius`='{$data['kondicionierius']}',
-						   `vietu_skaicius`='{$data['vietu_skaicius']}',
-						   `registravimo_data`='{$data['registravimo_data']}',
-						   `verte`='{$data['verte']}',
-						   `pavaru_deze`='{$data['pavaru_deze']}',
-						   `degalu_tipas`='{$data['degalu_tipas']}',
-						   `kebulas`='{$data['kebulas']}',
-						   `bagazo_dydis`='{$data['bagazo_dydis']}',
-						   `busena`='{$data['busena']}',
-						   `fk_modelis`='{$data['modelis']}'
-					WHERE `id`='{$data['id']}'";
-		mysql::query($query);
+    $query = "
+    UPDATE `automobiliai`
+    SET
+      `valstybinis_nr`= ?,
+      `pagaminimo_data`= ?,
+      `rida`= ?,
+      `radijas`= ?,
+      `grotuvas`= ?,
+      `kondicionierius`= ?,
+      `vietu_skaicius`= ?,
+      `registravimo_data`= ?,
+      `verte`= ?,
+      `pavaru_deze`= ?,
+      `degalu_tipas`= ?,
+      `kebulas`= ?,
+      `bagazo_dydis`= ?,
+      `busena`= ?,
+      `fk_modelis`= ?
+    WHERE `id`= ?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array(
+      $data['valstybinis_nr'],
+      $data['pagaminimo_data'],
+      $data['rida'],
+      $data['radijas'],
+      $data['grotuvas'],
+      $data['kondicionierius'],
+      $data['vietu_skaicius'],
+      $data['registravimo_data'],
+      $data['verte'],
+      $data['pavaru_deze'],
+      $data['degalu_tipas'],
+      $data['kebulas'],
+      $data['bagazo_dydis'],
+      $data['busena'],
+      $data['modelis'],
+      $data['id']
+    ));
 	}
 
 	/**
@@ -91,25 +118,31 @@ class cars {
 									`fk_modelis`
 								) 
 								VALUES
-								(
-									'{$data['id']}',
-									'{$data['valstybinis_nr']}',
-									'{$data['pagaminimo_data']}',
-									'{$data['rida']}',
-									'{$data['radijas']}',
-									'{$data['grotuvas']}',
-									'{$data['kondicionierius']}',
-									'{$data['vietu_skaicius']}',
-									'{$data['registravimo_data']}',
-									'{$data['verte']}',
-									'{$data['pavaru_deze']}',
-									'{$data['degalu_tipas']}',
-									'{$data['kebulas']}',
-									'{$data['bagazo_dydis']}',
-									'{$data['busena']}',
-									'{$data['modelis']}'
+                (
+                  ?, ?, ?, ?,
+                  ?, ?, ?, ?,
+                  ?, ?, ?, ?,
+                  ?, ?, ?, ?
 								)";
-		mysql::query($query);
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array(
+      $data['id'],
+      $data['valstybinis_nr'],
+      $data['pagaminimo_data'],
+      $data['rida'],
+      $data['radijas'],
+      $data['grotuvas'],
+      $data['kondicionierius'],
+      $data['vietu_skaicius'],
+      $data['registravimo_data'],
+      $data['verte'],
+      $data['pavaru_deze'],
+      $data['degalu_tipas'],
+      $data['kebulas'],
+      $data['bagazo_dydis'],
+      $data['busena'],
+      $data['modelis']
+    ));
 	}
 	
 	/**
@@ -119,14 +152,6 @@ class cars {
 	 * @return type
 	 */
 	public function getCarList($limit = null, $offset = null) {
-		$limitOffsetString = "";
-		if(isset($limit)) {
-			$limitOffsetString .= " LIMIT {$limit}";
-		}
-		if(isset($offset)) {
-			$limitOffsetString .= " OFFSET {$offset}";
-		}
-		
 		$query = "  SELECT `automobiliai`.`id`,
 						   `automobiliai`.`valstybinis_nr`,
 						   `auto_busenos`.`name` AS `busena`,
@@ -138,10 +163,23 @@ class cars {
 						LEFT JOIN `markes`
 							ON `modeliai`.`fk_marke`=`markes`.`id`
 						LEFT JOIN `auto_busenos`
-							ON `automobiliai`.`busena`=`auto_busenos`.`id`" . $limitOffsetString;
-		$data = mysql::select($query);
-		
-		return $data;
+              ON `automobiliai`.`busena`=`auto_busenos`.`id`";
+    $parameters = array();
+
+		if(isset($limit)) {
+      $query .= " LIMIT ?";
+      $parameters[] = $limit;
+		}
+
+		if(isset($offset)) {
+      $query .= " OFFSET ?";
+      $parameters[] = $offset;
+		}
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute($parameters);
+
+    return $stmt->fetchAll();
 	}
 
 	/**
@@ -157,8 +195,10 @@ class cars {
 							ON `modeliai`.`fk_marke`=`markes`.`id`
 						LEFT JOIN `auto_busenos`
 							ON `automobiliai`.`busena`=`auto_busenos`.`id`";
-		$data = mysql::select($query);
-		
+
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		return $data[0]['kiekis'];
 	}
 	
@@ -167,9 +207,9 @@ class cars {
 	 * @param type $id
 	 */
 	public function deleteCar($id) {
-		$query = "  DELETE FROM `automobiliai`
-					WHERE `id`='{$id}'";
-		mysql::query($query);
+    $query = "DELETE FROM `automobiliai` WHERE `id` = ?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
 	}
 	
 	/**
@@ -182,9 +222,10 @@ class cars {
 					FROM `automobiliai`
 						INNER JOIN `sutartys`
 							ON `automobiliai`.`id`=`sutartys`.`fk_automobilis`
-					WHERE `automobiliai`.`id`='{$id}'";
-		$data = mysql::select($query);
-		
+          WHERE `automobiliai`.`id`= ?";
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute(array($id));
+    $data = $stmt->fetchAll();
 		return $data[0]['kiekis'];
 	}
 	
@@ -193,10 +234,10 @@ class cars {
 	 * @return type
 	 */
 	public function getMaxIdOfCar() {
-		$query = "  SELECT MAX(`id`) AS `latestId`
-					FROM `automobiliai`";
-		$data = mysql::select($query);
-		
+		$query = "SELECT MAX(`id`) as `latestId` FROM `automobiliai`";
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		return $data[0]['latestId'];
 	}
 	
@@ -207,7 +248,10 @@ class cars {
 	public function getGearboxList() {
 		$query = "  SELECT *
 					FROM `pavaru_dezes`";
-		$data = mysql::select($query);
+
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}
@@ -219,7 +263,10 @@ class cars {
 	public function getFuelTypeList() {
 		$query = "  SELECT *
 					FROM `degalu_tipai`";
-		$data = mysql::select($query);
+
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}
@@ -231,7 +278,9 @@ class cars {
 	public function getBodyTypeList() {
 		$query = "  SELECT *
 					FROM `kebulu_tipai`";
-		$data = mysql::select($query);
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}
@@ -243,7 +292,9 @@ class cars {
 	public function getLugageTypeList() {
 		$query = "  SELECT *
 					FROM `lagaminai`";
-		$data = mysql::select($query);
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}
@@ -255,7 +306,9 @@ class cars {
 	public function getCarStateList() {
 		$query = "  SELECT *
 					FROM `auto_busenos`";
-		$data = mysql::select($query);
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}

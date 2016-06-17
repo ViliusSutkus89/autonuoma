@@ -3,7 +3,7 @@
 	require 'config.php';
 
 	// iškviečiame prisijungimo prie duomenų bazės klasę
-	require 'utils/mysql.class.php';
+	require 'utils/mysql_pdo.class.php';
 
   require 'utils/template.class.php';
 	
@@ -15,29 +15,16 @@
 	}
 	
 	// jeigu pasirinktas elementas (sutartis, automobilis ir kt.), nustatome elemento id
-	$id = '';
-	if(isset($_GET['id'])) {
-		$id = mysql::escape($_GET['id']);
-	}
+  $id = (!empty($_GET['id'])) ? $_GET['id'] : '';
 	
 	// nustatome, ar kuriamas naujas elementas
-	$action = '';
-	if(isset($_GET['action'])) {
-		$action = mysql::escape($_GET['action']);
-	}
+	$action = (!empty($_GET['action'])) ? $_GET['action'] : '';
 	
 	// jeigu šalinamas elementas, nustatome šalinamo elemento id
-	$removeId = 0;
-	if(!empty($_GET['remove'])) {
-		// paruošiame $_GET masyvo id reikšmę SQL užklausai
-		$removeId = mysql::escape($_GET['remove']);
-	}
+	$removeId = (!empty($_GET['remove'])) ? $_GET['remove'] : 0;
 		
 	// nustatome elementų sąrašo puslapio numerį
-	$pageId = 1;
-	if(!empty($_GET['page'])) {
-		$pageId = mysql::escape($_GET['page']);
-	}
+	$pageId = (!empty($_GET['page'])) ? $_GET['page'] : 1;
 	
   $template = new template();
   $template->assign('module', $module);

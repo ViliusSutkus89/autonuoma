@@ -42,13 +42,14 @@ if (!empty($id) || $action == 'new') {
   			$servicesObj->updateService($data);
   			
   			// pašaliname paslaugos kainas, kurios nėra naudojamos sutartyse
-  			$deleteQueryClause = "";
+        $galiojaNuo = array();
   			foreach($data['kainos'] as $key=>$val) {
   				if($data['neaktyvus'][$key] == 1) {
-  					$deleteQueryClause .= " AND NOT `galioja_nuo`='" . $data['datos'][$key] . "'";
+            $galiojaNuo[] = $data['datos'][$key];
+
   				}
   			}
-  			$servicesObj->deleteServicePrices($data['id'], $deleteQueryClause);
+        $servicesObj->deleteServicePrices($data['id'], $galiojaNuo);
   			
   			// atnaujiname paslaugos kainas, kurios nėra naudojamos sutartyse
   			$servicesObj->insertServicePrices($data);

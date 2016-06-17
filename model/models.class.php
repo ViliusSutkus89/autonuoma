@@ -20,8 +20,14 @@ class models {
 	public function getModel($id) {
 		$query = "  SELECT *
 					FROM `modeliai`
-					WHERE `id`='{$id}'";
-		$data = mysql::select($query);
+          WHERE `id`= ?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
+    $data = $stmt->fetchAll();
+
+    if (count($data) == 0) {
+      return false;
+    }
 		
 		return $data[0];
 	}
@@ -33,21 +39,29 @@ class models {
 	 * @return type
 	 */
 	public function getModelList($limit = null, $offset = null) {
-		$limitOffsetString = "";
-		if(isset($limit)) {
-			$limitOffsetString .= " LIMIT {$limit}";
-		}
-		if(isset($offset)) {
-			$limitOffsetString .= " OFFSET {$offset}";
-		}
+    $parameters = array();
 		
 		$query = "  SELECT `modeliai`.`id`,
 						   `modeliai`.`pavadinimas`,
 						    `markes`.`pavadinimas` AS `marke`
 					FROM `modeliai`
 						LEFT JOIN `markes`
-							ON `modeliai`.`fk_marke`=`markes`.`id` LIMIT {$limit} OFFSET {$offset}";
-		$data = mysql::select($query);
+              ON `modeliai`.`fk_marke`=`markes`.`id`";
+
+		if(isset($limit)) {
+      $query .= " LIMIT ?";
+      $parameters[] = $limit;
+		}
+
+		if(isset($offset)) {
+      $query .= " OFFSET ?";
+      $parameters[] = $offset;
+		}
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute($parameters);
+
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}
@@ -61,7 +75,9 @@ class models {
 					FROM `modeliai`
 						LEFT JOIN `markes`
 							ON `modeliai`.`fk_marke`=`markes`.`id`";
-		$data = mysql::select($query);
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		
 		return $data[0]['kiekis'];
 	}
@@ -74,8 +90,10 @@ class models {
 	public function getModelListByBrand($brandId) {
 		$query = "  SELECT *
 					FROM `modeliai`
-					WHERE `fk_marke`='{$brandId}'";
-		$data = mysql::select($query);
+          WHERE `fk_marke`= ?";
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute(array($brandId));
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}
@@ -86,10 +104,13 @@ class models {
 	 */
 	public function updateModel($data) {
 		$query = "  UPDATE `modeliai`
-					SET    `pavadinimas`='{$data['pavadinimas']}',
-						   `fk_marke`='{$data['fk_marke']}'
-					WHERE `id`='{$data['id']}'";
-		mysql::query($query);
+					SET    `pavadinimas`= ?,
+						   `fk_marke`= ?
+					WHERE `id`= ?";
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute(array(
+        $data['pavadinimas'], $data['fk_marke'], $data['id']
+    ));
 	}
 	
 	/**
@@ -105,11 +126,12 @@ class models {
 								)
 								VALUES
 								(
-									'{$data['id']}',
-									'{$data['pavadinimas']}',
-									'{$data['fk_marke']}'
+                  ?, ?, ?
 								)";
-		mysql::query($query);
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute(array(
+        $data['id'], $data['pavadinimas'], $data['fk_marke']
+    ));
 	}
 	
 	/**
@@ -118,8 +140,9 @@ class models {
 	 */
 	public function deleteModel($id) {
 		$query = "  DELETE FROM `modeliai`
-					WHERE `id`='{$id}'";
-		mysql::query($query);
+          WHERE `id`=?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
 	}
 	
 	/**
@@ -132,8 +155,10 @@ class models {
 					FROM `modeliai`
 						INNER JOIN `automobiliai`
 							ON `modeliai`.`id`=`automobiliai`.`fk_modelis`
-					WHERE `modeliai`.`id`='{$id}'";
-		$data = mysql::select($query);
+          WHERE `modeliai`.`id`=?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
+    $data = $stmt->fetchAll();
 		
 		return $data[0]['kiekis'];
 	}
@@ -145,7 +170,9 @@ class models {
 	public function getMaxIdOfModel() {
 		$query = "  SELECT MAX(`id`) AS `latestId`
 					FROM `modeliai`";
-		$data = mysql::select($query);
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		
 		return $data[0]['latestId'];
 	}

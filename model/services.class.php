@@ -19,17 +19,23 @@ class services {
 	 * @return type
 	 */
 	public function getServicesList($limit = null, $offset = null) {
-		$limitOffsetString = "";
+		$query = "  SELECT *
+          FROM `paslaugos`";
+
+    $parameters = array();
+
 		if(isset($limit)) {
-			$limitOffsetString .= " LIMIT {$limit}";
+      $query .= " LIMIT ?";
+      $parameters[] = $limit;
 		}
 		if(isset($offset)) {
-			$limitOffsetString .= " OFFSET {$offset}";
+      $query .= " OFFSET ?";
+      $parameters[] = $offset;
 		}
-		
-		$query = "  SELECT *
-					FROM `paslaugos`" . $limitOffsetString;
-		$data = mysql::select($query);
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute($parameters);
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}
@@ -41,8 +47,9 @@ class services {
 	public function getServicesListCount() {
 		$query = "  SELECT COUNT(`paslaugos`.`id`) as `kiekis`
 					FROM `paslaugos`";
-		$data = mysql::select($query);
-		
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		return $data[0]['kiekis'];
 	}
 	
@@ -54,8 +61,10 @@ class services {
 	public function getServicePrices($serviceId) {
 		$query = "  SELECT *
 					FROM `paslaugu_kainos`
-					WHERE `fk_paslauga`='{$serviceId}'";
-		$data = mysql::select($query);
+          WHERE `fk_paslauga`= ?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($serviceId));
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}
@@ -74,8 +83,10 @@ class services {
 							ON `paslaugu_kainos`.`fk_paslauga`=`uzsakytos_paslaugos`.`fk_paslauga`
 						INNER JOIN `sutartys`
 							ON `uzsakytos_paslaugos`.`fk_sutartis`=`sutartys`.`nr`
-					WHERE `paslaugos`.`id`='{$serviceId}'";
-		$data = mysql::select($query);
+          WHERE `paslaugos`.`id`= ?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($serviceId));
+    $data = $stmt->fetchAll();
 		
 		return $data[0]['kiekis'];
 	}
@@ -88,8 +99,15 @@ class services {
 	public function getService($id) {
 		$query = "  SELECT *
 					FROM `paslaugos`
-					WHERE `id`='{$id}'";
-		$data = mysql::select($query);
+          WHERE `id`= ?";
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
+    $data = $stmt->fetchAll();
+
+    if (count($data) == 0) {
+      return false;
+    }
 		
 		return $data[0];
 	}
@@ -107,11 +125,12 @@ class services {
 								)
 								VALUES
 								(
-									'{$data['id']}',
-									'{$data['pavadinimas']}',
-									'{$data['aprasymas']}'
+                  ?, ?, ?
 								)";
-		mysql::query($query);
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array(
+      $data['id'], $data['pavadinimas'], $data['aprasymas']
+    ));
 	}
 	
 	/**
@@ -120,10 +139,13 @@ class services {
 	 */
 	public function updateService($data) {
 		$query = "  UPDATE `paslaugos`
-					SET    `pavadinimas`='{$data['pavadinimas']}',
-						   `aprasymas`='{$data['aprasymas']}'
-					WHERE `id`='{$data['id']}'";
-		mysql::query($query);
+					SET    `pavadinimas`= ?,
+						   `aprasymas`= ?
+					WHERE `id`= ?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array(
+      $data['pavadinimas'], $data['aprasymas'], $data['id']
+    ));
 	}
 	
 	/**
@@ -132,8 +154,9 @@ class services {
 	 */
 	public function deleteService($id) {
 		$query = "  DELETE FROM `paslaugos`
-					WHERE `id`='{$id}'";
-		mysql::query($query);
+          WHERE `id`=?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
 	}
 	
 	/**
@@ -150,12 +173,15 @@ class services {
 											`kaina`
 										)
 										VALUES
-										(
-											'{$data['id']}',
-											'{$data['datos'][$key]}',
-											'{$val}'
+                    (
+                      ?, ?, ?
 										)";
-				mysql::query($query);
+        $stmt = mysql::getInstance()->prepare($query);
+        $stmt->execute(array(
+											$data['id'],
+											$data['datos'][$key],
+											$val
+        ));
 			}
 		}
 	}
@@ -165,10 +191,18 @@ class services {
 	 * @param type $serviceId
 	 * @param type $clause
 	 */
-	public function deleteServicePrices($serviceId, $clause = "") {
+	public function deleteServicePrices($serviceId, $galiojaNuo = []) {
+    $parameters = array($serviceId);
 		$query = "  DELETE FROM `paslaugu_kainos`
-					WHERE `fk_paslauga`='{$serviceId}'" . $clause;
-		mysql::query($query);
+					WHERE `fk_paslauga`= ?";
+
+    foreach($galiojaNuo as $val) {
+      $query .= " AND NOT `galioja_nuo` = ?";
+      $parameters[] = $val;
+    }
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute($parameters);
 	}
 
 	/**
@@ -178,21 +212,28 @@ class services {
 	public function getMaxIdOfService() {
 		$query = "  SELECT MAX(`id`) AS `latestId`
 					FROM `paslaugos`";
-		$data = mysql::select($query);
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		
 		return $data[0]['latestId'];
 	}
 	
 	public function getOrderedServices($dateFrom, $dateTo) {
 		$whereClauseString = "";
+    $parameters = array();
+
 		if(!empty($dateFrom)) {
-			$whereClauseString .= " WHERE `sutartys`.`sutarties_data`>='{$dateFrom}'";
+      $whereClauseString .= " WHERE `sutartys`.`sutarties_data` >= ?";
+      $parameters[] = $dateFrom;
 			if(!empty($dateTo)) {
-				$whereClauseString .= " AND `sutartys`.`sutarties_data`<='{$dateTo}'";
+        $whereClauseString .= " AND `sutartys`.`sutarties_data` <= ?";
+        $parameters[] = $dateTo;
 			}
 		} else {
 			if(!empty($dateTo)) {
-				$whereClauseString .= " WHERE `sutartys`.`sutarties_data`<='{$dateTo}'";
+        $whereClauseString .= " WHERE `sutartys`.`sutarties_data`<=?";
+        $parameters[] = $dateTo;
 			}
 		}
 		
@@ -207,21 +248,28 @@ class services {
 							ON `uzsakytos_paslaugos`.`fk_sutartis`=`sutartys`.`nr`
 					{$whereClauseString}
 					GROUP BY `paslaugos`.`id` ORDER BY `bendra_suma` DESC";
-		$data = mysql::select($query);
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute($parameters);
+    $data = $stmt->fetchAll();
 
 		return $data;
 	}
 
 	public function getStatsOfOrderedServices($dateFrom, $dateTo) {
 		$whereClauseString = "";
+    $parameters = array();
+
 		if(!empty($dateFrom)) {
-			$whereClauseString .= " WHERE `sutartys`.`sutarties_data`>='{$dateFrom}'";
+      $whereClauseString .= " WHERE `sutartys`.`sutarties_data` >= ?";
+      $parameters[] = $dateFrom;
 			if(!empty($dateTo)) {
-				$whereClauseString .= " AND `sutartys`.`sutarties_data`<='{$dateTo}'";
+        $whereClauseString .= " AND `sutartys`.`sutarties_data` <= ?";
+        $parameters[] = $dateTo;
 			}
 		} else {
 			if(!empty($dateTo)) {
-				$whereClauseString .= " WHERE `sutartys`.`sutarties_data`<='{$dateTo}'";
+        $whereClauseString .= " WHERE `sutartys`.`sutarties_data`<=?";
+        $parameters[] = $dateTo;
 			}
 		}
 		
@@ -233,7 +281,10 @@ class services {
 						INNER JOIN `sutartys`
 							ON `uzsakytos_paslaugos`.`fk_sutartis`=`sutartys`.`nr`
 					{$whereClauseString}";
-		$data = mysql::select($query);
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute($parameters);
+    $data = $stmt->fetchAll();
 
 		return $data;
 	}

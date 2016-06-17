@@ -20,8 +20,14 @@ class employees {
 	public function getEmployee($id) {
 		$query = "  SELECT *
 					FROM `darbuotojai`
-					WHERE `tabelio_nr`='{$id}'";
-		$data = mysql::select($query);
+          WHERE `tabelio_nr`= ?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
+    $data = $stmt->fetchAll();
+
+    if (count($data) == 0) {
+      return false;
+    }
 		
 		return $data[0];
 	}
@@ -33,17 +39,23 @@ class employees {
 	 * @return type
 	 */
 	public function getEmplyeesList($limit = null, $offset = null) {
-		$limitOffsetString = "";
+		$query = "  SELECT *
+          FROM `darbuotojai`";
+
+    $parameters = array();
+
 		if(isset($limit)) {
-			$limitOffsetString .= " LIMIT {$limit}";
+      $query .= " LIMIT ?";
+      $parameters[] = $limit;
 		}
 		if(isset($offset)) {
-			$limitOffsetString .= " OFFSET {$offset}";
+      $query .= " OFFSET ?";
+      $parameters[] = $offset;
 		}
-		
-		$query = "  SELECT *
-					FROM `darbuotojai`" . $limitOffsetString;
-		$data = mysql::select($query);
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute($parameters);
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}
@@ -55,7 +67,10 @@ class employees {
 	public function getEmplyeesListCount() {
 		$query = "  SELECT COUNT(`tabelio_nr`) as `kiekis`
 					FROM `darbuotojai`";
-		$data = mysql::select($query);
+
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		
 		return $data[0]['kiekis'];
 	}
@@ -66,8 +81,9 @@ class employees {
 	 */
 	public function deleteEmployee($id) {
 		$query = "  DELETE FROM `darbuotojai`
-					WHERE `tabelio_nr`='{$id}'";
-		mysql::query($query);
+          WHERE `tabelio_nr`= ?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
 	}
 	
 	/**
@@ -76,10 +92,13 @@ class employees {
 	 */
 	public function updateEmployee($data) {
 		$query = "  UPDATE `darbuotojai`
-					SET    `vardas`='{$data['vardas']}',
-						   `pavarde`='{$data['pavarde']}'
-					WHERE `tabelio_nr`='{$data['tabelio_nr']}'";
-		mysql::query($query);
+					SET    `vardas`= ?,
+						   `pavarde`= ?
+					WHERE `tabelio_nr`= ?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array(
+      $data['vardas'], $data['pavarde'], $data['tabelio_nr']
+    ));
 	}
 	
 	/**
@@ -95,11 +114,12 @@ class employees {
 								) 
 								VALUES
 								(
-									'{$data['tabelio_nr']}',
-									'{$data['vardas']}',
-									'{$data['pavarde']}'
+                  ?, ?, ?
 								)";
-		mysql::query($query);
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array(
+      $data['tabelio_nr'], $data['vardas'], $data['pavarde']
+    ));
 	}
 	
 	/**
@@ -112,8 +132,11 @@ class employees {
 					FROM `darbuotojai`
 						INNER JOIN `sutartys`
 							ON `darbuotojai`.`tabelio_nr`=`sutartys`.`fk_darbuotojas`
-					WHERE `darbuotojai`.`tabelio_nr`='{$id}'";
-		$data = mysql::select($query);
+          WHERE `darbuotojai`.`tabelio_nr`= ?";
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
+    $data = $stmt->fetchAll();
 		
 		return $data[0]['kiekis'];
 	}

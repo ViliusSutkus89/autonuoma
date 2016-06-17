@@ -20,8 +20,15 @@ class customers {
 	public function getCustomer($id) {
 		$query = "  SELECT *
 					FROM `klientai`
-					WHERE `asmens_kodas`='{$id}'";
-		$data = mysql::select($query);
+          WHERE `asmens_kodas`= ?";
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
+    $data = $stmt->fetchAll();
+
+    if (count($data) == 0) {
+      return false;
+    }
 		
 		return $data[0];
 	}
@@ -33,17 +40,23 @@ class customers {
 	 * @return type
 	 */
 	public function getCustomersList($limit = null, $offset = null) {
-		$limitOffsetString = "";
+		$query = "  SELECT *
+          FROM `klientai`";
+
+    $parameters = array();
+
 		if(isset($limit)) {
-			$limitOffsetString .= " LIMIT {$limit}";
+      $query .= " LIMIT ?";
+      $parameters[] = $limit;
 		}
 		if(isset($offset)) {
-			$limitOffsetString .= " OFFSET {$offset}";
+      $query .= " OFFSET ?";
+      $parameters[] = $offset;
 		}
-		
-		$query = "  SELECT *
-					FROM `klientai`" . $limitOffsetString;
-		$data = mysql::select($query);
+
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute($parameters);
+    $data = $stmt->fetchAll();
 		
 		return $data;
 	}
@@ -55,8 +68,9 @@ class customers {
 	public function getCustomersListCount() {
 		$query = "  SELECT COUNT(`asmens_kodas`) as `kiekis`
 					FROM `klientai`";
-		$data = mysql::select($query);
-		
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
 		return $data[0]['kiekis'];
 	}
 	
@@ -66,8 +80,9 @@ class customers {
 	 */
 	public function deleteCustomer($id) {
 		$query = "  DELETE FROM `klientai`
-					WHERE `asmens_kodas`='{$id}'";
-		mysql::query($query);
+          WHERE `asmens_kodas`= ?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
 	}
 	
 	/**
@@ -76,13 +91,21 @@ class customers {
 	 */
 	public function updateCustomer($data) {
 		$query = "  UPDATE `klientai`
-					SET    `vardas`='{$data['vardas']}',
-						   `pavarde`='{$data['pavarde']}',
-						   `gimimo_data`='{$data['gimimo_data']}',
-						   `telefonas`='{$data['telefonas']}',
-						   `epastas`='{$data['epastas']}'
-					WHERE `asmens_kodas`='{$data['asmens_kodas']}'";
-		mysql::query($query);
+          SET    `vardas`= ?,
+            `pavarde`= ?,
+            `gimimo_data`= ?,
+            `telefonas`= ?,
+            `epastas`= ?
+          WHERE `asmens_kodas`= ?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array(
+      $data['vardas'],
+      $data['pavarde'],
+      $data['gimimo_data'],
+      $data['telefonas'],
+      $data['epastas'],
+      $data['asmens_kodas']
+    ));
 	}
 	
 	/**
@@ -101,14 +124,18 @@ class customers {
 								) 
 								VALUES
 								(
-									'{$data['asmens_kodas']}',
-									'{$data['vardas']}',
-									'{$data['pavarde']}',
-									'{$data['gimimo_data']}',
-									'{$data['telefonas']}',
-									'{$data['epastas']}'
+                  ?, ?, ?, ?, ?, ?
 								)";
-		mysql::query($query);
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array(
+      $data['asmens_kodas'],
+      $data['vardas'],
+      $data['pavarde'],
+      $data['gimimo_data'],
+      $data['telefonas'],
+      $data['epastas']
+    ));
+
 	}
 	
 	/**
@@ -121,8 +148,10 @@ class customers {
 					FROM `klientai`
 						INNER JOIN `sutartys`
 							ON `klientai`.`asmens_kodas`=`sutartys`.`fk_klientas`
-					WHERE `klientai`.`asmens_kodas`='{$id}'";
-		$data = mysql::select($query);
+          WHERE `klientai`.`asmens_kodas`= ?";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($id));
+    $data = $stmt->fetchAll();
 		
 		return $data[0]['kiekis'];
 	}

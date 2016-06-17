@@ -57,9 +57,8 @@ if (!empty($id) || $action == 'new') {
 				$contractsObj->updateOrderedServices($data);
 			} else {
 				// patikriname, ar nėra sutarčių su tokiu pačiu numeriu
-				$tmp = $contractsObj->getContract($data['nr']);
-				
-				if(isset($tmp['nr'])) {
+				$exists = $contractsObj->getContract($data['nr']);
+				if($exists) {
 					// sudarome klaidų pranešimą
 					$formErrors = "Sutartis su įvestu numeriu jau egzistuoja.";
 					// laukų reikšmių kintamajam priskiriame įvestų laukų reikšmes
