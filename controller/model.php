@@ -4,111 +4,137 @@ require_once 'utils/validator.class.php';
 require_once 'model/models.class.php';
 require_once 'model/brands.class.php';
 
-// sukuriame modelių klasės objektą
-$modelsObj = new models();
-if (!empty($id) || $action == 'new') {
 
-	$formErrors = null;
-	$fields = array();
+class modelController {
 
-	$brandsObj = new brands();
+  public static $defaultAction = "index";
 
 	// nustatome privalomus laukus
-	$required = array('pavadinimas', 'fk_marke');
+  private $required = array('pavadinimas', 'fk_marke');
 
 	// maksimalūs leidžiami laukų ilgiai
-	$maxLengths = array ('pavadinimas' => 20);
+	private $maxLengths = array ('pavadinimas' => 20);
 
-	// paspaustas išsaugojimo mygtukas
-	if(!empty($_POST['submit'])) {
-		// nustatome laukų validatorių tipus
-		$validations = array (
-			'pavadinimas' => 'anything',
-			'fk_marke' => 'positivenumber');
-		
+  // nustatome laukų validatorių tipus
+  private $validations = array (
+    'pavadinimas' => 'anything',
+    'fk_marke' => 'positivenumber'
+  );
+
+  public function indexAction() {
+    // sukuriame modelių klasės objektą
+    $modelsObj = new models();
+
+    // suskaičiuojame bendrą įrašų kiekį
+    $elementCount = $modelsObj->getModelListCount();
+
+    // sukuriame puslapiavimo klasės objektą
+    $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
+
+    // suformuojame sąrašo puslapius
+    $paging->process($elementCount, routing::getPageId());
+
+    // išrenkame nurodyto puslapio markes
+    $data = $modelsObj->getModelList($paging->size, $paging->first);
+
+    $template = template::getInstance();
+
+    $template->assign('data', $data);
+    $template->assign('pagingData', $paging->data);
+
+    if(!empty($_GET['remove_error']))
+      $template->assign('remove_error', true);
+
+    $template->setView("model_list");
+  }
+
+  public function editAction() {
+    if (!empty($_POST['submit']))
+      $this->insertUpdateAction();
+    else
+      $this->showAction();
+  }
+
+  private function showAction() {
+    $id = routing::getId();
+
+    $modelsObj = new models();
+    $brandsObj = new brands();
+
+    $fields = ($id) ? $modelsObj->getmodel($id) : array();
+
+    $template = template::getInstance();
+
+    $brands = $brandsObj->getBrandList();
+    $template->assign('brands', $brands);
+
+    $template->assign('fields', $fields);
+    $template->assign('required', $this->required);
+    $template->assign('maxLengths', $this->maxLengths);
+
+    $template->setView("model_edit");
+  }
+
+  private function insertUpdateAction() {
 		// sukuriame validatoriaus objektą
-		$validator = new validator($validations, $required, $maxLengths);
-		
+    $validator = new validator($this->validations, $this->required, $this->maxLengths);
+
 		// laukai įvesti be klaidų
 		if($validator->validate($_POST)) {
+      $modelsObj = new models();
+
 			// suformuojame laukų reikšmių masyvą SQL užklausai
 			$data = $validator->preparePostFieldsForSQL();
 			if(isset($data['id'])) {
 				// atnaujiname duomenis
 				$modelsObj->updateModel($data);
 			} else {
-				// randame didžiausią modelio id duomenų bazėje
-				$latestId = $modelsObj->getMaxIdOfModel();
+				// randame didžiausią markės id duomenų bazėje
+				$latestId = $modelsObj->getMaxIdOfmodel();
 
 				// įrašome naują įrašą
 				$data['id'] = $latestId + 1;
-				$modelsObj->insertModel($data);
+				$modelsObj->insertmodel($data);
 			}
-			
+
 			// nukreipiame į modelių puslapį
-			header("Location: index.php?module={$module}");
-      $template->disableRendering();
+      routing::redirect(routing::getModule(), 'index');
 		} else {
+      $this->showAction();
+
+      $template = template::getInstance();
+
+      // Overwrite fields array with submitted $_POST values
+      $template->assign('fields', $_POST);
+
 			// gauname klaidų pranešimą
 			$formErrors = $validator->getErrorHTML();
-			// gauname įvestus laukus
-			$fields = $_POST;
+      $template->assign('formErrors', $formErrors);
 		}
-	} else {
-		// tikriname, ar nurodytas elemento id. Jeigu taip, išrenkame elemento duomenis ir jais užpildome formos laukus.
-		if(!empty($id)) {
-			$fields = $modelsObj->getModel($id);
-		}
-	}
 
-  $template->assign('fields', $fields);
-  $template->assign('required', $required);
-  $template->assign('maxLengths', $maxLengths);
-  $template->assign('formErrors', $formErrors);
-
-  $brands = $brandsObj->getBrandList();
-  $template->assign('brands', $brands);
-
-  $template->setView("model_edit");
-}
-
-else if(!empty($removeId)) {
-  // patikriname, ar šalinamas modelis nenaudojamas, t.y. nepriskirtas jokiam automobiliui
-  $count = $modelsObj->getCarCountOfModel($removeId);
-  
-  $removeErrorParameter = '';
-  if($count == 0) {
-  	// pašaliname modelį
-  	$modelsObj->deleteModel($removeId);
-  } else {
-  	// nepašalinome, nes modelis priskirtas bent vienam automobiliui, rodome klaidos pranešimą
-  	$removeErrorParameter = '&remove_error=1';
   }
+
+  public function removeAction() {
+    $id = routing::getId();
+
+    // patikriname, ar šalinamas modelis nenaudojamas, t.y. nepriskirtas jokiam automobiliui
+    $modelsObj = new models();
+    $count = $modelsObj->getCarCountOfModel($id);
   
-  // nukreipiame į modelių puslapį
-  header("Location: index.php?module={$module}{$removeErrorParameter}");
-  $template->disableRendering();
-}
+    $removeErrorParameter = '';
+    if($count == 0) {
+  	  // pašaliname modelį
+      $modelsObj->deleteModel($id);
+    } else {
+      // nepašalinome, nes modelis priskirtas bent vienam automobiliui, rodome klaidos pranešimą
+      // rodome klaidos pranešimą
+      $removeErrorParameter = 'remove_error=1';
+    }
 
-// View list
-else {
-  // suskaičiuojame bendrą įrašų kiekį
-  $elementCount = $modelsObj->getModelListCount();
+    // nukreipiame į markių puslapį
+    routing::redirect(routing::getModule(), 'index',
+      $removeErrorParameter);
+  }
 
-  // sukuriame puslapiavimo klasės objektą
-  $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
-
-  // suformuojame sąrašo puslapius
-  $paging->process($elementCount, $pageId);
-
-  // išrenkame nurodyto puslapio modelius
-  $data = $modelsObj->getModelList($paging->size, $paging->first);
-  $template->assign('data', $data);
-  $template->assign('pagingData', $paging->data);
-
-  $template->setView("model_list");
-
-  if(isset($_GET['remove_error']))
-    $template->assign('remove_error', true);
-}
+};
 
