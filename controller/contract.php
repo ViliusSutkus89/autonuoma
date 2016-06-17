@@ -7,26 +7,15 @@ require_once 'model/customers.class.php';
 require_once 'model/employees.class.php';
 require_once 'model/services.class.php';
 
-// sukuriame sutarčių klasės objektą
-$contractsObj = new contracts();
+class contractController {
 
-
-if (!empty($id) || $action == 'new') {
-  $servicesObj = new services();
-  $carsObj = new cars();
-  $employeesObj = new employees();
-  $customersObj = new customers();
-	$fields = array();
-
-	$formErrors = null;
+  public static $defaultAction = "index";
 
 	// nustatome privalomus laukus
-	$required = array('nr', 'sutarties_data', 'nuomos_data_laikas', 'planuojama_grazinimo_data_laikas', 'pradine_rida', 'kaina', 'degalu_kiekis_paimant', 'busena', 'fk_klientas', 'fk_darbuotojas', 'fk_automobilis', 'fk_grazinimo_vieta', 'fk_paemimo_vieta', 'kiekiai');
+  private $required = array('nr', 'sutarties_data', 'nuomos_data_laikas', 'planuojama_grazinimo_data_laikas', 'pradine_rida', 'kaina', 'degalu_kiekis_paimant', 'busena', 'fk_klientas', 'fk_darbuotojas', 'fk_automobilis', 'fk_grazinimo_vieta', 'fk_paemimo_vieta', 'kiekiai');
 
-	// vartotojas paspaudė išsaugojimo mygtuką
-	if(!empty($_POST['submit'])) {
-	  // nustatome laukų validatorių tipus
-	  $validations = array (
+  // nustatome laukų validatorių tipus
+  private $validations = array (
 	  	'nr' => 'positivenumber',
 	  	'sutarties_data' => 'date',
 	  	'nuomos_data_laikas' => 'datetime',
@@ -44,11 +33,89 @@ if (!empty($id) || $action == 'new') {
 	  	'fk_grazinimo_vieta' => 'positivenumber',
 	  	'fk_paemimo_vieta' => 'positivenumber',
       'kiekiai' => 'int'
-    );
-		// sukuriame laukų validatoriaus objektą
-		$validator = new validator($validations, $required);
+  );
+
+  public function indexAction() {
+    // sukuriame automobilių klasės objektą
+    $contractsObj = new contracts();
+
+    // suskaičiuojame bendrą įrašų kiekį
+    $elementCount = $contractsObj->getContractListCount();
+
+    // sukuriame puslapiavimo klasės objektą
+    $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
+
+    // suformuojame sąrašo puslapius
+    $paging->process($elementCount, routing::getPageId());
+
+    // išrenkame nurodyto puslapio markes
+    $data = $contractsObj->getContractList($paging->size, $paging->first);
+
+    $template = template::getInstance();
+
+    $template->assign('data', $data);
+    $template->assign('pagingData', $paging->data);
+
+    $template->setView("contract_list");
+  }
+
+  public function editAction() {
+    if (!empty($_POST['submit']))
+      $this->insertUpdateAction();
+    else
+      $this->showAction();
+  }
+
+  private function showAction() {
+    $id = routing::getId();
+
+    $contractsObj = new contracts();
+    $servicesObj = new services();
+    $carsObj = new cars();
+    $employeesObj = new employees();
+    $customersObj = new customers();
+
+    $fields = array();
+    if ($id) {
+      $fields = $contractsObj->getContract($id);
+		  $fields['uzsakytos_paslaugos'] = $contractsObj->getOrderedServices($id);
+		  $fields['editing'] = 1;
+    }
+
+    $template = template::getInstance();
+
+    $template->assign('customerList', $customersObj->getCustomersList());
+    $template->assign('employeesList', $employeesObj->getEmplyeesList());
+    $template->assign('contractStates', $contractsObj->getContractStates());
+    $template->assign('carsList', $carsObj->getCarList());
+    $template->assign('parkingLots', $contractsObj->getParkingLots());
+
+    $servicesList = $servicesObj->getServicesList();
+
+    $serviceIDs = array();
+	  foreach($servicesList as $val)
+      $serviceIDs[] = $val['id'];
+
+    $servicePrices = $servicesObj->getServicePrices($serviceIDs);
+
+    $template->assign('servicesList', $servicesList);
+    $template->assign('servicePrices', $servicePrices);
+
+    $template->assign('fields', $fields);
+    $template->assign('required', $this->required);
+
+    $template->setView("contract_edit");
+  }
+
+  private function insertUpdateAction() {
+
+		// sukuriame validatoriaus objektą
+    $validator = new validator($this->validations, $this->required);
+
 		// laukai įvesti be klaidų
 		if($validator->validate($_POST)) {
+      $contractsObj = new contracts();
+
 			// suformuojame laukų reikšmių masyvą SQL užklausai
 			$data = $validator->preparePostFieldsForSQL();
 
@@ -65,6 +132,12 @@ if (!empty($id) || $action == 'new') {
 					$formErrors = "Sutartis su įvestu numeriu jau egzistuoja.";
 					// laukų reikšmių kintamajam priskiriame įvestų laukų reikšmes
 					$fields = $_POST;
+
+          $this->showAction();
+
+          $template = template::getInstance();
+          $template->assign('fields', $fields);
+          $template->assign('formErrors', $formErrors);
 				} else {
 					// įrašome naują sutartį
 					$contractsObj->insertContract($data);
@@ -72,17 +145,17 @@ if (!empty($id) || $action == 'new') {
 					$contractsObj->updateOrderedServices($data);
 				}
 			}
-			
-			// nukreipiame vartotoją į sutarčių puslapį
-			if($formErrors == null) {
-				header("Location: index.php?module={$module}");
-        $template->disableRendering();
-			}
 
 		} else {
 			// gauname klaidų pranešimą
 			$formErrors = $validator->getErrorHTML();
-			
+
+      $this->showAction();
+
+      $template = template::getInstance();
+
+      $template->assign('formErrors', $formErrors);
+
 			// laukų reikšmių kintamajam priskiriame įvestų laukų reikšmes
 			$fields = $_POST;
 			if(isset($_POST['kiekiai']) && sizeof($_POST['kiekiai']) > 0) {
@@ -92,69 +165,29 @@ if (!empty($id) || $action == 'new') {
 					$i++;
 				}
 			}
+      $template->assign('fields', $fields);
 		}
+
+    if (empty($formErrors)) {
+		  // nukreipiame vartotoją į sutarčių puslapį
+      routing::redirect(routing::getModule(), 'index');
+    }
   }
-  
-	if(!empty($id)) {
-	// tikriname, ar adreso eilutėje nenurodytas elemento id. Jeigu taip, išrenkame elemento duomenis ir jais užpildome formos laukus.
-		$fields = $contractsObj->getContract($id);
-		$fields['uzsakytos_paslaugos'] = $contractsObj->getOrderedServices($id);
-		$fields['editing'] = 1;
-	}
-  $template->assign('fields', $fields);
-  $template->assign('required', $required);
 
-  $template->assign('customerList', $customersObj->getCustomersList());
-  $template->assign('employeesList', $employeesObj->getEmplyeesList());
-  $template->assign('contractStates', $contractsObj->getContractStates());
-  $template->assign('carsList', $carsObj->getCarList());
-  $template->assign('parkingLots', $contractsObj->getParkingLots());
+  public function removeAction() {
+    $id = routing::getId();
 
-  if (!empty($formErrors))
-    $template->assign('formErrors', $formErrors);
+    $contractsObj = new contracts();
 
-  $servicesList = $servicesObj->getServicesList();
+    // pašaliname užsakytas paslaugas
+    $contractsObj->deleteOrderedServices($id);
 
-  $serviceIDs = array();
-	foreach($servicesList as $val)
-    $serviceIDs[] = $val['id'];
+    // šaliname sutartį
+    $contractsObj->deleteContract($id);
 
-  $servicePrices = $servicesObj->getServicePrices($serviceIDs);
+    // nukreipiame į sutarčių puslapį
+    routing::redirect(routing::getModule(), 'index');
+  }
 
-  $template->assign('servicesList', $servicesList);
-  $template->assign('servicePrices', $servicePrices);
-
-  $template->setView("contract_edit");
-}
-
-else if(!empty($removeId)) {
-	// pašaliname užsakytas paslaugas
-	$contractsObj->deleteOrderedServices($removeId);
-
-	// šaliname sutartį
-	$contractsObj->deleteContract($removeId);
-
-	// nukreipiame į sutarčių puslapį
-	header("Location: index.php?module={$module}");
-  $template->disableRendering();
-}
-
-// View list
-else {
-  // suskaičiuojame bendrą įrašų kiekį
-  $elementCount = $contractsObj->getContractListCount();
-
-  // sukuriame puslapiavimo klasės objektą
-  $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
-
-  // suformuojame sąrašo puslapius
-  $paging->process($elementCount, $pageId);
-
-  // išrenkame nurodyto puslapio sutartis
-  $data = $contractsObj->getContractList($paging->size, $paging->first);
-  $template->assign('data', $data);
-  $template->assign('pagingData', $paging->data);
-
-  $template->setView("contract_list");
-}
+};
 
