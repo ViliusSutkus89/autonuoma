@@ -87,15 +87,33 @@ class models {
 	 * @param type $brandId
 	 * @return type
 	 */
-	public function getModelListByBrand($brandId) {
+	public function getModelsListByBrands($brandIDs) {
+    $IN = "";
+    $parameters = array();
+    foreach ($brandIDs as $val) {
+      $IN .= "?,";
+      $parameters[] = $val;
+    }
+    $IN = rtrim($IN, ",");
+
+    if (empty($parameters))
+      return array();
+
 		$query = "  SELECT *
 					FROM `modeliai`
-          WHERE `fk_marke`= ?";
+          WHERE `fk_marke` IN (${IN})";
+
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute(array($brandId));
+    $stmt->execute($parameters);
     $data = $stmt->fetchAll();
-		
-		return $data;
+    $d = array();
+    foreach ($data as $val) {
+      if (empty($d[$val['fk_marke']]))
+        $d[$val['fk_marke']] = array();
+
+      $d[$val['fk_marke']][] = $val;
+    }
+		return $d;
 	}
 	
 	/**

@@ -253,12 +253,10 @@ class contracts {
 	public function updateOrderedServices($data) {
 		$this->deleteOrderedServices($data['nr']);
 		
-		foreach($data['paslaugos'] as $key=>$val) {
-			$tmp = explode(":", $val);
-			$serviceId = $tmp[0];
-			$price = $tmp[1];
-			$date_from = $tmp[2];
-			$query = "  INSERT INTO `uzsakytos_paslaugos`
+    if (empty($data['paslaugos']))
+      return;
+
+		$query = "  INSERT INTO `uzsakytos_paslaugos`
 									(
 										`fk_sutartis`,
 										`fk_kaina_galioja_nuo`,
@@ -266,19 +264,28 @@ class contracts {
 										`kiekis`,
 										`kaina`
 									)
-									VALUES
-                  (
-                    ?, ?, ?, ?, ?
-									)";
-      $stmt = mysql::getInstance()->prepare($query);
-      $stmt->execute(array(
-		  								$data['nr'],
-		  								$date_from,
-		  								$serviceId,
-		  								$data['kiekiai'][$key],
-		  								$price
-      ));
+									VALUES ";
+
+    $parameters = array();
+
+		foreach($data['paslaugos'] as $key=>$val) {
+			$tmp = explode(":", $val);
+			$serviceId = $tmp[0];
+			$price = $tmp[1];
+			$date_from = $tmp[2];
+
+      $query .= "(?, ?, ?, ?, ?),";
+
+      $parameters[] = $data['nr'];
+		  $parameters[] = $date_from;
+		  $parameters[] = $serviceId;
+		  $parameters[] = $data['kiekiai'][$key];
+		  $parameters[] = $price;
+
     }
+      $query = rtrim($query, ",");
+      $stmt = mysql::getInstance()->prepare($query);
+      $stmt->execute($parameters);
 	}
 	
 	/**

@@ -114,12 +114,12 @@ if (!empty($id) || $action == 'new') {
     $template->assign('formErrors', $formErrors);
 
   $servicesList = $servicesObj->getServicesList();
-  $servicePrices = array();
 
-  //@TODO: don't loop
-	foreach($servicesList as $val1) {
-	  $servicePrices[$val1['id']] = $servicesObj->getServicePrices($val1['id']);
-  }
+  $serviceIDs = array();
+	foreach($servicesList as $val)
+    $serviceIDs[] = $val['id'];
+
+  $servicePrices = $servicesObj->getServicePrices($serviceIDs);
 
   $template->assign('servicesList', $servicesList);
   $template->assign('servicePrices', $servicePrices);

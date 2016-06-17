@@ -58,15 +58,31 @@ class services {
 	 * @param type $serviceId
 	 * @return type
 	 */
-	public function getServicePrices($serviceId) {
+	public function getServicePrices($serviceIDs) {
+    $IN = "";
+    $parameters = array();
+    foreach ($serviceIDs as $val) {
+      $IN .= "?,";
+      $parameters[] = $val;
+    }
+    $IN = rtrim($IN, ",");
+    if (empty($parameters))
+      return array();
+
 		$query = "  SELECT *
 					FROM `paslaugu_kainos`
-          WHERE `fk_paslauga`= ?";
-    $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array($serviceId));
+          WHERE `fk_paslauga` IN (${IN})";
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute($parameters);
     $data = $stmt->fetchAll();
-		
-		return $data;
+    $d = array();
+    foreach ($data as $val) {
+      if (empty($d[$val['fk_paslauga']]))
+        $d[$val['fk_paslauga']] = array();
+
+      $d[$val['fk_paslauga']][] = $val;
+    }
+		return $d;
 	}
 	
 	/**
@@ -164,26 +180,31 @@ class services {
 	 * @param type $data
 	 */
 	public function insertServicePrices($data) {
-		foreach($data['kainos'] as $key=>$val) {
-			if($data['neaktyvus'] == array() || $data['neaktyvus'][$key] == 0) {
 				$query = "  INSERT INTO `paslaugu_kainos`
 										(
 											`fk_paslauga`,
 											`galioja_nuo`,
 											`kaina`
 										)
-										VALUES
-                    (
-                      ?, ?, ?
-										)";
-        $stmt = mysql::getInstance()->prepare($query);
-        $stmt->execute(array(
-											$data['id'],
-											$data['datos'][$key],
-											$val
-        ));
+										VALUES ";
+    $parameters = array();
+
+		foreach($data['kainos'] as $key=>$val) {
+			if($data['neaktyvus'] == array() || $data['neaktyvus'][$key] == 0) {
+
+        $query .= "(?, ?, ?),";
+
+			  $parameters[] = $data['id'];
+			  $parameters[] = $data['datos'][$key];
+			  $parameters[] = $val;
 			}
 		}
+
+    if (count($parameters)) {
+      $query = rtrim($query, ",");
+      $stmt = mysql::getInstance()->prepare($query);
+      $stmt->execute($parameters);
+    }
 	}
 	
 	/**

@@ -92,12 +92,11 @@ if (!empty($id) || $action == 'new') {
   $template->assign('formErrors', $formErrors);
 
 	$brands = $brandsObj->getBrandList();
-  $models = array();
 
-  //@TODO: don't loop
-	foreach($brands as $key => $val) {
-    $models[$val['id']] = $modelsObj->getModelListByBrand($val['id']);
-  }
+  $brandIDs = array();
+	foreach($brands as $val)
+    $brandIDs[] = $val['id'];
+  $models = $modelsObj->getModelsListByBrands($brandIDs);
 
   $template->assign('brands', $brands);
   $template->assign('models', $models);
