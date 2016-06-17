@@ -355,7 +355,7 @@ class contracts {
 
     // $whereClauseString is used three times in this query
     // We need it to have the same amount of parameters.
-    $parameters = array_join($parameters, $parameters, $parameters);
+    $parameters = array_merge($parameters, $parameters, $parameters);
 		
 		$query = "  SELECT  `sutartys`.`nr`,
 							`sutartys`.`sutarties_data`,
