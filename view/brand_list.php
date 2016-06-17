@@ -4,7 +4,7 @@
 	<li>Automobilių markės</li>
 </ul>
 <div id="actions">
-	<a href='index.php?module=<?php echo $module; ?>&amp;action=new'>Nauja markė</a>
+	<a href='index.php?module=<?php echo $module; ?>&amp;action=edit&amp;id=0'>Nauja markė</a>
 </div>
 <div class="float-clear"></div>
 
@@ -29,7 +29,7 @@
 					. "<td>{$val['pavadinimas']}</td>"
 					. "<td>"
 						. "<a href='#' onclick='showConfirmDialog(\"{$module}\", \"{$val['id']}\"); return false;' title=''>šalinti</a>&nbsp;"
-						. "<a href='index.php?module={$module}&amp;id={$val['id']}' title=''>redaguoti</a>"
+						. "<a href='index.php?module={$module}&amp;action=edit&amp;id={$val['id']}' title=''>redaguoti</a>"
 					. "</td>"
 				. "</tr>\n";
 		}

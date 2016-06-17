@@ -3,28 +3,75 @@ require_once 'utils/paging.class.php';
 require_once 'utils/validator.class.php';
 require_once 'model/brands.class.php';
 
-// sukuriame markių klasės objektą
-$brandsObj = new brands();
+class brandController {
 
-if (!empty($id) || $action == 'new') {
-	$formErrors = null;
-	$fields = array();
+  public static $defaultAction = "index";
 
 	// nustatome privalomus laukus
-	$required = array('pavadinimas');
-	
+  private $required = array('pavadinimas');
+
 	// maksimalūs leidžiami laukų ilgiai
-	$maxLengths = array ('pavadinimas' => 20);
+	private $maxLengths = array ('pavadinimas' => 20);
 
-	// paspaustas išsaugojimo mygtukas
-	if(!empty($_POST['submit'])) {
-		// nustatome laukų validatorių tipus
-		$validations = array ('pavadinimas' => 'anything');
+  // nustatome laukų validatorių tipus
+  private $validations = array ('pavadinimas' => 'anything');
 
+  public function indexAction() {
+    // sukuriame markių klasės objektą
+    $brandsObj = new brands();
+
+    // suskaičiuojame bendrą įrašų kiekį
+    $elementCount = $brandsObj->getBrandListCount();
+
+    // sukuriame puslapiavimo klasės objektą
+    $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
+
+    // suformuojame sąrašo puslapius
+    $paging->process($elementCount, routing::getPageId());
+
+    // išrenkame nurodyto puslapio markes
+    $data = $brandsObj->getBrandList($paging->size, $paging->first);
+
+    $template = template::getInstance();
+
+    $template->assign('data', $data);
+    $template->assign('pagingData', $paging->data);
+    if(!empty($_GET['remove_error']))
+      $template->assign('remove_error', true);
+
+    $template->setView("brand_list");
+  }
+
+  public function editAction() {
+    if (!empty($_POST['submit']))
+      $this->insertUpdateAction();
+    else
+      $this->showAction();
+  }
+
+  public function showAction() {
+    $id = routing::getId();
+
+    $brandsObj = new brands();
+    $fields = ($id) ? $brandsObj->getBrand($id) : array();
+
+    $template = template::getInstance();
+
+    $template->assign('fields', $fields);
+    $template->assign('required', $this->required);
+    $template->assign('maxLengths', $this->maxLengths);
+
+    $template->setView("brand_edit");
+  }
+
+  public function insertUpdateAction() {
 		// sukuriame validatoriaus objektą
-		$validator = new validator($validations, $required, $maxLengths);
+    $validator = new validator($this->validations,
+      $this->required, $this->maxLengths);
 
 		if($validator->validate($_POST)) {
+      $brandsObj = new brands();
+
 			// suformuojame laukų reikšmių masyvą SQL užklausai
 			$data = $validator->preparePostFieldsForSQL();
 			if(isset($data['id'])) {
@@ -40,66 +87,43 @@ if (!empty($id) || $action == 'new') {
 			}
 
 			// nukreipiame į markių puslapį
-			header("Location: index.php?module={$module}");
-      $template->disableRendering();
+      routing::redirect(routing::getModule(), 'index');
 		} else {
+      $this->showAction();
+
+      $template = template::getInstance();
+
+      // Overwrite fields array with submitted $_POST values
+      $template->assign('fields', $_POST);
+
 			// gauname klaidų pranešimą
 			$formErrors = $validator->getErrorHTML();
-			// gauname įvestus laukus
-			$fields = $_POST;
+      $template->assign('formErrors', $formErrors);
 		}
-	} else {
-		// tikriname, ar nurodytas elemento id. Jeigu taip, išrenkame elemento duomenis ir jais užpildome formos laukus.
-		if(!empty($id)) {
-			$fields = $brandsObj->getBrand($id);
-		}
-	}
 
-  $template->assign('fields', $fields);
-  $template->assign('required', $required);
-  $template->assign('maxLengths', $maxLengths);
-
-  $template->assign('formErrors', $formErrors);
-
-  $template->setView("brand_edit");
-}
-
-else if(!empty($removeId)) {
-  // patikriname, ar šalinama markė nepriskirta modeliui
-  $count = $brandsObj->getModelCountOfBrand($removeId);
-  
-  $removeErrorParameter = '';
-  if($count == 0) {
-  	// šaliname markę
-  	$brandsObj->deleteBrand($removeId);
-  } else {
-  	// nepašalinome, nes markė priskirta modeliui, rodome klaidos pranešimą
-  	$removeErrorParameter = '$remove_error=1';
   }
-  // nukreipiame į markių puslapį
-  header("Location: index.php?module={$module}{$removeErrorParameter}");
-  $template->disableRendering();
-}
 
-// View list
-else {
-  // suskaičiuojame bendrą įrašų kiekį
-  $elementCount = $brandsObj->getBrandListCount();
+  public function removeAction() {
+    $id = routing::getId();
 
-  // sukuriame puslapiavimo klasės objektą
-  $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
+    // patikriname, ar šalinama markė nepriskirta modeliui
+    $brandsObj = new brands();
+    $count = $brandsObj->getModelCountOfBrand($id);
+  
+    $removeErrorParameter = '';
+    if($count == 0) {
+      // šaliname markę
+      $brandsObj->deleteBrand($id);
+    } else {
+      // nepašalinome, nes markė priskirta modeliui,
+      // rodome klaidos pranešimą
+      $removeErrorParameter = 'remove_error=1';
+    }
 
-  // suformuojame sąrašo puslapius
-  $paging->process($elementCount, $pageId);
+    // nukreipiame į markių puslapį
+    routing::redirect(routing::getModule(), 'index',
+      $removeErrorParameter);
+  }
 
-  // išrenkame nurodyto puslapio markes
-  $data = $brandsObj->getBrandList($paging->size, $paging->first);
-  $template->assign('data', $data);
-  $template->assign('pagingData', $paging->data);
-
-  $template->setView("brand_list");
-
-  if(isset($_GET['remove_error']))
-    $template->assign('remove_error', true);
-}
+};
 
