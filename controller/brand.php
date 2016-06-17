@@ -49,7 +49,7 @@ class brandController {
       $this->showAction();
   }
 
-  public function showAction() {
+  private function showAction() {
     $id = routing::getId();
 
     $brandsObj = new brands();
@@ -64,7 +64,7 @@ class brandController {
     $template->setView("brand_edit");
   }
 
-  public function insertUpdateAction() {
+  private function insertUpdateAction() {
 		// sukuriame validatoriaus objektą
     $validator = new validator($this->validations,
       $this->required, $this->maxLengths);
