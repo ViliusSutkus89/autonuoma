@@ -18,6 +18,8 @@ if (!empty($id) || $action == 'new') {
   $customersObj = new customers();
 	$fields = array();
 
+	$formErrors = null;
+
 	// nustatome privalomus laukus
 	$required = array('nr', 'sutarties_data', 'nuomos_data_laikas', 'planuojama_grazinimo_data_laikas', 'pradine_rida', 'kaina', 'degalu_kiekis_paimant', 'busena', 'fk_klientas', 'fk_darbuotojas', 'fk_automobilis', 'fk_grazinimo_vieta', 'fk_paemimo_vieta', 'kiekiai');
 
