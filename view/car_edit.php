@@ -31,7 +31,7 @@
 								if(isset($fields['modelis']) && $fields['modelis'] == $val2['id']) {
 									$selected = " selected='selected'";
 								}
-								echo "<option{$selected} value='{$val2['id']}'>{$val2['pavadinimas']}</option>";
+								echo "<option{$selected} value='{$val2['id']}'>{$val2['pavadinimas']}</option>\n";
 							}
 						}
 					?>
