@@ -105,7 +105,7 @@ if (!empty($id) || $action == 'new') {
   $gearboxes = $carsObj->getGearboxList();
   $fueltypes = $carsObj->getFuelTypeList();
   $bodytypes = $carsObj->getBodyTypeList();
-  $luggage = $carsObj->getLugageTypeList();
+  $luggage = $carsObj->getLuggageTypeList();
   $car_states = $carsObj->getCarStateList();
 
   $template->assign('gearboxes', $gearboxes);

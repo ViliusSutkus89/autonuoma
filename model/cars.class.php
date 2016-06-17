@@ -289,7 +289,7 @@ class cars {
 	 * Bagažo tipų sąrašo išrinkimas
 	 * @return type
 	 */
-	public function getLugageTypeList() {
+	public function getLuggageTypeList() {
 		$query = "  SELECT *
 					FROM `lagaminai`";
     $stmt = mysql::getInstance()->query($query);
