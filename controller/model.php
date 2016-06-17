@@ -94,7 +94,7 @@ class modelController {
 
 				// įrašome naują įrašą
 				$data['id'] = $latestId + 1;
-				$modelsObj->insertmodel($data);
+				$modelsObj->insertModel($data);
 			}
 
 			// nukreipiame į modelių puslapį
