@@ -67,7 +67,6 @@ class brands {
 	public function getBrandListCount() {
 		$query = "SELECT COUNT(`id`) as `kiekis` FROM `markes`";
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		return $data[0]['kiekis'];
 	}
@@ -117,7 +116,7 @@ class brands {
     WHERE `markes`.`id` = ?
     ";
 
-    $stmt = mysql::getInstance()->query($query);
+    $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
     $data = $stmt->fetchAll();
 		return $data[0]['kiekis'];
@@ -130,9 +129,9 @@ class brands {
 	public function getMaxIdOfBrand() {
 		$query = "SELECT MAX(`id`) as `latestId` FROM `markes`";
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		return $data[0]['latestId'];
 	}
 	
 }
+

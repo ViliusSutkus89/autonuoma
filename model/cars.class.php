@@ -197,7 +197,6 @@ class cars {
 							ON `automobiliai`.`busena`=`auto_busenos`.`id`";
 
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		return $data[0]['kiekis'];
 	}
@@ -236,7 +235,6 @@ class cars {
 	public function getMaxIdOfCar() {
 		$query = "SELECT MAX(`id`) as `latestId` FROM `automobiliai`";
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		return $data[0]['latestId'];
 	}
@@ -250,7 +248,6 @@ class cars {
 					FROM `pavaru_dezes`";
 
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		
 		return $data;
@@ -265,7 +262,6 @@ class cars {
 					FROM `degalu_tipai`";
 
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		
 		return $data;
@@ -279,7 +275,6 @@ class cars {
 		$query = "  SELECT *
 					FROM `kebulu_tipai`";
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		
 		return $data;
@@ -293,7 +288,6 @@ class cars {
 		$query = "  SELECT *
 					FROM `lagaminai`";
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		
 		return $data;
@@ -307,10 +301,10 @@ class cars {
 		$query = "  SELECT *
 					FROM `auto_busenos`";
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		
 		return $data;
 	}
 	
 }
+

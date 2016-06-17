@@ -69,7 +69,6 @@ class employees {
 					FROM `darbuotojai`";
 
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		
 		return $data[0]['kiekis'];
@@ -142,3 +141,4 @@ class employees {
 	}
 	
 }
+

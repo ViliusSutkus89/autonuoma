@@ -66,7 +66,6 @@ class contracts {
 						LEFT JOIN `sutarties_busenos`
 							ON `sutartys`.`busena`=`sutarties_busenos`.`id`";
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		
 		return $data[0]['kiekis'];
@@ -296,7 +295,6 @@ class contracts {
 		$query = "  SELECT *
 					FROM `sutarties_busenos`";
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		
 		return $data;
@@ -310,7 +308,6 @@ class contracts {
 		$query = "  SELECT *
 					FROM `aiksteles`";
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		
 		return $data;
@@ -328,7 +325,7 @@ class contracts {
 						INNER JOIN `uzsakytos_paslaugos`
 							ON `paslaugu_kainos`.`fk_paslauga`=`uzsakytos_paslaugos`.`fk_paslauga` AND `paslaugu_kainos`.`galioja_nuo`=`uzsakytos_paslaugos`.`fk_kaina_galioja_nuo`
 					WHERE `paslaugu_kainos`.`fk_paslauga`=:serviceId' AND `paslaugu_kainos`.`galioja_nuo`=:validFrom";
-    $stmt = mysql::getInstance()->query($query);
+    $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
       "serviceId" => $serviceId,
       "validFrom" => $validFrom
@@ -501,3 +498,4 @@ class contracts {
 	}
 	
 }
+

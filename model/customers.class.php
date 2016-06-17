@@ -69,7 +69,6 @@ class customers {
 		$query = "  SELECT COUNT(`asmens_kodas`) as `kiekis`
 					FROM `klientai`";
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		return $data[0]['kiekis'];
 	}
@@ -157,3 +156,4 @@ class customers {
 	}
 	
 }
+

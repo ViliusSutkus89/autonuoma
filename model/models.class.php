@@ -76,7 +76,6 @@ class models {
 						LEFT JOIN `markes`
 							ON `modeliai`.`fk_marke`=`markes`.`id`";
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		
 		return $data[0]['kiekis'];
@@ -103,7 +102,7 @@ class models {
 					FROM `modeliai`
           WHERE `fk_marke` IN (${IN})";
 
-    $stmt = mysql::getInstance()->query($query);
+    $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute($parameters);
     $data = $stmt->fetchAll();
     $d = array();
@@ -125,7 +124,7 @@ class models {
 					SET    `pavadinimas`= ?,
 						   `fk_marke`= ?
 					WHERE `id`= ?";
-    $stmt = mysql::getInstance()->query($query);
+    $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
         $data['pavadinimas'], $data['fk_marke'], $data['id']
     ));
@@ -146,7 +145,7 @@ class models {
 								(
                   ?, ?, ?
 								)";
-    $stmt = mysql::getInstance()->query($query);
+    $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
         $data['id'], $data['pavadinimas'], $data['fk_marke']
     ));
@@ -189,10 +188,10 @@ class models {
 		$query = "  SELECT MAX(`id`) AS `latestId`
 					FROM `modeliai`";
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		
 		return $data[0]['latestId'];
 	}
 	
 }
+

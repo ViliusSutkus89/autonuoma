@@ -48,7 +48,6 @@ class services {
 		$query = "  SELECT COUNT(`paslaugos`.`id`) as `kiekis`
 					FROM `paslaugos`";
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		return $data[0]['kiekis'];
 	}
@@ -234,7 +233,6 @@ class services {
 		$query = "  SELECT MAX(`id`) AS `latestId`
 					FROM `paslaugos`";
     $stmt = mysql::getInstance()->query($query);
-    $stmt->execute();
     $data = $stmt->fetchAll();
 		
 		return $data[0]['latestId'];
@@ -310,3 +308,4 @@ class services {
 		return $data;
 	}
 }
+
