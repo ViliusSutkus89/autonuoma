@@ -5,28 +5,21 @@ require_once 'model/cars.class.php';
 require_once 'model/brands.class.php';
 require_once 'model/models.class.php';
 
-// sukuriame automobilių klasės objektą
-$carsObj = new cars();
 
-if (!empty($id) || $action == 'new') {
-	$formErrors = null;
-	$fields = array();
+class carController {
 
-	$brandsObj = new brands();
-	$modelsObj = new models();
+  public static $defaultAction = "index";
 
 	// nustatome privalomus laukus
-	$required = array('modelis', 'valstybinis_nr', 'pagaminimo_data', 'pavaru_deze', 'degalu_tipas', 'kebulas', 'bagazo_dydis', 'busena', 'rida', 'vietu_skaicius', 'registravimo_data', 'verte');
-	
+	private $required = array('modelis', 'valstybinis_nr', 'pagaminimo_data', 'pavaru_deze', 'degalu_tipas', 'kebulas', 'bagazo_dydis', 'busena', 'rida', 'vietu_skaicius', 'registravimo_data', 'verte');
+
 	// maksimalūs leidžiami laukų ilgiai
-	$maxLengths = array (
+	private $maxLengths = array (
 		'valstybinis_nr' => 6
 	);
 
-	// vartotojas paspaudė išsaugojimo mygtuką
-	if(!empty($_POST['submit'])) {
-		// nustatome laukų validatorių tipus
-		$validations = array (
+  // nustatome laukų validatorių tipus
+  private $validations = array (
 			'modelis' => 'positivenumber',
 			'valstybinis_nr' => 'alfanum',
 			'pavaru_deze' => 'positivenumber',
@@ -39,120 +32,148 @@ if (!empty($id) || $action == 'new') {
 			'vietu_skaicius' => 'positivenumber',
 			'registravimo_data' => 'date',
 			'verte' => 'price'
-			);
-				
-		// sukuriame laukų validatoriaus objektą
-		$validator = new validator($validations, $required, $maxLengths);
+  );
+
+  public function indexAction() {
+    // sukuriame automobilių klasės objektą
+    $carsObj = new cars();
+
+    // suskaičiuojame bendrą įrašų kiekį
+    $elementCount = $carsObj->getCarListCount();
+
+    // sukuriame puslapiavimo klasės objektą
+    $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
+
+    // suformuojame sąrašo puslapius
+    $paging->process($elementCount, routing::getPageId());
+
+    // išrenkame nurodyto puslapio markes
+    $data = $carsObj->getCarList($paging->size, $paging->first);
+
+    $template = template::getInstance();
+
+    $template->assign('data', $data);
+    $template->assign('pagingData', $paging->data);
+
+    if(!empty($_GET['remove_error']))
+      $template->assign('remove_error', true);
+
+    $template->setView("car_list");
+  }
+
+  public function editAction() {
+    if (!empty($_POST['submit']))
+      $this->insertUpdateAction();
+    else
+      $this->showAction();
+  }
+
+  private function showAction() {
+    $id = routing::getId();
+
+    $carsObj = new cars();
+    $brandsObj = new brands();
+	  $modelsObj = new models();
+
+    $fields = ($id) ? $carsObj->getcar($id) : array();
+
+    $template = template::getInstance();
+
+    $brands = $brandsObj->getBrandList();
+    $brandIDs = array();
+	  foreach($brands as $val)
+      $brandIDs[] = $val['id'];
+    $models = $modelsObj->getModelsListByBrands($brandIDs);
+
+    $template->assign('brands', $brands);
+    $template->assign('models', $models);
+
+    $gearboxes = $carsObj->getGearboxList();
+    $fueltypes = $carsObj->getFuelTypeList();
+    $bodytypes = $carsObj->getBodyTypeList();
+    $luggage = $carsObj->getLuggageTypeList();
+    $car_states = $carsObj->getCarStateList();
+
+    $template->assign('gearboxes', $gearboxes);
+    $template->assign('fueltypes', $fueltypes);
+    $template->assign('bodytypes', $bodytypes);
+    $template->assign('luggage', $luggage);
+
+    $template->assign('fields', $fields);
+    $template->assign('required', $this->required);
+    $template->assign('maxLengths', $this->maxLengths);
+
+    $template->setView("car_edit");
+  }
+
+  private function insertUpdateAction() {
+		// sukuriame validatoriaus objektą
+    $validator = new validator($this->validations, $this->required, $this->maxLengths);
 
 		// laukai įvesti be klaidų
 		if($validator->validate($_POST)) {
+      $carsObj = new cars();
+
 			// suformuojame laukų reikšmių masyvą SQL užklausai
 			$data = $validator->preparePostFieldsForSQL();
-			
+
 			// sutvarkome checkbox reikšmes
       $data['radijas'] = (!empty($data['radijas']) && $data['radijas'] == 'on') ? 1 : 0;
 
       $data['grotuvas'] = (!empty($data['grotuvas']) && $data['grotuvas'] == 'on') ? 1 : 0;
 
 		  $data['kondicionierius'] =  (!empty($data['kondicionierius']) && $data['kondicionierius'] == 'on') ? 1 : 0;
-			
+
 			if(isset($data['id'])) {
 				// atnaujiname duomenis
 				$carsObj->updateCar($data);
 			} else {
-				// randame didžiausią automobilio id duomenų bazėje
-				$latestId = $carsObj->getMaxIdOfCar();
+				// randame didžiausią markės id duomenų bazėje
+				$latestId = $carsObj->getMaxIdOfcar();
 
 				// įrašome naują įrašą
 				$data['id'] = $latestId + 1;
 				$carsObj->insertCar($data);
 			}
-			
-			// nukreipiame vartotoją į automobilių puslapį
-			header("Location: index.php?module={$module}");
-      $template->disableRendering();
+
+			// nukreipiame į automobilių puslapį
+      routing::redirect(routing::getModule(), 'index');
 		} else {
+      $this->showAction();
+
+      $template = template::getInstance();
+
+      // Overwrite fields array with submitted $_POST values
+      $template->assign('fields', $_POST);
+
 			// gauname klaidų pranešimą
 			$formErrors = $validator->getErrorHTML();
-			// laukų reikšmių kintamajam priskiriame įvestų laukų reikšmes
-			$fields = $_POST;
+      $template->assign('formErrors', $formErrors);
 		}
-	} else {
-		// tikriname, ar nurodytas elemento id. Jeigu taip, išrenkame elemento duomenis ir jais užpildome formos laukus.
-		if(!empty($id)) {
-			// išrenkame automobilį
-			$fields = $carsObj->getCar($id);
-		}
-	}
 
-  $template->assign('fields', $fields);
-  $template->assign('required', $required);
-  $template->assign('maxLengths', $maxLengths);
-
-  $template->assign('formErrors', $formErrors);
-
-	$brands = $brandsObj->getBrandList();
-
-  $brandIDs = array();
-	foreach($brands as $val)
-    $brandIDs[] = $val['id'];
-  $models = $modelsObj->getModelsListByBrands($brandIDs);
-
-  $template->assign('brands', $brands);
-  $template->assign('models', $models);
-
-  $gearboxes = $carsObj->getGearboxList();
-  $fueltypes = $carsObj->getFuelTypeList();
-  $bodytypes = $carsObj->getBodyTypeList();
-  $luggage = $carsObj->getLuggageTypeList();
-  $car_states = $carsObj->getCarStateList();
-
-  $template->assign('gearboxes', $gearboxes);
-  $template->assign('fueltypes', $fueltypes);
-  $template->assign('bodytypes', $bodytypes);
-  $template->assign('luggage', $luggage);
-  $template->assign('car_states', $car_states);
-
-  $template->setView("car_edit");
-}
-
-else if(!empty($removeId)) {
-  // patikriname, ar automobilis neįtrauktas į sutartis
-  $count = $carsObj->getContractCountOfCar($removeId);
-  
-  $removeErrorParameter = '';
-  if($count == 0) {
-    // šaliname automobilį
-    $carsObj->deleteCar($removeId);
-  } else {
-    // nepašalinome, nes automobilis įtrauktas bent į vieną sutartį, rodome klaidos pranešimą
-    $removeErrorParameter = '&remove_error=1';
   }
+
+  public function removeAction() {
+    $id = routing::getId();
+
+    // patikriname, ar automobilis neįtrauktas į sutartis
+    $carsObj = new cars();
+    $count = $carsObj->getContractCountOfCar($id);
   
-  // nukreipiame į automobilių puslapį
-  header("Location: index.php?module={$module}{$removeErrorParameter}");
-  $template->disableRendering();
-}
+    $removeErrorParameter = '';
+    if($count == 0) {
+  	  // pašaliname automobilį
+      $carsObj->deleteCar($id);
+    } else {
+      // nepašalinome, nes automobilis įtrauktas bent į vieną sutartį, rodome klaidos pranešimą
+      // rodome klaidos pranešimą
+      $removeErrorParameter = 'remove_error=1';
+    }
 
-// View list
-else {
-  // suskaičiuojame bendrą įrašų kiekį
-  $elementCount = $carsObj->getCarListCount();
+    // nukreipiame į markių puslapį
+    routing::redirect(routing::getModule(), 'index',
+      $removeErrorParameter);
+  }
 
-  // sukuriame puslapiavimo klasės objektą
-  $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
-
-  // suformuojame sąrašo puslapius
-  $paging->process($elementCount, $pageId);
-
-  // išrenkame nurodyto puslapio automobilius
-  $data = $carsObj->getCarList($paging->size, $paging->first);
-  $template->assign('data', $data);
-  $template->assign('pagingData', $paging->data);
-
-  $template->setView("car_list");
-
-  if(isset($_GET['remove_error']))
-    $template->assign('remove_error', true);
-}
+};
 
