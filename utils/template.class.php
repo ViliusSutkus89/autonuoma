@@ -8,9 +8,18 @@
 
 class template {
 
+  private static $instance = null;
+
   private $enabled = true;
   private $data = array();
   private $view;
+
+  public static function getInstance() {
+    if (self::$instance === null)
+      self::$instance = new template();
+
+    return self::$instance;
+  }
 
   public function setView($view) {
     $this->view = $view;
