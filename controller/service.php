@@ -1,8 +1,8 @@
 <?php
-require 'utils/paging.class.php';
-require 'utils/validator.class.php';
-require 'model/contracts.class.php';
-require 'model/services.class.php';
+require_once 'utils/paging.class.php';
+require_once 'utils/validator.class.php';
+require_once 'model/contracts.class.php';
+require_once 'model/services.class.php';
 
 $contractsObj = new contracts();
 $servicesObj = new services();

@@ -1,11 +1,11 @@
 <?php
-require 'utils/paging.class.php';
-require 'utils/validator.class.php';
-require 'model/cars.class.php';
-require 'model/contracts.class.php';
-require 'model/customers.class.php';
-require 'model/employees.class.php';
-require 'model/services.class.php';
+require_once 'utils/paging.class.php';
+require_once 'utils/validator.class.php';
+require_once 'model/cars.class.php';
+require_once 'model/contracts.class.php';
+require_once 'model/customers.class.php';
+require_once 'model/employees.class.php';
+require_once 'model/services.class.php';
 
 // sukuriame sutarčių klasės objektą
 $contractsObj = new contracts();

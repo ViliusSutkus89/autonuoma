@@ -1,11 +1,11 @@
 <?php
 	// nuskaitome konfigūracijų failą
-	require 'config.php';
+	require_once 'config.php';
 
 	// iškviečiame prisijungimo prie duomenų bazės klasę
-	require 'utils/mysql_pdo.class.php';
+	require_once 'utils/mysql_pdo.class.php';
 
-  require 'utils/template.class.php';
+  require_once 'utils/template.class.php';
 	
 	// nustatome pasirinktą modulį
 	$module = '';

@@ -1,7 +1,7 @@
 <?php
-require 'utils/paging.class.php';
-require 'utils/validator.class.php';
-require 'model/brands.class.php';
+require_once 'utils/paging.class.php';
+require_once 'utils/validator.class.php';
+require_once 'model/brands.class.php';
 
 // sukuriame markių klasės objektą
 $brandsObj = new brands();

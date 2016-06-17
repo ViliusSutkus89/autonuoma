@@ -1,8 +1,8 @@
 <?php
-require 'utils/paging.class.php';
-require 'utils/validator.class.php';
-require 'model/models.class.php';
-require 'model/brands.class.php';
+require_once 'utils/paging.class.php';
+require_once 'utils/validator.class.php';
+require_once 'model/models.class.php';
+require_once 'model/brands.class.php';
 
 // sukuriame modelių klasės objektą
 $modelsObj = new models();
