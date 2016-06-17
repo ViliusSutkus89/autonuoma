@@ -180,12 +180,47 @@ class validator
     	return ($filter === false) ? false : filter_var($var, $filter) !== false ? true : false;
     }
 
-    /*
-     * We're using PDO, no need for any database input sanitization
-     */
 	function preparePostFieldsForSQL() {
-    return $this->fields;
+		$data = array();
+
+		foreach($this->fields as $key=>$val) {
+			$tmp = null;
+			if(!is_array($val)) {
+				$tmp = $this->html_escape($val);
+			} else {
+				foreach($val as $key2 => $val2) {
+					$tmp[] = $this->html_escape($val2);
+				}
+			}
+			
+			if(!in_array($key, $this->mandatories) && ($tmp == '' || $tmp == array())) {
+				$data[$key] = '';
+			} else {
+				if(!is_array($tmp)) {
+					$data[$key] = $tmp;
+				} else {
+					$data[$key] = $tmp;
+				}
+				
+			}
+		}
+
+    return $data;
 	}
+
+    /*
+     * Escape HTML entities, to prevent XSS
+     */
+  function html_escape($input) {
+    $data = str_replace('&', '&amp;', $input);
+    $data = str_replace(
+      array('<', '>', '"', "'", "/"),
+      array('&lt;', '&gt;', '&quot;', '&#x27;', '&#x2f;'),
+      $data
+    );
+
+    return $data;
+  }
 	
 }
 
