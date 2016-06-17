@@ -17,3 +17,7 @@
     </Limit>
 </Files>
 
+# Išjungiam išvesties bufferizavimą,
+# kuris kartais paslepia errorus,
+# išspausdintus prieš peradresavimą
+php_flag "output_buffering" off
