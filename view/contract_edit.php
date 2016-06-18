@@ -8,15 +8,7 @@
 <div class="float-clear"></div>
 
 <div id="formContainer">
-	<?php if(!empty($formErrors)) { ?>
-		<div class="errorBox">
-			Neįvesti arba neteisingai įvesti šie laukai:
-			<?php 
-				echo $formErrors;
-			?>
-		</div>
-	<?php } ?>
-
+  <?php require("formErrors.php"); ?>
 	<form action="" method="post">
 		<fieldset>
 			<legend>Sutarties informacija</legend>
