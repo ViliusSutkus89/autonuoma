@@ -4,7 +4,7 @@
 	<li>Darbuotojai</li>
 </ul>
 <div id="actions">
-	<a href='index.php?module=<?php echo $module; ?>&amp;action=new'>Naujas darbuotojas</a>
+	<a href='index.php?module=<?php echo $module; ?>&amp;action=edit&amp;id=0'>Naujas darbuotojas</a>
 </div>
 <div class="float-clear"></div>
 
@@ -33,7 +33,7 @@
 					. "<td>{$val['pavarde']}</td>"
 					. "<td>"
 						. "<a href='#' onclick='showConfirmDialog(\"{$module}\", \"{$val['tabelio_nr']}\"); return false;' title=''>šalinti</a>&nbsp;"
-						. "<a href='index.php?module={$module}&amp;id={$val['tabelio_nr']}' title=''>redaguoti</a>"
+						. "<a href='index.php?module={$module}&amp;action=edit&amp;id={$val['tabelio_nr']}' title=''>redaguoti</a>"
 					. "</td>"
 				. "</tr>\n";
 		}

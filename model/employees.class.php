@@ -38,7 +38,7 @@ class employees {
 	 * @param type $offset
 	 * @return type
 	 */
-	public function getEmplyeesList($limit = null, $offset = null) {
+	public function getEmployeesList($limit = null, $offset = null) {
 		$query = "  SELECT *
           FROM `darbuotojai`";
 
@@ -64,7 +64,7 @@ class employees {
 	 * Darbuotojų kiekio radimas
 	 * @return type
 	 */
-	public function getEmplyeesListCount() {
+	public function getEmployeesListCount() {
 		$query = "  SELECT COUNT(`tabelio_nr`) as `kiekis`
 					FROM `darbuotojai`";
 
