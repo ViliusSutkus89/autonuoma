@@ -7,6 +7,9 @@ class controller {
     $module = routing::getModule();
     $action = routing::getAction();
 
+    if (empty($module))
+      $module = "index";
+
     // Require controller class
     require_once "controller/${module}.php";
 
