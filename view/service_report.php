@@ -24,7 +24,7 @@ require('header_report.php');
         }
         ?>
       </span>
-      <a href="report.php?id=<?php echo $id; ?>" title="Nauja ataskaita" class="newReport">nauja ataskaita</a>
+      <a href="index.php?module=<?php echo $module; ?>&amp;action=view&amp;id=<?php echo $id; ?>" title="Nauja ataskaita" class="newReport">nauja ataskaita</a>
     </li>
   </ul>
 </div>
