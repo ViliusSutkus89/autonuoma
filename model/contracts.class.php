@@ -464,7 +464,7 @@ class contracts {
     $parameters = array();
 
 		if(!empty($dateFrom)) {
-      $whereClauseString .= " WHERE `sutartys`.`sutarties_data` >= ?";
+      $whereClauseString .= " AND `sutartys`.`sutarties_data` >= ?";
       $parameters[] = $dateFrom;
 			if(!empty($dateTo)) {
         $whereClauseString .= " AND `sutartys`.`sutarties_data` <= ?";
@@ -472,7 +472,7 @@ class contracts {
 			}
 		} else {
 			if(!empty($dateTo)) {
-        $whereClauseString .= " WHERE `sutartys`.`sutarties_data`<=?";
+        $whereClauseString .= " AND `sutartys`.`sutarties_data`<=?";
         $parameters[] = $dateTo;
 			}
 		}
