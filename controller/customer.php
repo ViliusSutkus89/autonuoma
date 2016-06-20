@@ -7,10 +7,10 @@ class customerController {
 
   public static $defaultAction = "index";
 
-	// nustatome privalomus laukus
+  // nustatome privalomus laukus
   private $required = array('asmens_kodas', 'vardas', 'pavarde', 'gimimo_data', 'telefonas');
 
-	// maksimalūs leidžiami laukų ilgiai
+  // maksimalūs leidžiami laukų ilgiai
   private $maxLengths = array (
     'asmens_kodas' => 11,
     'vardas' => 20,
@@ -19,12 +19,12 @@ class customerController {
 
   // nustatome laukų validatorių tipus
   private $validations = array (
-			'asmens_kodas' => 'positivenumber',
-			'vardas' => 'alfanum',
-			'pavarde' => 'alfanum',
-			'gimimo_data' => 'date',
-			'telefonas' => 'phone',
-			'epastas' => 'email'
+    'asmens_kodas' => 'positivenumber',
+    'vardas' => 'alfanum',
+    'pavarde' => 'alfanum',
+    'gimimo_data' => 'date',
+    'telefonas' => 'phone',
+    'epastas' => 'email'
   );
 
   public function indexAction() {
@@ -67,10 +67,10 @@ class customerController {
     $customersObj = new customers();
 
     $fields = array();
-		// tikriname, ar nurodytas elemento id. Jeigu taip, išrenkame elemento duomenis ir jais užpildome formos laukus.
+    // tikriname, ar nurodytas elemento id. Jeigu taip, išrenkame elemento duomenis ir jais užpildome formos laukus.
     if ($id) {
       $fields = $customersObj->getCustomer($id);
-			$fields['editing'] = 1;
+      $fields['editing'] = 1;
     }
 
     $template = template::getInstance();
@@ -83,26 +83,26 @@ class customerController {
   }
 
   private function insertUpdateAction() {
-		// sukuriame validatoriaus objektą
+    // sukuriame validatoriaus objektą
     $validator = new validator($this->validations, $this->required, $this->maxLengths);
 
-		// laukai įvesti be klaidų
-		if($validator->validate($_POST)) {
+    // laukai įvesti be klaidų
+    if($validator->validate($_POST)) {
       $customersObj = new customers();
 
-			// suformuojame laukų reikšmių masyvą SQL užklausai
-			$data = $validator->preparePostFieldsForSQL();
-			if(isset($data['editing'])) {
-				// atnaujiname duomenis
-				$customersObj->updateCustomer($data);
-			} else {
-				// įrašome naują klientą
-				$customersObj->insertCustomer($data);
-			}
+      // suformuojame laukų reikšmių masyvą SQL užklausai
+      $data = $validator->preparePostFieldsForSQL();
+      if(isset($data['editing'])) {
+        // atnaujiname duomenis
+        $customersObj->updateCustomer($data);
+      } else {
+        // įrašome naują klientą
+        $customersObj->insertCustomer($data);
+      }
 
-			// nukreipiame į customerių puslapį
+      // nukreipiame į customerių puslapį
       routing::redirect(routing::getModule(), 'index');
-		} else {
+    } else {
       $this->showAction();
 
       $template = template::getInstance();
@@ -110,10 +110,10 @@ class customerController {
       // Overwrite fields array with submitted $_POST values
       $template->assign('fields', $_POST);
 
-			// gauname klaidų pranešimą
-			$formErrors = $validator->getErrorHTML();
+      // gauname klaidų pranešimą
+      $formErrors = $validator->getErrorHTML();
       $template->assign('formErrors', $formErrors);
-		}
+    }
   }
 
   public function removeAction() {

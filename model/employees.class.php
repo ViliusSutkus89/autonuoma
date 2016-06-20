@@ -7,20 +7,18 @@
  */
 
 class employees {
-	
-	public function __construct() {
-		
-	}
-	
-	/**
-	 * Darbuotojo išrinkimas
-	 * @param type $id
-	 * @return type
-	 */
-	public function getEmployee($id) {
-		$query = "  SELECT *
-					FROM `darbuotojai`
-          WHERE `tabelio_nr`= ?";
+
+  public function __construct() {
+
+  }
+
+  /**
+   * Darbuotojo išrinkimas
+   * @param type $id
+   * @return type
+   */
+  public function getEmployee($id) {
+    $query = "SELECT * FROM `darbuotojai` WHERE `tabelio_nr`= ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
     $data = $stmt->fetchAll();
@@ -28,117 +26,99 @@ class employees {
     if (count($data) == 0) {
       return false;
     }
-		
-		return $data[0];
-	}
-	
-	/**
-	 * Darbuotojų sąrašo išrinkimas
-	 * @param type $limit
-	 * @param type $offset
-	 * @return type
-	 */
-	public function getEmployeesList($limit = null, $offset = null) {
-		$query = "  SELECT *
-          FROM `darbuotojai`";
 
+    return $data[0];
+  }
+
+  /**
+   * Darbuotojų sąrašo išrinkimas
+   * @param type $limit
+   * @param type $offset
+   * @return type
+   */
+  public function getEmployeesList($limit = null, $offset = null) {
+    $query = "SELECT * FROM `darbuotojai`";
     $parameters = array();
 
-		if(isset($limit)) {
+    if(isset($limit)) {
       $query .= " LIMIT ?";
       $parameters[] = $limit;
-		}
-		if(isset($offset)) {
+    }
+    if(isset($offset)) {
       $query .= " OFFSET ?";
       $parameters[] = $offset;
-		}
+    }
 
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute($parameters);
     $data = $stmt->fetchAll();
-		
-		return $data;
-	}
-	
-	/**
-	 * Darbuotojų kiekio radimas
-	 * @return type
-	 */
-	public function getEmployeesListCount() {
-		$query = "  SELECT COUNT(`tabelio_nr`) as `kiekis`
-					FROM `darbuotojai`";
+    return $data;
+  }
 
+  /**
+   * Darbuotojų kiekio radimas
+   * @return type
+   */
+  public function getEmployeesListCount() {
+    $query = "SELECT COUNT(`tabelio_nr`) AS `kiekis` FROM `darbuotojai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
-		
-		return $data[0]['kiekis'];
-	}
-	
-	/**
-	 * Darbuotojo šalinimas
-	 * @param type $id
-	 */
-	public function deleteEmployee($id) {
-		$query = "  DELETE FROM `darbuotojai`
-          WHERE `tabelio_nr`= ?";
+    return $data[0]['kiekis'];
+  }
+
+  /**
+   * Darbuotojo šalinimas
+   * @param type $id
+   */
+  public function deleteEmployee($id) {
+    $query = "DELETE FROM `darbuotojai` WHERE `tabelio_nr`= ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
-	}
-	
-	/**
-	 * Darbuotojo atnaujinimas
-	 * @param type $data
-	 */
-	public function updateEmployee($data) {
-		$query = "  UPDATE `darbuotojai`
-					SET    `vardas`= ?,
-						   `pavarde`= ?
-					WHERE `tabelio_nr`= ?";
+  }
+
+  /**
+   * Darbuotojo atnaujinimas
+   * @param type $data
+   */
+  public function updateEmployee($data) {
+    $query = "UPDATE `darbuotojai` SET `vardas`= ?, `pavarde`= ? WHERE `tabelio_nr`= ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
       $data['vardas'], $data['pavarde'], $data['tabelio_nr']
     ));
-	}
-	
-	/**
-	 * Darbuotojo įrašymas
-	 * @param type $data
-	 */
-	public function insertEmployee($data) {
-		$query = "  INSERT INTO `darbuotojai`
-								(
-									`tabelio_nr`,
-									`vardas`,
-									`pavarde`
-								) 
-								VALUES
-								(
-                  ?, ?, ?
-								)";
+  }
+
+  /**
+   * Darbuotojo įrašymas
+   * @param type $data
+   */
+  public function insertEmployee($data) {
+    $query = "INSERT INTO `darbuotojai`
+      (`tabelio_nr`, `vardas`, `pavarde`) VALUES ( ?, ?, ? )";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
       $data['tabelio_nr'], $data['vardas'], $data['pavarde']
     ));
-	}
-	
-	/**
-	 * Sutarčių, į kurias įtrauktas darbuotojas, kiekio radimas
-	 * @param type $id
-	 * @return type
-	 */
-	public function getContractCountOfEmployee($id) {
-		$query = "  SELECT COUNT(`sutartys`.`nr`) AS `kiekis`
-					FROM `darbuotojai`
-						INNER JOIN `sutartys`
-							ON `darbuotojai`.`tabelio_nr`=`sutartys`.`fk_darbuotojas`
-          WHERE `darbuotojai`.`tabelio_nr`= ?";
+  }
+
+  /**
+   * Sutarčių, į kurias įtrauktas darbuotojas, kiekio radimas
+   * @param type $id
+   * @return type
+   */
+  public function getContractCountOfEmployee($id) {
+    $query = "SELECT
+        COUNT(`sutartys`.`nr`) AS `kiekis`
+      FROM `darbuotojai`
+      INNER JOIN `sutartys`
+        ON `darbuotojai`.`tabelio_nr`=`sutartys`.`fk_darbuotojas`
+      WHERE `darbuotojai`.`tabelio_nr`= ?";
 
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
     $data = $stmt->fetchAll();
-		
-		return $data[0]['kiekis'];
-	}
-	
+    return $data[0]['kiekis'];
+  }
+
 }
 

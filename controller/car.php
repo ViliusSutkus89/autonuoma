@@ -10,28 +10,28 @@ class carController {
 
   public static $defaultAction = "index";
 
-	// nustatome privalomus laukus
-	private $required = array('modelis', 'valstybinis_nr', 'pagaminimo_data', 'pavaru_deze', 'degalu_tipas', 'kebulas', 'bagazo_dydis', 'busena', 'rida', 'vietu_skaicius', 'registravimo_data', 'verte');
+  // nustatome privalomus laukus
+  private $required = array('modelis', 'valstybinis_nr', 'pagaminimo_data', 'pavaru_deze', 'degalu_tipas', 'kebulas', 'bagazo_dydis', 'busena', 'rida', 'vietu_skaicius', 'registravimo_data', 'verte');
 
-	// maksimalūs leidžiami laukų ilgiai
-	private $maxLengths = array (
-		'valstybinis_nr' => 6
-	);
+  // maksimalūs leidžiami laukų ilgiai
+  private $maxLengths = array (
+    'valstybinis_nr' => 6
+  );
 
   // nustatome laukų validatorių tipus
   private $validations = array (
-			'modelis' => 'positivenumber',
-			'valstybinis_nr' => 'alfanum',
-			'pavaru_deze' => 'positivenumber',
-			'degalu_tipas' => 'positivenumber',
-			'kebulas' => 'positivenumber',
-			'bagazo_dydis' => 'positivenumber',
-			'busena' => 'positivenumber',
-			'pagaminimo_data' => 'date',
-			'rida' => 'positivenumber',
-			'vietu_skaicius' => 'positivenumber',
-			'registravimo_data' => 'date',
-			'verte' => 'price'
+    'modelis' => 'positivenumber',
+    'valstybinis_nr' => 'alfanum',
+    'pavaru_deze' => 'positivenumber',
+    'degalu_tipas' => 'positivenumber',
+    'kebulas' => 'positivenumber',
+    'bagazo_dydis' => 'positivenumber',
+    'busena' => 'positivenumber',
+    'pagaminimo_data' => 'date',
+    'rida' => 'positivenumber',
+    'vietu_skaicius' => 'positivenumber',
+    'registravimo_data' => 'date',
+    'verte' => 'price'
   );
 
   public function indexAction() {
@@ -73,7 +73,7 @@ class carController {
 
     $carsObj = new cars();
     $brandsObj = new brands();
-	  $modelsObj = new models();
+    $modelsObj = new models();
 
     $fields = ($id) ? $carsObj->getcar($id) : array();
 
@@ -81,7 +81,7 @@ class carController {
 
     $brands = $brandsObj->getBrandList();
     $brandIDs = array();
-	  foreach($brands as $val)
+    foreach($brands as $val)
       $brandIDs[] = $val['id'];
     $models = $modelsObj->getModelsListByBrands($brandIDs);
 
@@ -107,38 +107,38 @@ class carController {
   }
 
   private function insertUpdateAction() {
-		// sukuriame validatoriaus objektą
+    // sukuriame validatoriaus objektą
     $validator = new validator($this->validations, $this->required, $this->maxLengths);
 
-		// laukai įvesti be klaidų
-		if($validator->validate($_POST)) {
+    // laukai įvesti be klaidų
+    if($validator->validate($_POST)) {
       $carsObj = new cars();
 
-			// suformuojame laukų reikšmių masyvą SQL užklausai
-			$data = $validator->preparePostFieldsForSQL();
+      // suformuojame laukų reikšmių masyvą SQL užklausai
+      $data = $validator->preparePostFieldsForSQL();
 
-			// sutvarkome checkbox reikšmes
+      // sutvarkome checkbox reikšmes
       $data['radijas'] = (!empty($data['radijas']) && $data['radijas'] == 'on') ? 1 : 0;
 
       $data['grotuvas'] = (!empty($data['grotuvas']) && $data['grotuvas'] == 'on') ? 1 : 0;
 
-		  $data['kondicionierius'] =  (!empty($data['kondicionierius']) && $data['kondicionierius'] == 'on') ? 1 : 0;
+      $data['kondicionierius'] =  (!empty($data['kondicionierius']) && $data['kondicionierius'] == 'on') ? 1 : 0;
 
-			if(isset($data['id'])) {
-				// atnaujiname duomenis
-				$carsObj->updateCar($data);
-			} else {
-				// randame didžiausią markės id duomenų bazėje
-				$latestId = $carsObj->getMaxIdOfcar();
+      if(isset($data['id'])) {
+        // atnaujiname duomenis
+        $carsObj->updateCar($data);
+      } else {
+        // randame didžiausią markės id duomenų bazėje
+        $latestId = $carsObj->getMaxIdOfcar();
 
-				// įrašome naują įrašą
-				$data['id'] = $latestId + 1;
-				$carsObj->insertCar($data);
-			}
+        // įrašome naują įrašą
+        $data['id'] = $latestId + 1;
+        $carsObj->insertCar($data);
+      }
 
-			// nukreipiame į automobilių puslapį
+      // nukreipiame į automobilių puslapį
       routing::redirect(routing::getModule(), 'index');
-		} else {
+    } else {
       $this->showAction();
 
       $template = template::getInstance();
@@ -146,10 +146,10 @@ class carController {
       // Overwrite fields array with submitted $_POST values
       $template->assign('fields', $_POST);
 
-			// gauname klaidų pranešimą
-			$formErrors = $validator->getErrorHTML();
+      // gauname klaidų pranešimą
+      $formErrors = $validator->getErrorHTML();
       $template->assign('formErrors', $formErrors);
-		}
+    }
 
   }
 
@@ -159,10 +159,10 @@ class carController {
     // patikriname, ar automobilis neįtrauktas į sutartis
     $carsObj = new cars();
     $count = $carsObj->getContractCountOfCar($id);
-  
+
     $removeErrorParameter = '';
     if($count == 0) {
-  	  // pašaliname automobilį
+      // pašaliname automobilį
       $carsObj->deleteCar($id);
     } else {
       // nepašalinome, nes automobilis įtrauktas bent į vieną sutartį, rodome klaidos pranešimą

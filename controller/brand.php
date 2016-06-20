@@ -7,11 +7,11 @@ class brandController {
 
   public static $defaultAction = "index";
 
-	// nustatome privalomus laukus
+  // nustatome privalomus laukus
   private $required = array('pavadinimas');
 
-	// maksimalūs leidžiami laukų ilgiai
-	private $maxLengths = array ('pavadinimas' => 20);
+  // maksimalūs leidžiami laukų ilgiai
+  private $maxLengths = array ('pavadinimas' => 20);
 
   // nustatome laukų validatorių tipus
   private $validations = array ('pavadinimas' => 'anything');
@@ -65,30 +65,30 @@ class brandController {
   }
 
   private function insertUpdateAction() {
-		// sukuriame validatoriaus objektą
+    // sukuriame validatoriaus objektą
     $validator = new validator($this->validations,
       $this->required, $this->maxLengths);
 
-		if($validator->validate($_POST)) {
+    if($validator->validate($_POST)) {
       $brandsObj = new brands();
 
-			// suformuojame laukų reikšmių masyvą SQL užklausai
-			$data = $validator->preparePostFieldsForSQL();
-			if(isset($data['id'])) {
-				// atnaujiname duomenis
-				$brandsObj->updateBrand($data);
-			} else {
-				// randame didžiausią markės id duomenų bazėje
-				$latestId = $brandsObj->getMaxIdOfBrand();
+      // suformuojame laukų reikšmių masyvą SQL užklausai
+      $data = $validator->preparePostFieldsForSQL();
+      if(isset($data['id'])) {
+        // atnaujiname duomenis
+        $brandsObj->updateBrand($data);
+      } else {
+        // randame didžiausią markės id duomenų bazėje
+        $latestId = $brandsObj->getMaxIdOfBrand();
 
-				// įrašome naują įrašą
-				$data['id'] = $latestId + 1;
-				$brandsObj->insertBrand($data);
-			}
+        // įrašome naują įrašą
+        $data['id'] = $latestId + 1;
+        $brandsObj->insertBrand($data);
+      }
 
-			// nukreipiame į markių puslapį
+      // nukreipiame į markių puslapį
       routing::redirect(routing::getModule(), 'index');
-		} else {
+    } else {
       $this->showAction();
 
       $template = template::getInstance();
@@ -96,10 +96,10 @@ class brandController {
       // Overwrite fields array with submitted $_POST values
       $template->assign('fields', $_POST);
 
-			// gauname klaidų pranešimą
-			$formErrors = $validator->getErrorHTML();
+      // gauname klaidų pranešimą
+      $formErrors = $validator->getErrorHTML();
       $template->assign('formErrors', $formErrors);
-		}
+    }
 
   }
 
@@ -109,7 +109,7 @@ class brandController {
     // patikriname, ar šalinama markė nepriskirta modeliui
     $brandsObj = new brands();
     $count = $brandsObj->getModelCountOfBrand($id);
-  
+
     $removeErrorParameter = '';
     if($count == 0) {
       // šaliname markę

@@ -9,11 +9,11 @@ class modelController {
 
   public static $defaultAction = "index";
 
-	// nustatome privalomus laukus
+  // nustatome privalomus laukus
   private $required = array('pavadinimas', 'fk_marke');
 
-	// maksimalūs leidžiami laukų ilgiai
-	private $maxLengths = array ('pavadinimas' => 20);
+  // maksimalūs leidžiami laukų ilgiai
+  private $maxLengths = array ('pavadinimas' => 20);
 
   // nustatome laukų validatorių tipus
   private $validations = array (
@@ -76,30 +76,30 @@ class modelController {
   }
 
   private function insertUpdateAction() {
-		// sukuriame validatoriaus objektą
+    // sukuriame validatoriaus objektą
     $validator = new validator($this->validations, $this->required, $this->maxLengths);
 
-		// laukai įvesti be klaidų
-		if($validator->validate($_POST)) {
+    // laukai įvesti be klaidų
+    if($validator->validate($_POST)) {
       $modelsObj = new models();
 
-			// suformuojame laukų reikšmių masyvą SQL užklausai
-			$data = $validator->preparePostFieldsForSQL();
-			if(isset($data['id'])) {
-				// atnaujiname duomenis
-				$modelsObj->updateModel($data);
-			} else {
-				// randame didžiausią markės id duomenų bazėje
-				$latestId = $modelsObj->getMaxIdOfmodel();
+      // suformuojame laukų reikšmių masyvą SQL užklausai
+      $data = $validator->preparePostFieldsForSQL();
+      if(isset($data['id'])) {
+        // atnaujiname duomenis
+        $modelsObj->updateModel($data);
+      } else {
+        // randame didžiausią markės id duomenų bazėje
+        $latestId = $modelsObj->getMaxIdOfmodel();
 
-				// įrašome naują įrašą
-				$data['id'] = $latestId + 1;
-				$modelsObj->insertModel($data);
-			}
+        // įrašome naują įrašą
+        $data['id'] = $latestId + 1;
+        $modelsObj->insertModel($data);
+      }
 
-			// nukreipiame į modelių puslapį
+      // nukreipiame į modelių puslapį
       routing::redirect(routing::getModule(), 'index');
-		} else {
+    } else {
       $this->showAction();
 
       $template = template::getInstance();
@@ -107,10 +107,10 @@ class modelController {
       // Overwrite fields array with submitted $_POST values
       $template->assign('fields', $_POST);
 
-			// gauname klaidų pranešimą
-			$formErrors = $validator->getErrorHTML();
+      // gauname klaidų pranešimą
+      $formErrors = $validator->getErrorHTML();
       $template->assign('formErrors', $formErrors);
-		}
+    }
 
   }
 
@@ -120,10 +120,10 @@ class modelController {
     // patikriname, ar šalinamas modelis nenaudojamas, t.y. nepriskirtas jokiam automobiliui
     $modelsObj = new models();
     $count = $modelsObj->getCarCountOfModel($id);
-  
+
     $removeErrorParameter = '';
     if($count == 0) {
-  	  // pašaliname modelį
+      // pašaliname modelį
       $modelsObj->deleteModel($id);
     } else {
       // nepašalinome, nes modelis priskirtas bent vienam automobiliui, rodome klaidos pranešimą

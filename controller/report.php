@@ -11,13 +11,13 @@ class reportController {
   private static $reports = array(
     1 => array(
       "title" => "Sutarčių ataskaita",
-			"description" => "Per laikotarpį sudarytų sutarčių ataskaita.",
+      "description" => "Per laikotarpį sudarytų sutarčių ataskaita.",
       "controllerName" => "contract_report"
     ),
 
     2 => array(
       "title" => "Užsakytų paslaugų ataskaita",
-			"description" => "Per laikotarpį užsakytų papildomų paslaugų ataskaita.",
+      "description" => "Per laikotarpį užsakytų papildomų paslaugų ataskaita.",
       "controllerName" => "service_report"
     ),
 
@@ -61,7 +61,7 @@ class contract_report {
 
   // nustatome laukų validatorių tipus
   private  $validations = array (
-		'dataNuo' => 'date',
+    'dataNuo' => 'date',
     'dataIki' => 'date'
   );
 
@@ -74,12 +74,12 @@ class contract_report {
 
     $template = template::getInstance();
 
-	  // sukuriame validatoriaus objektą
-	  $validator = new validator($this->validations);
+    // sukuriame validatoriaus objektą
+    $validator = new validator($this->validations);
 
-	  if($validator->validate($_POST)) {
-		  // suformuojame laukų reikšmių masyvą SQL užklausai
-		  $data = $validator->preparePostFieldsForSQL();
+    if($validator->validate($_POST)) {
+      // suformuojame laukų reikšmių masyvą SQL užklausai
+      $data = $validator->preparePostFieldsForSQL();
 
       // išrenkame ataskaitos duomenis
       $contractData = $contractsObj->getCustomerContracts($data['dataNuo'], $data['dataIki']);
@@ -92,19 +92,19 @@ class contract_report {
       $template->assign("totalServicePrice", $totalServicePrice);
 
       $template->setView("contract_report");
-	  } else {
+    } else {
 
       $this->showForm();
 
-	  	// gauname klaidų pranešimą
-	  	$formErrors = $validator->getErrorHTML();
+      // gauname klaidų pranešimą
+      $formErrors = $validator->getErrorHTML();
 
-	  	// gauname įvestus laukus
-	  	$fields = $_POST;
+      // gauname įvestus laukus
+      $fields = $_POST;
 
       $template->assign("formErrors", $formErrors);
       $template->assign("fields", $fields);
-	  }
+    }
   }
 };
 
@@ -113,7 +113,7 @@ class service_report {
 
   // nustatome laukų validatorių tipus
   private  $validations = array (
-		'dataNuo' => 'date',
+    'dataNuo' => 'date',
     'dataIki' => 'date'
   );
 
@@ -126,12 +126,12 @@ class service_report {
 
     $template = template::getInstance();
 
-	  // sukuriame validatoriaus objektą
-	  $validator = new validator($this->validations);
+    // sukuriame validatoriaus objektą
+    $validator = new validator($this->validations);
 
-	  if($validator->validate($_POST)) {
-		  // suformuojame laukų reikšmių masyvą SQL užklausai
-		  $data = $validator->preparePostFieldsForSQL();
+    if($validator->validate($_POST)) {
+      // suformuojame laukų reikšmių masyvą SQL užklausai
+      $data = $validator->preparePostFieldsForSQL();
 
       // išrenkame ataskaitos duomenis
       $servicesData = $servicesObj->getOrderedServices($data['dataNuo'], $data['dataIki']);
@@ -142,19 +142,19 @@ class service_report {
       $template->assign("data", $data);
 
       $template->setView("service_report");
-	  } else {
+    } else {
 
       $this->showForm();
 
-	  	// gauname klaidų pranešimą
-	  	$formErrors = $validator->getErrorHTML();
+      // gauname klaidų pranešimą
+      $formErrors = $validator->getErrorHTML();
 
-	  	// gauname įvestus laukus
-	  	$fields = $_POST;
+      // gauname įvestus laukus
+      $fields = $_POST;
 
       $template->assign("formErrors", $formErrors);
       $template->assign("fields", $fields);
-	  }
+    }
   }
 };
 
@@ -163,7 +163,7 @@ class delayed_cars_report {
 
   // nustatome laukų validatorių tipus
   private  $validations = array (
-		'dataNuo' => 'date',
+    'dataNuo' => 'date',
     'dataIki' => 'date'
   );
 
@@ -176,12 +176,12 @@ class delayed_cars_report {
 
     $template = template::getInstance();
 
-	  // sukuriame validatoriaus objektą
-	  $validator = new validator($this->validations);
+    // sukuriame validatoriaus objektą
+    $validator = new validator($this->validations);
 
-	  if($validator->validate($_POST)) {
-		  // suformuojame laukų reikšmių masyvą SQL užklausai
-		  $data = $validator->preparePostFieldsForSQL();
+    if($validator->validate($_POST)) {
+      // suformuojame laukų reikšmių masyvą SQL užklausai
+      $data = $validator->preparePostFieldsForSQL();
 
       // išrenkame ataskaitos duomenis
       $delayedCarsData = $contractsObj->getDelayedCars($data['dataNuo'], $data['dataIki']);
@@ -190,19 +190,19 @@ class delayed_cars_report {
       $template->assign("data", $data);
 
       $template->setView("delayed_cars_report");
-	  } else {
+    } else {
 
       $this->showForm();
 
-	  	// gauname klaidų pranešimą
-	  	$formErrors = $validator->getErrorHTML();
+      // gauname klaidų pranešimą
+      $formErrors = $validator->getErrorHTML();
 
-	  	// gauname įvestus laukus
-	  	$fields = $_POST;
+      // gauname įvestus laukus
+      $fields = $_POST;
 
       $template->assign("formErrors", $formErrors);
       $template->assign("fields", $fields);
-	  }
+    }
   }
 };
 

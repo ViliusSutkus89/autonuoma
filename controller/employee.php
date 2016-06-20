@@ -7,21 +7,21 @@ class employeeController {
 
   public static $defaultAction = "index";
 
-	// nustatome privalomus laukus
-	private $required = array('tabelio_nr', 'vardas', 'pavarde');
+  // nustatome privalomus laukus
+  private $required = array('tabelio_nr', 'vardas', 'pavarde');
 
-	// maksimalūs leidžiami laukų ilgiai
+  // maksimalūs leidžiami laukų ilgiai
   private $maxLengths = array (
-		'tabelio_nr' => 6,
+    'tabelio_nr' => 6,
     'vardas' => 20,
     'pavarde' => 20
   );
 
   // nustatome laukų validatorių tipus
   private $validations = array (
-			'tabelio_nr' => 'alfanum',
-			'vardas' => 'alfanum',
-			'pavarde' => 'alfanum');
+    'tabelio_nr' => 'alfanum',
+    'vardas' => 'alfanum',
+    'pavarde' => 'alfanum');
 
   public function indexAction() {
     // sukuriame employeeių klasės objektą
@@ -63,10 +63,10 @@ class employeeController {
     $employeesObj = new employees();
 
     $fields = array();
-		// tikriname, ar nurodytas elemento id. Jeigu taip, išrenkame elemento duomenis ir jais užpildome formos laukus.
+    // tikriname, ar nurodytas elemento id. Jeigu taip, išrenkame elemento duomenis ir jais užpildome formos laukus.
     if ($id) {
       $fields = $employeesObj->getEmployee($id);
-			$fields['editing'] = 1;
+      $fields['editing'] = 1;
     }
 
     $template = template::getInstance();
@@ -79,26 +79,26 @@ class employeeController {
   }
 
   private function insertUpdateAction() {
-		// sukuriame validatoriaus objektą
+    // sukuriame validatoriaus objektą
     $validator = new validator($this->validations, $this->required, $this->maxLengths);
 
-		// laukai įvesti be klaidų
-		if($validator->validate($_POST)) {
+    // laukai įvesti be klaidų
+    if($validator->validate($_POST)) {
       $employeesObj = new employees();
 
-			// suformuojame laukų reikšmių masyvą SQL užklausai
-			$data = $validator->preparePostFieldsForSQL();
-			if(isset($data['editing'])) {
-				// atnaujiname duomenis
-				$employeesObj->updateEmployee($data);
-			} else {
-				// įrašome naują darbuotoją
-				$employeesObj->insertEmployee($data);
-			}
+      // suformuojame laukų reikšmių masyvą SQL užklausai
+      $data = $validator->preparePostFieldsForSQL();
+      if(isset($data['editing'])) {
+        // atnaujiname duomenis
+        $employeesObj->updateEmployee($data);
+      } else {
+        // įrašome naują darbuotoją
+        $employeesObj->insertEmployee($data);
+      }
 
-			// nukreipiame į darbuotojų puslapį
+      // nukreipiame į darbuotojų puslapį
       routing::redirect(routing::getModule(), 'index');
-		} else {
+    } else {
       $this->showAction();
 
       $template = template::getInstance();
@@ -106,10 +106,10 @@ class employeeController {
       // Overwrite fields array with submitted $_POST values
       $template->assign('fields', $_POST);
 
-			// gauname klaidų pranešimą
-			$formErrors = $validator->getErrorHTML();
+      // gauname klaidų pranešimą
+      $formErrors = $validator->getErrorHTML();
       $template->assign('formErrors', $formErrors);
-		}
+    }
   }
 
   public function removeAction() {

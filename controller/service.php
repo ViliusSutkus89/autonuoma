@@ -8,13 +8,13 @@ class serviceController {
 
   public static $defaultAction = "index";
 
-	// nustatome privalomus laukus
+  // nustatome privalomus laukus
   private $required = array('pavadinimas', 'kainos', 'datos');
 
-	// maksimalūs leidžiami laukų ilgiai
+  // maksimalūs leidžiami laukų ilgiai
   private $maxLengths = array (
-  	'pavadinimas' => 40,
-  	'aprasymas' => 300
+    'pavadinimas' => 40,
+    'aprasymas' => 300
   );
 
   // nustatome laukų validatorių tipus
@@ -89,66 +89,66 @@ class serviceController {
   }
 
   private function insertUpdateAction() {
-		// sukuriame validatoriaus objektą
+    // sukuriame validatoriaus objektą
     $validator = new validator($this->validations, $this->required, $this->maxLengths);
 
-  	// laukai įvesti be klaidų
-		if($validator->validate($_POST)) {
+    // laukai įvesti be klaidų
+    if($validator->validate($_POST)) {
       $servicesObj = new services();
 
-			// suformuojame laukų reikšmių masyvą SQL užklausai
-			$data = $validator->preparePostFieldsForSQL();
-			if(isset($data['id'])) {
-				// atnaujiname duomenis
-				$servicesObj->updateService($data);
+      // suformuojame laukų reikšmių masyvą SQL užklausai
+      $data = $validator->preparePostFieldsForSQL();
+      if(isset($data['id'])) {
+        // atnaujiname duomenis
+        $servicesObj->updateService($data);
 
-  			// pašaliname paslaugos kainas, kurios nėra naudojamos sutartyse
+        // pašaliname paslaugos kainas, kurios nėra naudojamos sutartyse
         $galiojaNuo = array();
-  			foreach($data['kainos'] as $key=>$val) {
-  				if($data['neaktyvus'][$key] == 1) {
+        foreach($data['kainos'] as $key=>$val) {
+          if($data['neaktyvus'][$key] == 1) {
             $galiojaNuo[] = $data['datos'][$key];
 
-  				}
-  			}
+          }
+        }
         $servicesObj->deleteServicePrices($data['id'], $galiojaNuo);
-  			
-  			// atnaujiname paslaugos kainas, kurios nėra naudojamos sutartyse
-  			$servicesObj->insertServicePrices($data);
-			} else {
-				// randame didžiausią markės id duomenų bazėje
-				$latestId = $servicesObj->getMaxIdOfService();
 
-				// įrašome naują įrašą
-				$data['id'] = $latestId + 1;
-				$servicesObj->insertService($data);
+        // atnaujiname paslaugos kainas, kurios nėra naudojamos sutartyse
+        $servicesObj->insertServicePrices($data);
+      } else {
+        // randame didžiausią markės id duomenų bazėje
+        $latestId = $servicesObj->getMaxIdOfService();
 
-  			// įrašome paslaugų kainas
-  			$servicesObj->insertServicePrices($data);
-			}
+        // įrašome naują įrašą
+        $data['id'] = $latestId + 1;
+        $servicesObj->insertService($data);
 
-			// nukreipiame į paslaugų puslapį
+        // įrašome paslaugų kainas
+        $servicesObj->insertServicePrices($data);
+      }
+
+      // nukreipiame į paslaugų puslapį
       routing::redirect(routing::getModule(), 'index');
-		} else {
+    } else {
       $this->showAction();
 
       $template = template::getInstance();
 
-			// gauname klaidų pranešimą
-			$formErrors = $validator->getErrorHTML();
+      // gauname klaidų pranešimą
+      $formErrors = $validator->getErrorHTML();
       $template->assign('formErrors', $formErrors);
 
-  		$fields = $_POST;
-  		if(isset($_POST['kainos']) && sizeof($_POST['kainos']) > 0) {
-  			$i = 0;
-  			foreach($_POST['kainos'] as $key => $val) {
-  				$fields['paslaugos_kainos'][$i]['kaina'] = $val;
-  				$fields['paslaugos_kainos'][$i]['galioja_nuo'] = $_POST['datos'][$key];
-  				$fields['paslaugos_kainos'][$i]['neaktyvus'] = $_POST['neaktyvus'][$key];
-  				$i++;
-  			}
-  		}
+      $fields = $_POST;
+      if(isset($_POST['kainos']) && sizeof($_POST['kainos']) > 0) {
+        $i = 0;
+        foreach($_POST['kainos'] as $key => $val) {
+          $fields['paslaugos_kainos'][$i]['kaina'] = $val;
+          $fields['paslaugos_kainos'][$i]['galioja_nuo'] = $_POST['datos'][$key];
+          $fields['paslaugos_kainos'][$i]['neaktyvus'] = $_POST['neaktyvus'][$key];
+          $i++;
+        }
+      }
       $template->assign('fields', $fields);
-		}
+    }
   }
 
   public function removeAction() {

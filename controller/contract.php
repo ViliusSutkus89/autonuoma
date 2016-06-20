@@ -11,28 +11,28 @@ class contractController {
 
   public static $defaultAction = "index";
 
-	// nustatome privalomus laukus
+  // nustatome privalomus laukus
   private $required = array('nr', 'sutarties_data', 'nuomos_data_laikas', 'planuojama_grazinimo_data_laikas', 'pradine_rida', 'kaina', 'degalu_kiekis_paimant', 'busena', 'fk_klientas', 'fk_darbuotojas', 'fk_automobilis', 'fk_grazinimo_vieta', 'fk_paemimo_vieta', 'kiekiai');
 
   // nustatome laukų validatorių tipus
   private $validations = array (
-	  	'nr' => 'positivenumber',
-	  	'sutarties_data' => 'date',
-	  	'nuomos_data_laikas' => 'datetime',
-	  	'planuojama_grazinimo_data_laikas' => 'datetime',
-	  	'faktine_grazinimo_data_laikas' => 'datetime',
-	  	'pradine_rida' => 'int',
-	  	'galine_rida' => 'int',
-	  	'kaina' => 'price',
-	  	'degalu_kiekis_paimant' => 'int',
-	  	'dagalu_kiekis_grazinus' => 'int',
-	  	'busena' => 'positivenumber',
-	  	'fk_klientas' => 'alfanum',
-	  	'fk_darbuotojas' => 'alfanum',
-	  	'fk_automobilis' => 'positivenumber',
-	  	'fk_grazinimo_vieta' => 'positivenumber',
-	  	'fk_paemimo_vieta' => 'positivenumber',
-      'kiekiai' => 'int'
+    'nr' => 'positivenumber',
+    'sutarties_data' => 'date',
+    'nuomos_data_laikas' => 'datetime',
+    'planuojama_grazinimo_data_laikas' => 'datetime',
+    'faktine_grazinimo_data_laikas' => 'datetime',
+    'pradine_rida' => 'int',
+    'galine_rida' => 'int',
+    'kaina' => 'price',
+    'degalu_kiekis_paimant' => 'int',
+    'dagalu_kiekis_grazinus' => 'int',
+    'busena' => 'positivenumber',
+    'fk_klientas' => 'alfanum',
+    'fk_darbuotojas' => 'alfanum',
+    'fk_automobilis' => 'positivenumber',
+    'fk_grazinimo_vieta' => 'positivenumber',
+    'fk_paemimo_vieta' => 'positivenumber',
+    'kiekiai' => 'int'
   );
 
   public function indexAction() {
@@ -78,8 +78,8 @@ class contractController {
     $fields = array();
     if ($id) {
       $fields = $contractsObj->getContract($id);
-		  $fields['uzsakytos_paslaugos'] = $contractsObj->getOrderedServices($id);
-		  $fields['editing'] = 1;
+      $fields['uzsakytos_paslaugos'] = $contractsObj->getOrderedServices($id);
+      $fields['editing'] = 1;
     }
 
     $template = template::getInstance();
@@ -93,7 +93,7 @@ class contractController {
     $servicesList = $servicesObj->getServicesList();
 
     $serviceIDs = array();
-	  foreach($servicesList as $val)
+    foreach($servicesList as $val)
       $serviceIDs[] = $val['id'];
 
     $servicePrices = $servicesObj->getServicePrices($serviceIDs);
@@ -109,46 +109,46 @@ class contractController {
 
   private function insertUpdateAction() {
 
-		// sukuriame validatoriaus objektą
+    // sukuriame validatoriaus objektą
     $validator = new validator($this->validations, $this->required);
 
-		// laukai įvesti be klaidų
-		if($validator->validate($_POST)) {
+    // laukai įvesti be klaidų
+    if($validator->validate($_POST)) {
       $contractsObj = new contracts();
 
-			// suformuojame laukų reikšmių masyvą SQL užklausai
-			$data = $validator->preparePostFieldsForSQL();
+      // suformuojame laukų reikšmių masyvą SQL užklausai
+      $data = $validator->preparePostFieldsForSQL();
 
-			if(isset($data['editing'])) {
-				// atnaujiname sutartį
-				$contractsObj->updateContract($data);
-				// atnaujiname užsakytas paslaugas
-				$contractsObj->updateOrderedServices($data);
-			} else {
-				// patikriname, ar nėra sutarčių su tokiu pačiu numeriu
-				$exists = $contractsObj->getContract($data['nr']);
-				if($exists) {
-					// sudarome klaidų pranešimą
-					$formErrors = "Sutartis su įvestu numeriu jau egzistuoja.";
-					// laukų reikšmių kintamajam priskiriame įvestų laukų reikšmes
-					$fields = $_POST;
+      if(isset($data['editing'])) {
+        // atnaujiname sutartį
+        $contractsObj->updateContract($data);
+        // atnaujiname užsakytas paslaugas
+        $contractsObj->updateOrderedServices($data);
+      } else {
+        // patikriname, ar nėra sutarčių su tokiu pačiu numeriu
+        $exists = $contractsObj->getContract($data['nr']);
+        if($exists) {
+          // sudarome klaidų pranešimą
+          $formErrors = "Sutartis su įvestu numeriu jau egzistuoja.";
+          // laukų reikšmių kintamajam priskiriame įvestų laukų reikšmes
+          $fields = $_POST;
 
           $this->showAction();
 
           $template = template::getInstance();
           $template->assign('fields', $fields);
           $template->assign('formErrors', $formErrors);
-				} else {
-					// įrašome naują sutartį
-					$contractsObj->insertContract($data);
-					// įrašome užsakytas paslaugas
-					$contractsObj->updateOrderedServices($data);
-				}
-			}
+        } else {
+          // įrašome naują sutartį
+          $contractsObj->insertContract($data);
+          // įrašome užsakytas paslaugas
+          $contractsObj->updateOrderedServices($data);
+        }
+      }
 
-		} else {
-			// gauname klaidų pranešimą
-			$formErrors = $validator->getErrorHTML();
+    } else {
+      // gauname klaidų pranešimą
+      $formErrors = $validator->getErrorHTML();
 
       $this->showAction();
 
@@ -156,20 +156,20 @@ class contractController {
 
       $template->assign('formErrors', $formErrors);
 
-			// laukų reikšmių kintamajam priskiriame įvestų laukų reikšmes
-			$fields = $_POST;
-			if(isset($_POST['kiekiai']) && sizeof($_POST['kiekiai']) > 0) {
-				$i = 0;
-				foreach($_POST['kiekiai'] as $key => $val) {
-					$fields['uzsakytos_paslaugos'][$i]['kiekis'] = $val;
-					$i++;
-				}
-			}
+      // laukų reikšmių kintamajam priskiriame įvestų laukų reikšmes
+      $fields = $_POST;
+      if(isset($_POST['kiekiai']) && sizeof($_POST['kiekiai']) > 0) {
+        $i = 0;
+        foreach($_POST['kiekiai'] as $key => $val) {
+          $fields['uzsakytos_paslaugos'][$i]['kiekis'] = $val;
+          $i++;
+        }
+      }
       $template->assign('fields', $fields);
-		}
+    }
 
     if (empty($formErrors)) {
-		  // nukreipiame vartotoją į sutarčių puslapį
+      // nukreipiame vartotoją į sutarčių puslapį
       routing::redirect(routing::getModule(), 'index');
     }
   }
