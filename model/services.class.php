@@ -57,6 +57,9 @@ class services {
   public function getServicePrices($serviceIDs) {
     $IN = "";
     $parameters = array();
+    if (!is_array($serviceIDs))
+      $serviceIDs = array($serviceIDs);
+
     foreach ($serviceIDs as $val) {
       $IN .= "?,";
       $parameters[] = $val;
@@ -162,6 +165,9 @@ class services {
    * @param type $data
    */
   public function insertServicePrices($data) {
+    if (empty($data['kainos']) || !count($data['kainos']))
+      return;
+
     $query = "INSERT INTO `paslaugu_kainos` (`fk_paslauga`, `galioja_nuo`, `kaina`) VALUES ";
     $parameters = array();
 
