@@ -228,51 +228,89 @@ class contracts {
   /**
    * Užsakytų papildomų paslaugų šalinimas
    * @param type $contractId
+   * @param type $keep
    */
-  public function deleteOrderedServices($contractId) {
-    $query = "DELETE FROM `uzsakytos_paslaugos` WHERE `fk_sutartis` = ?";
+  public function deleteOrderedServices($contractId, $keep = array()) {
+    $keepQuery = array();
+    $parameters = array($contractId);
+
+    foreach ($keep as $var) {
+      $keepQuery[] = "(?, ?)";
+      $parameters[] = $var['fk_kaina_galioja_nuo'];
+      $parameters[] = $var['fk_paslauga'];
+    }
+
+    $query = "
+      DELETE FROM
+        `uzsakytos_paslaugos`
+      WHERE
+        `fk_sutartis` = ?
+      ";
+    if (count($keepQuery)) {
+      $query .= "AND
+        (`fk_kaina_galioja_nuo`, `fk_paslauga`) NOT IN
+        (". implode(",", $keepQuery) . ")";
+    }
+
     $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array($contractId));
+    $stmt->execute($parameters);
   }
+
 
   /**
    * Užsakytų papildomų paslaugų atnaujinimas
    * @param type $data
    */
   public function updateOrderedServices($data) {
-    $this->deleteOrderedServices($data['nr']);
-
+    // Sanity check, make sure we have an array to work with
     if (empty($data['paslaugos']))
-      return;
+      $data['paslaugos'] = array();
 
-    $query = "INSERT INTO `uzsakytos_paslaugos`
-      (
-        `fk_sutartis`,
-        `fk_kaina_galioja_nuo`,
-        `fk_paslauga`,
-        `kiekis`,
-        `kaina`
-      )
-      VALUES ";
-
+    $valuesQuery = array();
     $parameters = array();
+    $keep = array();
 
-    foreach($data['paslaugos'] as $key=>$val) {
+    foreach($data['paslaugos'] as $key => $val) {
       $tmp = explode(":", $val);
       $serviceId = $tmp[0];
       $price = $tmp[1];
       $date_from = $tmp[2];
 
-      $query .= "(?, ?, ?, ?, ?),";
+      $valuesQuery[] = "(?, ?, ?, ?, ?)";
       $parameters[] = $data['nr'];
       $parameters[] = $date_from;
       $parameters[] = $serviceId;
       $parameters[] = $data['kiekiai'][$key];
       $parameters[] = $price;
+
+      $keep[] = array(
+        'fk_kaina_galioja_nuo'  => $date_from,
+        'fk_paslauga'           => $serviceId,
+      );
     }
-    $query = rtrim($query, ",");
-    $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute($parameters);
+
+    $this->deleteOrderedServices($data['nr'], $keep);
+    if (count($valuesQuery)) {
+      $valuesQuery = implode(",", $valuesQuery);
+
+      $query = "INSERT INTO `uzsakytos_paslaugos`
+        (
+          `fk_sutartis`,
+          `fk_kaina_galioja_nuo`,
+          `fk_paslauga`,
+          `kiekis`,
+          `kaina`
+        )
+        VALUES
+        {$valuesQuery}
+        ON DUPLICATE KEY UPDATE
+          `kiekis` = VALUES(`kiekis`),
+          `kaina` = VALUES(`kaina`)
+      ";
+
+      $stmt = mysql::getInstance()->prepare($query);
+      $stmt->execute($parameters);
+    }
   }
 
   /**
