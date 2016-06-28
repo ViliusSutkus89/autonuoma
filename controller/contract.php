@@ -85,7 +85,7 @@ class contractController {
     $template = template::getInstance();
 
     $template->assign('customerList', $customersObj->getCustomersList());
-    $template->assign('employeesList', $employeesObj->getEmplyeesList());
+    $template->assign('employeesList', $employeesObj->getEmployeesList());
     $template->assign('contractStates', $contractsObj->getContractStates());
     $template->assign('carsList', $carsObj->getCarList());
     $template->assign('parkingLots', $contractsObj->getParkingLots());
