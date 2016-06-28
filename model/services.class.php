@@ -55,18 +55,21 @@ class services {
    * @return type
    */
   public function getServicePrices($serviceIDs) {
-    $IN = "";
-    $parameters = array();
+    // $serviceIDs can be array of IDs or a single ID
     if (!is_array($serviceIDs))
       $serviceIDs = array($serviceIDs);
 
+    // Sanity check
+    if (empty($serviceIDs))
+      return array();
+
+    $IN = "";
+    $parameters = array();
     foreach ($serviceIDs as $val) {
       $IN .= "?,";
       $parameters[] = $val;
     }
     $IN = rtrim($IN, ",");
-    if (empty($parameters))
-      return array();
 
     $query = "SELECT *
       FROM `paslaugu_kainos`
@@ -74,14 +77,12 @@ class services {
     $stmt = mysql::getInstance()->query($query);
     $stmt->execute($parameters);
     $data = $stmt->fetchAll();
-    $d = array();
-    foreach ($data as $val) {
-      if (empty($d[$val['fk_paslauga']]))
-        $d[$val['fk_paslauga']] = array();
 
-      $d[$val['fk_paslauga']][] = $val;
+    $result = array();
+    foreach ($data as $val) {
+      $result[$val['fk_paslauga']][] = $val;
     }
-    return $d;
+    return $result;
   }
 
   /**

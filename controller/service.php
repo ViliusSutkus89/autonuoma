@@ -62,16 +62,27 @@ class serviceController {
     $id = routing::getId();
 
     $servicesObj = new services();
+    $contractsObj = new contracts();
+
     $fields = array();
     if ($id) {
       $fields = $servicesObj->getService($id);
-      $tmp = $servicesObj->getServicePrices($id);
-      if(sizeof($tmp) > 0) {
-        $contractsObj = new contracts();
-        foreach($tmp as $key => $val) {
+      // Check if this service is actually found in the db
+      if ($fields) {
+        $servicePrices = $servicesObj->getServicePrices($id);
+        //getServicePrices return an array of prices from multiple services, we only need one
+        $servicePrices = $servicePrices[$id];
+
+        $galioja_nuo = array();
+
+        foreach($servicePrices as $val) {
+          $galioja_nuo[] = $val['galioja_nuo'];
+        }
+
+        $priceCounts = $contractsObj->getPricesCountOfOrderedServices($id, $galioja_nuo);
+        foreach($servicePrices as $val) {
           // jeigu paslaugos kaina yra naudojama, jos koreguoti neleidziame ir įvedimo laukelį padarome neaktyvų
-          $priceCount = $contractsObj->getPricesCountOfOrderedServices($id, $val['galioja_nuo']);
-          if($priceCount > 0) {
+          if (!empty($priceCounts[$val['galioja_nuo']])) {
             $val['neaktyvus'] = 1;
           }
           $fields['paslaugos_kainos'][] = $val;
@@ -104,10 +115,12 @@ class serviceController {
 
         // pašaliname paslaugos kainas, kurios nėra naudojamos sutartyse
         $galiojaNuo = array();
-        foreach($data['kainos'] as $key=>$val) {
-          if($data['neaktyvus'][$key] == 1) {
-            $galiojaNuo[] = $data['datos'][$key];
+        if (!empty($data['kainos'])) {
+          foreach($data['kainos'] as $key=>$val) {
+            if($data['neaktyvus'][$key] == 1) {
+              $galiojaNuo[] = $data['datos'][$key];
 
+            }
           }
         }
         $servicesObj->deleteServicePrices($data['id'], $galiojaNuo);
