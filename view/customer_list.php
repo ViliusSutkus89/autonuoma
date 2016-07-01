@@ -4,7 +4,7 @@
 	<li>Klientai</li>
 </ul>
 <div id="actions">
-	<a href='index.php?module=<?php echo $module; ?>&amp;action=edit&amp;id=0'>Naujas klientas</a>
+	<a href='<?php echo routing::getURL($module, 'edit', 'id=0'); ?>'>Naujas klientas</a>
 </div>
 <div class="float-clear"></div>
 
@@ -34,7 +34,7 @@
 					. "<td>{$val['gimimo_data']}</td>"
 					. "<td>"
 						. "<a href='#' onclick='showConfirmDialog(\"{$module}\", \"{$val['asmens_kodas']}\"); return false;' title=''>šalinti</a>&nbsp;"
-						. "<a href='index.php?module={$module}&amp;action=edit&amp;id={$val['asmens_kodas']}' title=''>redaguoti</a>"
+						. "<a href='" . routing::getURL($module, 'edit', 'id=' . $val['asmens_kodas']), "' title=''>redaguoti</a>"
 					. "</td>"
 				. "</tr>\n";
 		}

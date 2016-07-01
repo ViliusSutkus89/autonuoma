@@ -5,7 +5,7 @@
 </ul>
 <div id="actions">
 	<a href="report.php?id=2" target="_blank">Paslaugų ataskaita</a>
-	<a href='index.php?module=<?php echo $module; ?>&amp;action=edit&amp;id=0'>Nauja paslauga</a>
+	<a href='<?php echo routing::getURL($module, 'edit', 'id=0'); ?>'>Nauja paslauga</a>
 </div>
 <div class="float-clear"></div>
 
@@ -30,7 +30,7 @@
 					. "<td>{$val['pavadinimas']}</td>"
 					. "<td>"
 						. "<a href='#' onclick='showConfirmDialog(\"{$module}\", \"{$val['id']}\"); return false;' title=''>šalinti</a>&nbsp;"
-						. "<a href='index.php?module={$module}&amp;action=edit&amp;id={$val['id']}' title=''>redaguoti</a>"
+						. "<a href='" . routing::getURL($module, 'edit', 'id=' . $val['id']), "' title=''>redaguoti</a>"
 					. "</td>"
 				. "</tr>\n";
 		}
