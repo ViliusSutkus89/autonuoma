@@ -59,7 +59,7 @@ class routing {
 
   public static function redirect($controller, $action = '', $params = '') {
     $url = self::getURL($controller, $action, $params);
-    header("Location: ${url}${params}");
+    header("Location: ${url}");
   }
 };
 
