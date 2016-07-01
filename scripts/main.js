@@ -66,9 +66,9 @@ $(window).ready(function (){
     
 });
 
-function showConfirmDialog(module, removeId) {
+function showConfirmDialog(module, deleteId) {
     var r = confirm("Ar tikrai norite pašalinti?");
     if (r === true) {
-        window.location.replace("index.php?module=" + module + "&action=remove&id=" + removeId);
+        window.location.replace("index.php?module=" + module + "&action=delete&id=" + deleteId);
     }
 }

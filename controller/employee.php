@@ -5,7 +5,7 @@ require_once 'model/employees.class.php';
 
 class employeeController {
 
-  public static $defaultAction = "index";
+  public static $defaultAction = "list";
 
   // nustatome privalomus laukus
   private $required = array('tabelio_nr', 'vardas', 'pavarde');
@@ -23,7 +23,7 @@ class employeeController {
     'vardas' => 'alfanum',
     'pavarde' => 'alfanum');
 
-  public function indexAction() {
+  public function listAction() {
     // sukuriame employeeių klasės objektą
     $employeesObj = new employees();
 
@@ -44,8 +44,8 @@ class employeeController {
     $template->assign('data', $data);
     $template->assign('pagingData', $paging->data);
 
-    if(!empty($_GET['remove_error']))
-      $template->assign('remove_error', true);
+    if(!empty($_GET['delete_error']))
+      $template->assign('delete_error', true);
 
     $template->setView("employee_list");
   }
@@ -97,7 +97,7 @@ class employeeController {
       }
 
       // nukreipiame į darbuotojų puslapį
-      routing::redirect(routing::getModule(), 'index');
+      routing::redirect(routing::getModule(), 'list');
     } else {
       $this->showAction();
 
@@ -112,26 +112,26 @@ class employeeController {
     }
   }
 
-  public function removeAction() {
+  public function deleteAction() {
     $id = routing::getId();
 
     // patikriname, ar darbuotojas neturi sudarytų sutarčių
     $employeesObj = new employees();
     $count = $employeesObj->getContractCountOfEmployee($id);
 
-    $removeErrorParameter = '';
+    $deleteErrorParameter = '';
     if($count == 0) {
       // šaliname darbuotoją
       $employeesObj->deleteEmployee($id);
     } else {
       // nepašalinome, nes klientas sudaręs bent vieną sutartį, rodome klaidos pranešimą
       // rodome klaidos pranešimą
-      $removeErrorParameter = 'remove_error=1';
+      $deleteErrorParameter = 'delete_error=1';
     }
 
     // nukreipiame į darbuotojų puslapį
-    routing::redirect(routing::getModule(), 'index',
-      $removeErrorParameter);
+    routing::redirect(routing::getModule(), 'list',
+      $deleteErrorParameter);
   }
 
 };

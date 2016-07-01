@@ -8,7 +8,7 @@
 </div>
 <div class="float-clear"></div>
 
-<?php if(isset($_GET['remove_error'])) { ?>
+<?php if(!empty($delete_error)) { ?>
 	<div class="errorBox">
 		Modelis nebuvo pašalintas. Pirmiausia pašalinkite to modelio automobilius.
 	</div>

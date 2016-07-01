@@ -9,7 +9,7 @@ require_once 'model/services.class.php';
 
 class contractController {
 
-  public static $defaultAction = "index";
+  public static $defaultAction = "list";
 
   // nustatome privalomus laukus
   private $required = array('nr', 'sutarties_data', 'nuomos_data_laikas', 'planuojama_grazinimo_data_laikas', 'pradine_rida', 'kaina', 'degalu_kiekis_paimant', 'busena', 'fk_klientas', 'fk_darbuotojas', 'fk_automobilis', 'fk_grazinimo_vieta', 'fk_paemimo_vieta', 'kiekiai');
@@ -35,7 +35,7 @@ class contractController {
     'kiekiai' => 'int'
   );
 
-  public function indexAction() {
+  public function listAction() {
     // sukuriame automobilių klasės objektą
     $contractsObj = new contracts();
 
@@ -170,11 +170,11 @@ class contractController {
 
     if (empty($formErrors)) {
       // nukreipiame vartotoją į sutarčių puslapį
-      routing::redirect(routing::getModule(), 'index');
+      routing::redirect(routing::getModule(), 'list');
     }
   }
 
-  public function removeAction() {
+  public function deleteAction() {
     $id = routing::getId();
 
     $contractsObj = new contracts();
@@ -186,7 +186,7 @@ class contractController {
     $contractsObj->deleteContract($id);
 
     // nukreipiame į sutarčių puslapį
-    routing::redirect(routing::getModule(), 'index');
+    routing::redirect(routing::getModule(), 'list');
   }
 
 };

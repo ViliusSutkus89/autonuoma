@@ -7,7 +7,7 @@ require_once 'model/brands.class.php';
 
 class modelController {
 
-  public static $defaultAction = "index";
+  public static $defaultAction = "list";
 
   // nustatome privalomus laukus
   private $required = array('pavadinimas', 'fk_marke');
@@ -21,7 +21,7 @@ class modelController {
     'fk_marke' => 'positivenumber'
   );
 
-  public function indexAction() {
+  public function listAction() {
     // sukuriame modelių klasės objektą
     $modelsObj = new models();
 
@@ -42,8 +42,8 @@ class modelController {
     $template->assign('data', $data);
     $template->assign('pagingData', $paging->data);
 
-    if(!empty($_GET['remove_error']))
-      $template->assign('remove_error', true);
+    if(!empty($_GET['delete_error']))
+      $template->assign('delete_error', true);
 
     $template->setView("model_list");
   }
@@ -98,7 +98,7 @@ class modelController {
       }
 
       // nukreipiame į modelių puslapį
-      routing::redirect(routing::getModule(), 'index');
+      routing::redirect(routing::getModule(), 'list');
     } else {
       $this->showAction();
 
@@ -114,26 +114,26 @@ class modelController {
 
   }
 
-  public function removeAction() {
+  public function deleteAction() {
     $id = routing::getId();
 
     // patikriname, ar šalinamas modelis nenaudojamas, t.y. nepriskirtas jokiam automobiliui
     $modelsObj = new models();
     $count = $modelsObj->getCarCountOfModel($id);
 
-    $removeErrorParameter = '';
+    $deleteErrorParameter = '';
     if($count == 0) {
       // pašaliname modelį
       $modelsObj->deleteModel($id);
     } else {
       // nepašalinome, nes modelis priskirtas bent vienam automobiliui, rodome klaidos pranešimą
       // rodome klaidos pranešimą
-      $removeErrorParameter = 'remove_error=1';
+      $deleteErrorParameter = 'delete_error=1';
     }
 
     // nukreipiame į markių puslapį
-    routing::redirect(routing::getModule(), 'index',
-      $removeErrorParameter);
+    routing::redirect(routing::getModule(), 'list',
+      $deleteErrorParameter);
   }
 
 };

@@ -5,7 +5,7 @@ require_once 'model/brands.class.php';
 
 class brandController {
 
-  public static $defaultAction = "index";
+  public static $defaultAction = "list";
 
   // nustatome privalomus laukus
   private $required = array('pavadinimas');
@@ -16,7 +16,7 @@ class brandController {
   // nustatome laukų validatorių tipus
   private $validations = array ('pavadinimas' => 'anything');
 
-  public function indexAction() {
+  public function listAction() {
     // sukuriame markių klasės objektą
     $brandsObj = new brands();
 
@@ -36,8 +36,8 @@ class brandController {
 
     $template->assign('data', $data);
     $template->assign('pagingData', $paging->data);
-    if(!empty($_GET['remove_error']))
-      $template->assign('remove_error', true);
+    if(!empty($_GET['delete_error']))
+      $template->assign('delete_error', true);
 
     $template->setView("brand_list");
   }
@@ -87,7 +87,7 @@ class brandController {
       }
 
       // nukreipiame į markių puslapį
-      routing::redirect(routing::getModule(), 'index');
+      routing::redirect(routing::getModule(), 'list');
     } else {
       $this->showAction();
 
@@ -103,26 +103,26 @@ class brandController {
 
   }
 
-  public function removeAction() {
+  public function deleteAction() {
     $id = routing::getId();
 
     // patikriname, ar šalinama markė nepriskirta modeliui
     $brandsObj = new brands();
     $count = $brandsObj->getModelCountOfBrand($id);
 
-    $removeErrorParameter = '';
+    $deleteErrorParameter = '';
     if($count == 0) {
       // šaliname markę
       $brandsObj->deleteBrand($id);
     } else {
       // nepašalinome, nes markė priskirta modeliui,
       // rodome klaidos pranešimą
-      $removeErrorParameter = 'remove_error=1';
+      $deleteErrorParameter = 'delete_error=1';
     }
 
     // nukreipiame į markių puslapį
-    routing::redirect(routing::getModule(), 'index',
-      $removeErrorParameter);
+    routing::redirect(routing::getModule(), 'list',
+      $deleteErrorParameter);
   }
 
 };

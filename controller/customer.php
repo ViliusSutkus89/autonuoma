@@ -5,7 +5,7 @@ require_once 'model/customers.class.php';
 
 class customerController {
 
-  public static $defaultAction = "index";
+  public static $defaultAction = "list";
 
   // nustatome privalomus laukus
   private $required = array('asmens_kodas', 'vardas', 'pavarde', 'gimimo_data', 'telefonas');
@@ -27,7 +27,7 @@ class customerController {
     'epastas' => 'email'
   );
 
-  public function indexAction() {
+  public function listAction() {
     // sukuriame customerių klasės objektą
     $customersObj = new customers();
 
@@ -48,8 +48,8 @@ class customerController {
     $template->assign('data', $data);
     $template->assign('pagingData', $paging->data);
 
-    if(!empty($_GET['remove_error']))
-      $template->assign('remove_error', true);
+    if(!empty($_GET['delete_error']))
+      $template->assign('delete_error', true);
 
     $template->setView("customer_list");
   }
@@ -101,7 +101,7 @@ class customerController {
       }
 
       // nukreipiame į customerių puslapį
-      routing::redirect(routing::getModule(), 'index');
+      routing::redirect(routing::getModule(), 'list');
     } else {
       $this->showAction();
 
@@ -116,26 +116,26 @@ class customerController {
     }
   }
 
-  public function removeAction() {
+  public function deleteAction() {
     $id = routing::getId();
 
     // patikriname, ar klientas neturi sudarytų sutarčių
     $customersObj = new customers();
     $count = $customersObj->getContractCountOfCustomer($id);
 
-    $removeErrorParameter = '';
+    $deleteErrorParameter = '';
     if($count == 0) {
       // šaliname klientą
       $customersObj->deleteCustomer($id);
     } else {
       // nepašalinome, nes klientas sudaręs bent vieną sutartį, rodome klaidos pranešimą
       // rodome klaidos pranešimą
-      $removeErrorParameter = 'remove_error=1';
+      $deleteErrorParameter = 'delete_error=1';
     }
 
     // nukreipiame į markių puslapį
-    routing::redirect(routing::getModule(), 'index',
-      $removeErrorParameter);
+    routing::redirect(routing::getModule(), 'list',
+      $deleteErrorParameter);
   }
 
 };

@@ -8,7 +8,7 @@
 </div>
 <div class="float-clear"></div>
 
-<?php if(!empty($remove_error)) { ?>
+<?php if(!empty($delete_error)) { ?>
 	<div class="errorBox">
 		Klientas nebuvo pašalintas, nes turi užsakymą (-ų).
 	</div>

@@ -8,7 +8,7 @@ require_once 'model/models.class.php';
 
 class carController {
 
-  public static $defaultAction = "index";
+  public static $defaultAction = "list";
 
   // nustatome privalomus laukus
   private $required = array('modelis', 'valstybinis_nr', 'pagaminimo_data', 'pavaru_deze', 'degalu_tipas', 'kebulas', 'bagazo_dydis', 'busena', 'rida', 'vietu_skaicius', 'registravimo_data', 'verte');
@@ -34,7 +34,7 @@ class carController {
     'verte' => 'price'
   );
 
-  public function indexAction() {
+  public function listAction() {
     // sukuriame automobilių klasės objektą
     $carsObj = new cars();
 
@@ -55,8 +55,8 @@ class carController {
     $template->assign('data', $data);
     $template->assign('pagingData', $paging->data);
 
-    if(!empty($_GET['remove_error']))
-      $template->assign('remove_error', true);
+    if(!empty($_GET['delete_error']))
+      $template->assign('delete_error', true);
 
     $template->setView("car_list");
   }
@@ -137,7 +137,7 @@ class carController {
       }
 
       // nukreipiame į automobilių puslapį
-      routing::redirect(routing::getModule(), 'index');
+      routing::redirect(routing::getModule(), 'list');
     } else {
       $this->showAction();
 
@@ -153,26 +153,26 @@ class carController {
 
   }
 
-  public function removeAction() {
+  public function deleteAction() {
     $id = routing::getId();
 
     // patikriname, ar automobilis neįtrauktas į sutartis
     $carsObj = new cars();
     $count = $carsObj->getContractCountOfCar($id);
 
-    $removeErrorParameter = '';
+    $deleteErrorParameter = '';
     if($count == 0) {
       // pašaliname automobilį
       $carsObj->deleteCar($id);
     } else {
       // nepašalinome, nes automobilis įtrauktas bent į vieną sutartį, rodome klaidos pranešimą
       // rodome klaidos pranešimą
-      $removeErrorParameter = 'remove_error=1';
+      $deleteErrorParameter = 'delete_error=1';
     }
 
     // nukreipiame į markių puslapį
-    routing::redirect(routing::getModule(), 'index',
-      $removeErrorParameter);
+    routing::redirect(routing::getModule(), 'list',
+      $deleteErrorParameter);
   }
 
 };

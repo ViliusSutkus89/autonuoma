@@ -6,7 +6,7 @@ require_once 'model/services.class.php';
 
 class serviceController {
 
-  public static $defaultAction = "index";
+  public static $defaultAction = "list";
 
   // nustatome privalomus laukus
   private $required = array('pavadinimas', 'kainos', 'datos');
@@ -25,7 +25,7 @@ class serviceController {
     'datos' => 'date'
   );
 
-  public function indexAction() {
+  public function listAction() {
     // sukuriame markių klasės objektą
     $servicesObj = new services();
 
@@ -45,8 +45,8 @@ class serviceController {
 
     $template->assign('data', $data);
     $template->assign('pagingData', $paging->data);
-    if(!empty($_GET['remove_error']))
-      $template->assign('remove_error', true);
+    if(!empty($_GET['delete_error']))
+      $template->assign('delete_error', true);
 
     $template->setView("service_list");
   }
@@ -142,7 +142,7 @@ class serviceController {
       }
 
       // nukreipiame į paslaugų puslapį
-      routing::redirect(routing::getModule(), 'index');
+      routing::redirect(routing::getModule(), 'list');
     } else {
       $this->showAction();
 
@@ -166,14 +166,14 @@ class serviceController {
     }
   }
 
-  public function removeAction() {
+  public function deleteAction() {
     $id = routing::getId();
 
     $servicesObj = new services();
     // patikriname, ar šalinama paslauga nenaudojama jokioje sutartyje
     $count = $servicesObj->getContractCountOfService($id);
 
-    $removeErrorParameter = '';
+    $deleteErrorParameter = '';
     if($count == 0) {
       // pašaliname paslaugos kainas
       $servicesObj->deleteServicePrices($id);
@@ -183,12 +183,12 @@ class serviceController {
     } else {
       // nepašalinome, nes paslauga naudojama bent vienoje sutartyje
       // rodome klaidos pranešimą
-      $removeErrorParameter = 'remove_error=1';
+      $deleteErrorParameter = 'delete_error=1';
     }
 
     // nukreipiame į paslaugų puslapį
-    routing::redirect(routing::getModule(), 'index',
-      $removeErrorParameter);
+    routing::redirect(routing::getModule(), 'list',
+      $deleteErrorParameter);
   }
 
 };
