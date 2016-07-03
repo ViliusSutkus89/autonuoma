@@ -4,7 +4,7 @@
 	<li>Papildomos paslaugos</li>
 </ul>
 <div id="actions">
-	<a href="report.php?id=2" target="_blank">Paslaugų ataskaita</a>
+  <a href="<?php echo routing::getURL('report', 'view', 'id=2'); ?>" target="_blank">Paslaugų ataskaita</a>
 	<a href='<?php echo routing::getURL($module, 'edit', 'id=0'); ?>'>Nauja paslauga</a>
 </div>
 <div class="float-clear"></div>

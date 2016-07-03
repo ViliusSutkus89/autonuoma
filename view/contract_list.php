@@ -5,7 +5,7 @@
 	<li>Sutartys</li>
 </ul>
 <div id="actions">
-	<a href="report.php?id=1" target="_blank">Sutarčių ataskaita</a>
+  <a href="<?php echo routing::getURL('report', 'view', 'id=1'); ?>" target="_blank">Sutarčių ataskaita</a>
 	<a href='<?php echo routing::getURL($module, 'edit', 'id=0'); ?>'>Nauja sutartis</a>
 </div>
 <div class="float-clear"></div>
