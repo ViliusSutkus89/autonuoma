@@ -17,11 +17,8 @@ class brandController {
   private $validations = array ('pavadinimas' => 'anything');
 
   public function listAction() {
-    // sukuriame markių klasės objektą
-    $brandsObj = new brands();
-
     // suskaičiuojame bendrą įrašų kiekį
-    $elementCount = $brandsObj->getBrandListCount();
+    $elementCount = brands::getBrandListCount();
 
     // sukuriame puslapiavimo klasės objektą
     $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
@@ -30,7 +27,7 @@ class brandController {
     $paging->process($elementCount, routing::getPageId());
 
     // išrenkame nurodyto puslapio markes
-    $data = $brandsObj->getBrandList($paging->size, $paging->first);
+    $data = brands::getBrandList($paging->size, $paging->first);
 
     $template = template::getInstance();
 
@@ -52,8 +49,7 @@ class brandController {
   private function showAction() {
     $id = routing::getId();
 
-    $brandsObj = new brands();
-    $fields = ($id) ? $brandsObj->getBrand($id) : array();
+    $fields = ($id) ? brands::getBrand($id) : array();
 
     $template = template::getInstance();
 
@@ -70,20 +66,18 @@ class brandController {
       $this->required, $this->maxLengths);
 
     if($validator->validate($_POST)) {
-      $brandsObj = new brands();
-
       // suformuojame laukų reikšmių masyvą SQL užklausai
       $data = $validator->preparePostFieldsForSQL();
       if(isset($data['id'])) {
         // atnaujiname duomenis
-        $brandsObj->updateBrand($data);
+        brands::updateBrand($data);
       } else {
         // randame didžiausią markės id duomenų bazėje
-        $latestId = $brandsObj->getMaxIdOfBrand();
+        $latestId = brands::getMaxIdOfBrand();
 
         // įrašome naują įrašą
         $data['id'] = $latestId + 1;
-        $brandsObj->insertBrand($data);
+        brands::insertBrand($data);
       }
 
       // nukreipiame į markių puslapį
@@ -107,13 +101,12 @@ class brandController {
     $id = routing::getId();
 
     // patikriname, ar šalinama markė nepriskirta modeliui
-    $brandsObj = new brands();
-    $count = $brandsObj->getModelCountOfBrand($id);
+    $count = brands::getModelCountOfBrand($id);
 
     $deleteErrorParameter = '';
     if($count == 0) {
       // šaliname markę
-      $brandsObj->deleteBrand($id);
+      brands::deleteBrand($id);
     } else {
       // nepašalinome, nes markė priskirta modeliui,
       // rodome klaidos pranešimą

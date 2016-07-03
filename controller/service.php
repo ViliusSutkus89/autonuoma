@@ -26,11 +26,8 @@ class serviceController {
   );
 
   public function listAction() {
-    // sukuriame markių klasės objektą
-    $servicesObj = new services();
-
     // suskaičiuojame bendrą įrašų kiekį
-    $elementCount = $servicesObj->getServicesListCount();
+    $elementCount = services::getServicesListCount();
 
     // sukuriame puslapiavimo klasės objektą
     $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
@@ -39,7 +36,7 @@ class serviceController {
     $paging->process($elementCount, routing::getPageId());
 
     // išrenkame nurodyto puslapio markes
-    $data = $servicesObj->getServicesList($paging->size, $paging->first);
+    $data = services::getServicesList($paging->size, $paging->first);
 
     $template = template::getInstance();
 
@@ -61,15 +58,12 @@ class serviceController {
   private function showAction() {
     $id = routing::getId();
 
-    $servicesObj = new services();
-    $contractsObj = new contracts();
-
     $fields = array();
     if ($id) {
-      $fields = $servicesObj->getService($id);
+      $fields = services::getService($id);
       // Check if this service is actually found in the db
       if ($fields) {
-        $servicePrices = $servicesObj->getServicePrices($id);
+        $servicePrices = services::getServicePrices($id);
         //getServicePrices return an array of prices from multiple services, we only need one
         if (!empty($servicePrices)) {
           $servicePrices = $servicePrices[$id];
@@ -80,7 +74,7 @@ class serviceController {
             $galioja_nuo[] = $val['galioja_nuo'];
           }
 
-          $priceCounts = $contractsObj->getPricesCountOfOrderedServices($id, $galioja_nuo);
+          $priceCounts = contracts::getPricesCountOfOrderedServices($id, $galioja_nuo);
           foreach($servicePrices as $val) {
             // jeigu paslaugos kaina yra naudojama, jos koreguoti neleidziame ir įvedimo laukelį padarome neaktyvų
             if (!empty($priceCounts[$val['galioja_nuo']])) {
@@ -107,13 +101,11 @@ class serviceController {
 
     // laukai įvesti be klaidų
     if($validator->validate($_POST)) {
-      $servicesObj = new services();
-
       // suformuojame laukų reikšmių masyvą SQL užklausai
       $data = $validator->preparePostFieldsForSQL();
       if(isset($data['id'])) {
         // atnaujiname duomenis
-        $servicesObj->updateService($data);
+        services::updateService($data);
 
         // pašaliname paslaugos kainas, kurios nėra naudojamos sutartyse
         $galiojaNuo = array();
@@ -125,20 +117,20 @@ class serviceController {
             }
           }
         }
-        $servicesObj->deleteServicePrices($data['id'], $galiojaNuo);
+        services::deleteServicePrices($data['id'], $galiojaNuo);
 
         // atnaujiname paslaugos kainas, kurios nėra naudojamos sutartyse
-        $servicesObj->insertServicePrices($data);
+        services::insertServicePrices($data);
       } else {
         // randame didžiausią markės id duomenų bazėje
-        $latestId = $servicesObj->getMaxIdOfService();
+        $latestId = services::getMaxIdOfService();
 
         // įrašome naują įrašą
         $data['id'] = $latestId + 1;
-        $servicesObj->insertService($data);
+        services::insertService($data);
 
         // įrašome paslaugų kainas
-        $servicesObj->insertServicePrices($data);
+        services::insertServicePrices($data);
       }
 
       // nukreipiame į paslaugų puslapį
@@ -169,17 +161,16 @@ class serviceController {
   public function deleteAction() {
     $id = routing::getId();
 
-    $servicesObj = new services();
     // patikriname, ar šalinama paslauga nenaudojama jokioje sutartyje
-    $count = $servicesObj->getContractCountOfService($id);
+    $count = services::getContractCountOfService($id);
 
     $deleteErrorParameter = '';
     if($count == 0) {
       // pašaliname paslaugos kainas
-      $servicesObj->deleteServicePrices($id);
+      services::deleteServicePrices($id);
 
       // pašaliname paslaugą
-      $servicesObj->deleteService($id);
+      services::deleteService($id);
     } else {
       // nepašalinome, nes paslauga naudojama bent vienoje sutartyje
       // rodome klaidos pranešimą

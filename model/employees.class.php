@@ -8,16 +8,12 @@
 
 class employees {
 
-  public function __construct() {
-
-  }
-
   /**
    * Darbuotojo išrinkimas
    * @param type $id
    * @return type
    */
-  public function getEmployee($id) {
+  public static function getEmployee($id) {
     $query = "SELECT * FROM `darbuotojai` WHERE `tabelio_nr`= ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
@@ -36,7 +32,7 @@ class employees {
    * @param type $offset
    * @return type
    */
-  public function getEmployeesList($limit = null, $offset = null) {
+  public static function getEmployeesList($limit = null, $offset = null) {
     $query = "SELECT * FROM `darbuotojai`";
     $parameters = array();
 
@@ -59,7 +55,7 @@ class employees {
    * Darbuotojų kiekio radimas
    * @return type
    */
-  public function getEmployeesListCount() {
+  public static function getEmployeesListCount() {
     $query = "SELECT COUNT(`tabelio_nr`) AS `kiekis` FROM `darbuotojai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
@@ -70,7 +66,7 @@ class employees {
    * Darbuotojo šalinimas
    * @param type $id
    */
-  public function deleteEmployee($id) {
+  public static function deleteEmployee($id) {
     $query = "DELETE FROM `darbuotojai` WHERE `tabelio_nr`= ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
@@ -80,7 +76,7 @@ class employees {
    * Darbuotojo atnaujinimas
    * @param type $data
    */
-  public function updateEmployee($data) {
+  public static function updateEmployee($data) {
     $query = "UPDATE `darbuotojai` SET `vardas`= ?, `pavarde`= ? WHERE `tabelio_nr`= ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
@@ -92,7 +88,7 @@ class employees {
    * Darbuotojo įrašymas
    * @param type $data
    */
-  public function insertEmployee($data) {
+  public static function insertEmployee($data) {
     $query = "INSERT INTO `darbuotojai`
       (`tabelio_nr`, `vardas`, `pavarde`) VALUES ( ?, ?, ? )";
     $stmt = mysql::getInstance()->prepare($query);
@@ -106,7 +102,7 @@ class employees {
    * @param type $id
    * @return type
    */
-  public function getContractCountOfEmployee($id) {
+  public static function getContractCountOfEmployee($id) {
     $query = "SELECT
         COUNT(`sutartys`.`nr`) AS `kiekis`
       FROM `darbuotojai`

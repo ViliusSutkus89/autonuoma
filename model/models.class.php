@@ -8,16 +8,12 @@
 
 class models {
 
-  public function __construct() {
-
-  }
-
   /**
    * Modelio išrinkimas
    * @param type $id
    * @return type
    */
-  public function getModel($id) {
+  public static function getModel($id) {
     $query = "SELECT * FROM `modeliai` WHERE `id`= ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
@@ -35,7 +31,7 @@ class models {
    * @param type $offset
    * @return type
    */
-  public function getModelList($limit = null, $offset = null) {
+  public static function getModelList($limit = null, $offset = null) {
     $parameters = array();
 
     $query = "SELECT
@@ -66,7 +62,7 @@ class models {
    * Modelių kiekio radimas
    * @return type
    */
-  public function getModelListCount() {
+  public static function getModelListCount() {
     $query = "SELECT
         COUNT(`modeliai`.`id`) AS `kiekis`
       FROM `modeliai`
@@ -82,7 +78,7 @@ class models {
    * @param type $brandId
    * @return type
    */
-  public function getModelsListByBrands($brandIDs) {
+  public static function getModelsListByBrands($brandIDs) {
     $IN = "";
     $parameters = array();
     foreach ($brandIDs as $val) {
@@ -113,7 +109,7 @@ class models {
    * Modelio atnaujinimas
    * @param type $data
    */
-  public function updateModel($data) {
+  public static function updateModel($data) {
     $query = "UPDATE `modeliai` SET `pavadinimas`= ?, `fk_marke`= ? WHERE `id`= ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
@@ -125,7 +121,7 @@ class models {
    * Modelio įrašymas
    * @param type $data
    */
-  public function insertModel($data) {
+  public static function insertModel($data) {
     $query = "INSERT INTO `modeliai` (`id`, `pavadinimas`, `fk_marke`) VALUES (?, ?, ?)";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
@@ -137,7 +133,7 @@ class models {
    * Modelio šalinimas
    * @param type $id
    */
-  public function deleteModel($id) {
+  public static function deleteModel($id) {
     $query = "DELETE FROM `modeliai` WHERE `id`=?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
@@ -148,7 +144,7 @@ class models {
    * @param type $id
    * @return type
    */
-  public function getCarCountOfModel($id) {
+  public static function getCarCountOfModel($id) {
     $query = "SELECT
         COUNT(`automobiliai`.`id`) AS `kiekis`
       FROM `modeliai`
@@ -165,7 +161,7 @@ class models {
    * Didžiausios modelio id reikšmės radimas
    * @return type
    */
-  public function getMaxIdOfModel() {
+  public static function getMaxIdOfModel() {
     $query = "SELECT MAX(`id`) AS `latestId` FROM `modeliai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();

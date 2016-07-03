@@ -36,11 +36,8 @@ class contractController {
   );
 
   public function listAction() {
-    // sukuriame automobilių klasės objektą
-    $contractsObj = new contracts();
-
     // suskaičiuojame bendrą įrašų kiekį
-    $elementCount = $contractsObj->getContractListCount();
+    $elementCount = contracts::getContractListCount();
 
     // sukuriame puslapiavimo klasės objektą
     $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
@@ -49,7 +46,7 @@ class contractController {
     $paging->process($elementCount, routing::getPageId());
 
     // išrenkame nurodyto puslapio markes
-    $data = $contractsObj->getContractList($paging->size, $paging->first);
+    $data = contracts::getContractList($paging->size, $paging->first);
 
     $template = template::getInstance();
 
@@ -69,34 +66,28 @@ class contractController {
   private function showAction() {
     $id = routing::getId();
 
-    $contractsObj = new contracts();
-    $servicesObj = new services();
-    $carsObj = new cars();
-    $employeesObj = new employees();
-    $customersObj = new customers();
-
     $fields = array();
     if ($id) {
-      $fields = $contractsObj->getContract($id);
-      $fields['uzsakytos_paslaugos'] = $contractsObj->getOrderedServices($id);
+      $fields = contracts::getContract($id);
+      $fields['uzsakytos_paslaugos'] = contracts::getOrderedServices($id);
       $fields['editing'] = 1;
     }
 
     $template = template::getInstance();
 
-    $template->assign('customerList', $customersObj->getCustomersList());
-    $template->assign('employeesList', $employeesObj->getEmployeesList());
-    $template->assign('contractStates', $contractsObj->getContractStates());
-    $template->assign('carsList', $carsObj->getCarList());
-    $template->assign('parkingLots', $contractsObj->getParkingLots());
+    $template->assign('customerList', customers::getCustomersList());
+    $template->assign('employeesList', employees::getEmployeesList());
+    $template->assign('contractStates', contracts::getContractStates());
+    $template->assign('carsList', cars::getCarList());
+    $template->assign('parkingLots', contracts::getParkingLots());
 
-    $servicesList = $servicesObj->getServicesList();
+    $servicesList = sevices::getServicesList();
 
     $serviceIDs = array();
     foreach($servicesList as $val)
       $serviceIDs[] = $val['id'];
 
-    $servicePrices = $servicesObj->getServicePrices($serviceIDs);
+    $servicePrices = sevices::getServicePrices($serviceIDs);
 
     $template->assign('servicesList', $servicesList);
     $template->assign('servicePrices', $servicePrices);
@@ -114,19 +105,17 @@ class contractController {
 
     // laukai įvesti be klaidų
     if($validator->validate($_POST)) {
-      $contractsObj = new contracts();
-
       // suformuojame laukų reikšmių masyvą SQL užklausai
       $data = $validator->preparePostFieldsForSQL();
 
       if(isset($data['editing'])) {
         // atnaujiname sutartį
-        $contractsObj->updateContract($data);
+        contracts::updateContract($data);
         // atnaujiname užsakytas paslaugas
-        $contractsObj->updateOrderedServices($data);
+        contracts::updateOrderedServices($data);
       } else {
         // patikriname, ar nėra sutarčių su tokiu pačiu numeriu
-        $exists = $contractsObj->getContract($data['nr']);
+        $exists = contracts::getContract($data['nr']);
         if($exists) {
           // sudarome klaidų pranešimą
           $formErrors = "Sutartis su įvestu numeriu jau egzistuoja.";
@@ -140,9 +129,9 @@ class contractController {
           $template->assign('formErrors', $formErrors);
         } else {
           // įrašome naują sutartį
-          $contractsObj->insertContract($data);
+          contracts::insertContract($data);
           // įrašome užsakytas paslaugas
-          $contractsObj->updateOrderedServices($data);
+          contracts::updateOrderedServices($data);
         }
       }
 
@@ -177,13 +166,11 @@ class contractController {
   public function deleteAction() {
     $id = routing::getId();
 
-    $contractsObj = new contracts();
-
     // pašaliname užsakytas paslaugas
-    $contractsObj->deleteOrderedServices($id);
+    contracts::deleteOrderedServices($id);
 
     // šaliname sutartį
-    $contractsObj->deleteContract($id);
+    contracts::deleteContract($id);
 
     // nukreipiame į sutarčių puslapį
     routing::redirect(routing::getModule(), 'list');

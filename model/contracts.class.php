@@ -8,17 +8,13 @@
 
 class contracts {
 
-  public function __construct() {
-
-  }
-
   /**
    * Sutarčių sąrašo išrinkimas
    * @param type $limit
    * @param type $offset
    * @return type
    */
-  public function getContractList($limit, $offset) {
+  public static function getContractList($limit, $offset) {
     $query = "SELECT
         `sutartys`.`nr`,
         `sutartys`.`sutarties_data`,
@@ -55,7 +51,7 @@ class contracts {
    * Sutarčių kiekio radimas
    * @return type
    */
-  public function getContractListCount() {
+  public static function getContractListCount() {
     $query = "SELECT
         COUNT(`sutartys`.`nr`) AS `kiekis`
       FROM `sutartys`
@@ -76,7 +72,7 @@ class contracts {
    * @param type $id
    * @return type
    */
-  public function getContract($id) {
+  public static function getContract($id) {
     $query = "SELECT
         `sutartys`.`nr`,
         `sutartys`.`sutarties_data`,
@@ -118,7 +114,7 @@ class contracts {
    * @param type $orderId
    * @return type
    */
-  public function getOrderedServices($orderId) {
+  public static function getOrderedServices($orderId) {
     $query = "SELECT * FROM `uzsakytos_paslaugos` WHERE `fk_sutartis`= ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($orderId));
@@ -130,7 +126,7 @@ class contracts {
    * Sutarties atnaujinimas
    * @param type $data
    */
-  public function updateContract($data) {
+  public static function updateContract($data) {
     $query = "UPDATE `sutartys` SET
         `sutarties_data`= ?,
         `nuomos_data_laikas`= ?,
@@ -174,7 +170,7 @@ class contracts {
    * Sutarties įrašymas
    * @param type $data
    */
-  public function insertContract($data) {
+  public static function insertContract($data) {
     $query = "INSERT INTO `sutartys`
       (
         `nr`,
@@ -219,7 +215,7 @@ class contracts {
    * Sutarties šalinimas
    * @param type $id
    */
-  public function deleteContract($id) {
+  public static function deleteContract($id) {
     $query = "DELETE FROM `sutartys` WHERE `nr`=?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
@@ -230,7 +226,7 @@ class contracts {
    * @param type $contractId
    * @param type $keep
    */
-  public function deleteOrderedServices($contractId, $keep = array()) {
+  public static function deleteOrderedServices($contractId, $keep = array()) {
     $keepQuery = array();
     $parameters = array($contractId);
 
@@ -261,7 +257,7 @@ class contracts {
    * Užsakytų papildomų paslaugų atnaujinimas
    * @param type $data
    */
-  public function updateOrderedServices($data) {
+  public static function updateOrderedServices($data) {
     // Sanity check, make sure we have an array to work with
     if (empty($data['paslaugos']))
       $data['paslaugos'] = array();
@@ -289,7 +285,7 @@ class contracts {
       );
     }
 
-    $this->deleteOrderedServices($data['nr'], $keep);
+    self::deleteOrderedServices($data['nr'], $keep);
     if (count($valuesQuery)) {
       $valuesQuery = implode(",", $valuesQuery);
 
@@ -317,7 +313,7 @@ class contracts {
    * Sutarties būsenų sąrašo išrinkimas
    * @return type
    */
-  public function getContractStates() {
+  public static function getContractStates() {
     $query = "SELECT * FROM `sutarties_busenos`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
@@ -328,7 +324,7 @@ class contracts {
    * Aikštelių sąrašo išrinkimas
    * @return type
    */
-  public function getParkingLots() {
+  public static function getParkingLots() {
     $query = "SELECT * FROM `aiksteles`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
@@ -341,7 +337,7 @@ class contracts {
    * @param type $validFroms
    * @return type
    */
-  public function getPricesCountOfOrderedServices($serviceId, $validFroms) {
+  public static function getPricesCountOfOrderedServices($serviceId, $validFroms) {
     // One service can have multiple prices with a different valid from date
     // We need to query then all from the database with a single query
     if (!is_array($validFroms) || !count($validFroms)) {
@@ -383,7 +379,7 @@ class contracts {
     return $results;
   }
 
-  public function getCustomerContracts($dateFrom, $dateTo) {
+  public static function getCustomerContracts($dateFrom, $dateTo) {
     $whereClauseString = "";
     $parameters = array();
 
@@ -459,7 +455,7 @@ class contracts {
     return $data;
   }
 
-  public function getSumPriceOfContracts($dateFrom, $dateTo) {
+  public static function getSumPriceOfContracts($dateFrom, $dateTo) {
     $whereClauseString = "";
     $parameters = array();
 
@@ -488,7 +484,7 @@ class contracts {
     return $data;
   }
 
-  public function getSumPriceOfOrderedServices($dateFrom, $dateTo) {
+  public static function getSumPriceOfOrderedServices($dateFrom, $dateTo) {
     $whereClauseString = "";
     $parameters = array();
 
@@ -519,7 +515,7 @@ class contracts {
     return $data;
   }
 
-  public function getDelayedCars($dateFrom, $dateTo) {
+  public static function getDelayedCars($dateFrom, $dateTo) {
     $whereClauseString = "";
     $parameters = array();
 

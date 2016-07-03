@@ -8,16 +8,12 @@
 
 class cars {
 
-  public function __construct() {
-
-  }
-
   /**
    * Automobilio išrinkimas
    * @param type $id
    * @return type
    */
-  public function getCar($id) {
+  public static function getCar($id) {
     $query = "SELECT
         `automobiliai`.`id`,
         `automobiliai`.`valstybinis_nr`,
@@ -53,7 +49,7 @@ class cars {
    * Automobilio atnaujinimas
    * @param type $data
    */
-  public function updateCar($data) {
+  public static function updateCar($data) {
     $query = "
     UPDATE `automobiliai`
     SET
@@ -98,7 +94,7 @@ class cars {
    * Automobilio įrašymas
    * @param type $data
    */
-  public function insertCar($data) {
+  public static function insertCar($data) {
     $query = "INSERT INTO `automobiliai` (
         `id`,
         `valstybinis_nr`,
@@ -144,7 +140,7 @@ class cars {
    * @param type $offset
    * @return type
    */
-  public function getCarList($limit = null, $offset = null) {
+  public static function getCarList($limit = null, $offset = null) {
     $query = "SELECT
         `automobiliai`.`id`,
         `automobiliai`.`valstybinis_nr`,
@@ -179,7 +175,7 @@ class cars {
    * Automobilių kiekio radimas
    * @return type
    */
-  public function getCarListCount() {
+  public static function getCarListCount() {
     $query = "SELECT
         COUNT(`automobiliai`.`id`) AS `kiekis`
       FROM
@@ -200,7 +196,7 @@ class cars {
    * Automobilio šalinimas
    * @param type $id
    */
-  public function deleteCar($id) {
+  public static function deleteCar($id) {
     $query = "DELETE FROM `automobiliai` WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
@@ -211,7 +207,7 @@ class cars {
    * @param type $id
    * @return type
    */
-  public function getContractCountOfCar($id) {
+  public static function getContractCountOfCar($id) {
     $query = "SELECT
         COUNT(`sutartys`.`nr`) AS `kiekis`
       FROM
@@ -229,7 +225,7 @@ class cars {
    * Didžiausios automobilio id reikšmės radimas
    * @return type
    */
-  public function getMaxIdOfCar() {
+  public static function getMaxIdOfCar() {
     $query = "SELECT MAX(`id`) as `latestId` FROM `automobiliai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
@@ -240,7 +236,7 @@ class cars {
    * Pavarų dėžių sąrašo išrinkimas
    * @return type
    */
-  public function getGearboxList() {
+  public static function getGearboxList() {
     $query = "SELECT * FROM `pavaru_dezes`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
@@ -251,7 +247,7 @@ class cars {
    * Degalų tipo sąrašo išrinkimas
    * @return type
    */
-  public function getFuelTypeList() {
+  public static function getFuelTypeList() {
     $query = "SELECT * FROM `degalu_tipai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
@@ -262,7 +258,7 @@ class cars {
    * Kėbulo tipų sąrašo išrinkimas
    * @return type
    */
-  public function getBodyTypeList() {
+  public static function getBodyTypeList() {
     $query = "SELECT * FROM `kebulu_tipai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
@@ -273,7 +269,7 @@ class cars {
    * Bagažo tipų sąrašo išrinkimas
    * @return type
    */
-  public function getLuggageTypeList() {
+  public static function getLuggageTypeList() {
     $query = "SELECT * FROM `lagaminai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
@@ -284,7 +280,7 @@ class cars {
    * Automobilio būsenų sąrašo išrinkimas
    * @return type
    */
-  public function getCarStateList() {
+  public static function getCarStateList() {
     $query = "SELECT * FROM `auto_busenos`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();

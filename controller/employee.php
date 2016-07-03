@@ -24,11 +24,8 @@ class employeeController {
     'pavarde' => 'alfanum');
 
   public function listAction() {
-    // sukuriame employeeių klasės objektą
-    $employeesObj = new employees();
-
     // suskaičiuojame bendrą įrašų kiekį
-    $elementCount = $employeesObj->getEmployeesListCount();
+    $elementCount = employees::getEmployeesListCount();
 
     // sukuriame puslapiavimo klasės objektą
     $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
@@ -37,7 +34,7 @@ class employeeController {
     $paging->process($elementCount, routing::getPageId());
 
     // išrenkame nurodyto puslapio markes
-    $data = $employeesObj->getEmployeesList($paging->size, $paging->first);
+    $data = employees::getEmployeesList($paging->size, $paging->first);
 
     $template = template::getInstance();
 
@@ -60,12 +57,11 @@ class employeeController {
   private function showAction() {
     $id = routing::getId();
 
-    $employeesObj = new employees();
-
     $fields = array();
-    // tikriname, ar nurodytas elemento id. Jeigu taip, išrenkame elemento duomenis ir jais užpildome formos laukus.
+    // tikriname, ar nurodytas elemento id.
+    // Jeigu taip, išrenkame elemento duomenis ir jais užpildome formos laukus.
     if ($id) {
-      $fields = $employeesObj->getEmployee($id);
+      $fields = employees::getEmployee($id);
       $fields['editing'] = 1;
     }
 
@@ -84,16 +80,14 @@ class employeeController {
 
     // laukai įvesti be klaidų
     if($validator->validate($_POST)) {
-      $employeesObj = new employees();
-
       // suformuojame laukų reikšmių masyvą SQL užklausai
       $data = $validator->preparePostFieldsForSQL();
       if(isset($data['editing'])) {
         // atnaujiname duomenis
-        $employeesObj->updateEmployee($data);
+        employees::updateEmployee($data);
       } else {
         // įrašome naują darbuotoją
-        $employeesObj->insertEmployee($data);
+        employees::insertEmployee($data);
       }
 
       // nukreipiame į darbuotojų puslapį
@@ -116,13 +110,12 @@ class employeeController {
     $id = routing::getId();
 
     // patikriname, ar darbuotojas neturi sudarytų sutarčių
-    $employeesObj = new employees();
-    $count = $employeesObj->getContractCountOfEmployee($id);
+    $count = employees::getContractCountOfEmployee($id);
 
     $deleteErrorParameter = '';
     if($count == 0) {
       // šaliname darbuotoją
-      $employeesObj->deleteEmployee($id);
+      employees::deleteEmployee($id);
     } else {
       // nepašalinome, nes klientas sudaręs bent vieną sutartį, rodome klaidos pranešimą
       // rodome klaidos pranešimą

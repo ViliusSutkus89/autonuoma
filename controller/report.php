@@ -70,8 +70,6 @@ class contract_report {
   }
 
   public function showResult() {
-    $contractsObj = new contracts();
-
     $template = template::getInstance();
 
     // sukuriame validatoriaus objektą
@@ -82,9 +80,9 @@ class contract_report {
       $data = $validator->preparePostFieldsForSQL();
 
       // išrenkame ataskaitos duomenis
-      $contractData = $contractsObj->getCustomerContracts($data['dataNuo'], $data['dataIki']);
-      $totalPrice = $contractsObj->getSumPriceOfContracts($data['dataNuo'], $data['dataIki']);
-      $totalServicePrice = $contractsObj->getSumPriceOfOrderedServices($data['dataNuo'], $data['dataIki']);
+      $contractData = contracts::getCustomerContracts($data['dataNuo'], $data['dataIki']);
+      $totalPrice = contracts::getSumPriceOfContracts($data['dataNuo'], $data['dataIki']);
+      $totalServicePrice = contracts::getSumPriceOfOrderedServices($data['dataNuo'], $data['dataIki']);
 
       $template->assign("data", $data);
       $template->assign("contractData", $contractData);
@@ -122,8 +120,6 @@ class service_report {
   }
 
   public function showResult() {
-    $servicesObj = new services();
-
     $template = template::getInstance();
 
     // sukuriame validatoriaus objektą
@@ -134,8 +130,8 @@ class service_report {
       $data = $validator->preparePostFieldsForSQL();
 
       // išrenkame ataskaitos duomenis
-      $servicesData = $servicesObj->getOrderedServices($data['dataNuo'], $data['dataIki']);
-      $servicesStats = $servicesObj->getStatsOfOrderedServices($data['dataNuo'], $data['dataIki']);
+      $servicesData = services::getOrderedServices($data['dataNuo'], $data['dataIki']);
+      $servicesStats = services::getStatsOfOrderedServices($data['dataNuo'], $data['dataIki']);
 
       $template->assign("servicesData", $servicesData);
       $template->assign("servicesStats", $servicesStats);
@@ -172,8 +168,6 @@ class delayed_cars_report {
   }
 
   public function showResult() {
-    $contractsObj = new contracts();
-
     $template = template::getInstance();
 
     // sukuriame validatoriaus objektą
@@ -184,7 +178,7 @@ class delayed_cars_report {
       $data = $validator->preparePostFieldsForSQL();
 
       // išrenkame ataskaitos duomenis
-      $delayedCarsData = $contractsObj->getDelayedCars($data['dataNuo'], $data['dataIki']);
+      $delayedCarsData = contracts::getDelayedCars($data['dataNuo'], $data['dataIki']);
 
       $template->assign("delayedCarsData", $delayedCarsData);
       $template->assign("data", $data);

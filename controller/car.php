@@ -35,11 +35,8 @@ class carController {
   );
 
   public function listAction() {
-    // sukuriame automobilių klasės objektą
-    $carsObj = new cars();
-
     // suskaičiuojame bendrą įrašų kiekį
-    $elementCount = $carsObj->getCarListCount();
+    $elementCount = cars::getCarListCount();
 
     // sukuriame puslapiavimo klasės objektą
     $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
@@ -48,7 +45,7 @@ class carController {
     $paging->process($elementCount, routing::getPageId());
 
     // išrenkame nurodyto puslapio markes
-    $data = $carsObj->getCarList($paging->size, $paging->first);
+    $data = cars::getCarList($paging->size, $paging->first);
 
     $template = template::getInstance();
 
@@ -71,28 +68,24 @@ class carController {
   private function showAction() {
     $id = routing::getId();
 
-    $carsObj = new cars();
-    $brandsObj = new brands();
-    $modelsObj = new models();
-
-    $fields = ($id) ? $carsObj->getcar($id) : array();
+    $fields = ($id) ? cars::getcar($id) : array();
 
     $template = template::getInstance();
 
-    $brands = $brandsObj->getBrandList();
+    $brands = brands::getBrandList();
     $brandIDs = array();
     foreach($brands as $val)
       $brandIDs[] = $val['id'];
-    $models = $modelsObj->getModelsListByBrands($brandIDs);
+    $models = models::getModelsListByBrands($brandIDs);
 
     $template->assign('brands', $brands);
     $template->assign('models', $models);
 
-    $gearboxes = $carsObj->getGearboxList();
-    $fueltypes = $carsObj->getFuelTypeList();
-    $bodytypes = $carsObj->getBodyTypeList();
-    $luggage = $carsObj->getLuggageTypeList();
-    $car_states = $carsObj->getCarStateList();
+    $gearboxes = cars::getGearboxList();
+    $fueltypes = cars::getFuelTypeList();
+    $bodytypes = cars::getBodyTypeList();
+    $luggage = cars::getLuggageTypeList();
+    $car_states = cars::getCarStateList();
 
     $template->assign('gearboxes', $gearboxes);
     $template->assign('fueltypes', $fueltypes);
@@ -112,8 +105,6 @@ class carController {
 
     // laukai įvesti be klaidų
     if($validator->validate($_POST)) {
-      $carsObj = new cars();
-
       // suformuojame laukų reikšmių masyvą SQL užklausai
       $data = $validator->preparePostFieldsForSQL();
 
@@ -126,14 +117,14 @@ class carController {
 
       if(isset($data['id'])) {
         // atnaujiname duomenis
-        $carsObj->updateCar($data);
+        cars::updateCar($data);
       } else {
         // randame didžiausią markės id duomenų bazėje
-        $latestId = $carsObj->getMaxIdOfcar();
+        $latestId = cars::getMaxIdOfcar();
 
         // įrašome naują įrašą
         $data['id'] = $latestId + 1;
-        $carsObj->insertCar($data);
+        cars::insertCar($data);
       }
 
       // nukreipiame į automobilių puslapį
@@ -157,13 +148,12 @@ class carController {
     $id = routing::getId();
 
     // patikriname, ar automobilis neįtrauktas į sutartis
-    $carsObj = new cars();
-    $count = $carsObj->getContractCountOfCar($id);
+    $count = cars::getContractCountOfCar($id);
 
     $deleteErrorParameter = '';
     if($count == 0) {
       // pašaliname automobilį
-      $carsObj->deleteCar($id);
+      cars::deleteCar($id);
     } else {
       // nepašalinome, nes automobilis įtrauktas bent į vieną sutartį, rodome klaidos pranešimą
       // rodome klaidos pranešimą

@@ -22,11 +22,8 @@ class modelController {
   );
 
   public function listAction() {
-    // sukuriame modelių klasės objektą
-    $modelsObj = new models();
-
     // suskaičiuojame bendrą įrašų kiekį
-    $elementCount = $modelsObj->getModelListCount();
+    $elementCount = models::getModelListCount();
 
     // sukuriame puslapiavimo klasės objektą
     $paging = new paging(NUMBER_OF_ROWS_IN_PAGE);
@@ -35,7 +32,7 @@ class modelController {
     $paging->process($elementCount, routing::getPageId());
 
     // išrenkame nurodyto puslapio markes
-    $data = $modelsObj->getModelList($paging->size, $paging->first);
+    $data = models::getModelList($paging->size, $paging->first);
 
     $template = template::getInstance();
 
@@ -58,14 +55,11 @@ class modelController {
   private function showAction() {
     $id = routing::getId();
 
-    $modelsObj = new models();
-    $brandsObj = new brands();
-
-    $fields = ($id) ? $modelsObj->getmodel($id) : array();
+    $fields = ($id) ? models::getmodel($id) : array();
 
     $template = template::getInstance();
 
-    $brands = $brandsObj->getBrandList();
+    $brands = brands::getBrandList();
     $template->assign('brands', $brands);
 
     $template->assign('fields', $fields);
@@ -81,20 +75,18 @@ class modelController {
 
     // laukai įvesti be klaidų
     if($validator->validate($_POST)) {
-      $modelsObj = new models();
-
       // suformuojame laukų reikšmių masyvą SQL užklausai
       $data = $validator->preparePostFieldsForSQL();
       if(isset($data['id'])) {
         // atnaujiname duomenis
-        $modelsObj->updateModel($data);
+        models::updateModel($data);
       } else {
         // randame didžiausią markės id duomenų bazėje
-        $latestId = $modelsObj->getMaxIdOfmodel();
+        $latestId = models::getMaxIdOfmodel();
 
         // įrašome naują įrašą
         $data['id'] = $latestId + 1;
-        $modelsObj->insertModel($data);
+        models::insertModel($data);
       }
 
       // nukreipiame į modelių puslapį
@@ -118,13 +110,12 @@ class modelController {
     $id = routing::getId();
 
     // patikriname, ar šalinamas modelis nenaudojamas, t.y. nepriskirtas jokiam automobiliui
-    $modelsObj = new models();
-    $count = $modelsObj->getCarCountOfModel($id);
+    $count = models::getCarCountOfModel($id);
 
     $deleteErrorParameter = '';
     if($count == 0) {
       // pašaliname modelį
-      $modelsObj->deleteModel($id);
+      models::deleteModel($id);
     } else {
       // nepašalinome, nes modelis priskirtas bent vienam automobiliui, rodome klaidos pranešimą
       // rodome klaidos pranešimą

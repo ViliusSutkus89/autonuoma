@@ -8,16 +8,12 @@
 
 class customers {
 
-  public function __construct() {
-
-  }
-
   /**
    * Kliento išrinkimas
    * @param type $id
    * @return type
    */
-  public function getCustomer($id) {
+  public static function getCustomer($id) {
     $query = "SELECT * FROM `klientai` WHERE `asmens_kodas`= ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
@@ -36,7 +32,7 @@ class customers {
    * @param type $offset
    * @return type
    */
-  public function getCustomersList($limit = null, $offset = null) {
+  public static function getCustomersList($limit = null, $offset = null) {
     $query = "SELECT * FROM `klientai`";
     $parameters = array();
 
@@ -59,7 +55,7 @@ class customers {
    * Klientų kiekio radimas
    * @return type
    */
-  public function getCustomersListCount() {
+  public static function getCustomersListCount() {
     $query = "SELECT COUNT(`asmens_kodas`) AS `kiekis` FROM `klientai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
@@ -70,7 +66,7 @@ class customers {
    * Kliento šalinimas
    * @param type $id
    */
-  public function deleteCustomer($id) {
+  public static function deleteCustomer($id) {
     $query = "DELETE FROM `klientai` WHERE `asmens_kodas`= ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
@@ -80,7 +76,7 @@ class customers {
    * Kliento atnaujinimas
    * @param type $data
    */
-  public function updateCustomer($data) {
+  public static function updateCustomer($data) {
     $query = "UPDATE `klientai` SET
         `vardas`= ?,
         `pavarde`= ?,
@@ -103,7 +99,7 @@ class customers {
    * Kliento įrašymas
    * @param type $data
    */
-  public function insertCustomer($data) {
+  public static function insertCustomer($data) {
     $query = "INSERT INTO `klientai`
       (
         `asmens_kodas`,
@@ -130,7 +126,7 @@ class customers {
    * @param type $id
    * @return type
    */
-  public function getContractCountOfCustomer($id) {
+  public static function getContractCountOfCustomer($id) {
     $query = "SELECT
         COUNT(`sutartys`.`nr`) AS `kiekis`
       FROM `klientai`

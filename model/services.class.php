@@ -8,17 +8,13 @@
 
 class services {
 
-  public function __construct() {
-
-  }
-
   /**
    * Paslaugų sąrašo išrinkimas
    * @param type $limit
    * @param type $offset
    * @return type
    */
-  public function getServicesList($limit = null, $offset = null) {
+  public static function getServicesList($limit = null, $offset = null) {
     $query = "SELECT * FROM `paslaugos`";
 
     $parameters = array();
@@ -42,7 +38,7 @@ class services {
    * Paslaugų kiekio radimas
    * @return type
    */
-  public function getServicesListCount() {
+  public static function getServicesListCount() {
     $query = "SELECT COUNT(`paslaugos`.`id`) as `kiekis` FROM `paslaugos`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
@@ -54,7 +50,7 @@ class services {
    * @param type $serviceId
    * @return type
    */
-  public function getServicePrices($serviceIDs) {
+  public static function getServicePrices($serviceIDs) {
     // $serviceIDs can be array of IDs or a single ID
     if (!is_array($serviceIDs))
       $serviceIDs = array($serviceIDs);
@@ -90,7 +86,7 @@ class services {
    * @param type $serviceId
    * @return type
    */
-  public function getContractCountOfService($serviceId) {
+  public static function getContractCountOfService($serviceId) {
     $query = "SELECT
         COUNT(`sutartys`.`nr`) AS `kiekis`
       FROM `paslaugos`
@@ -116,7 +112,7 @@ class services {
    * @param type $id
    * @return type
    */
-  public function getService($id) {
+  public static function getService($id) {
     $query = "SELECT * FROM `paslaugos` WHERE `id`= ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
@@ -131,7 +127,7 @@ class services {
    * Paslaugos įrašymas
    * @param type $data
    */
-  public function insertService($data) {
+  public static function insertService($data) {
     $query = "INSERT INTO `paslaugos` (`id`, `pavadinimas`, `aprasymas`) VALUES (?, ?, ?)";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
@@ -143,7 +139,7 @@ class services {
    * Paslaugos atnaujinimas
    * @param type $data
    */
-  public function updateService($data) {
+  public static function updateService($data) {
     $query = "UPDATE `paslaugos` SET `pavadinimas`= ?, `aprasymas`= ? WHERE `id`= ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
@@ -155,7 +151,7 @@ class services {
    * Paslaugos šalinimas
    * @param type $id
    */
-  public function deleteService($id) {
+  public static function deleteService($id) {
     $query = "DELETE FROM `paslaugos` WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
@@ -165,7 +161,7 @@ class services {
    * Paslaugos kainų įrašymas
    * @param type $data
    */
-  public function insertServicePrices($data) {
+  public static function insertServicePrices($data) {
     if (empty($data['kainos']) || !count($data['kainos']))
       return;
 
@@ -193,7 +189,7 @@ class services {
    * @param type $serviceId
    * @param type $clause
    */
-  public function deleteServicePrices($serviceId, $galiojaNuo = []) {
+  public static function deleteServicePrices($serviceId, $galiojaNuo = []) {
     $parameters = array($serviceId);
     $query = "DELETE FROM `paslaugu_kainos` WHERE `fk_paslauga`= ?";
 
@@ -210,14 +206,14 @@ class services {
    * Didžiausios paslaugos id reikšmės radimas
    * @return type
    */
-  public function getMaxIdOfService() {
+  public static function getMaxIdOfService() {
     $query = "SELECT MAX(`id`) AS `latestId` FROM `paslaugos`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data[0]['latestId'];
   }
 
-  public function getOrderedServices($dateFrom, $dateTo) {
+  public static function getOrderedServices($dateFrom, $dateTo) {
     $whereClauseString = "";
     $parameters = array();
 
@@ -254,7 +250,7 @@ class services {
     return $data;
   }
 
-  public function getStatsOfOrderedServices($dateFrom, $dateTo) {
+  public static function getStatsOfOrderedServices($dateFrom, $dateTo) {
     $whereClauseString = "";
     $parameters = array();
 

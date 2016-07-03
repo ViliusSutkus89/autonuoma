@@ -8,16 +8,12 @@
 
 class brands {
 
-  public function __construct() {
-
-  }
-
   /**
    * Markės išrinkimas
    * @param type $id
    * @return type
    */
-  public function getBrand($id) {
+  public static function getBrand($id) {
     $query = "SELECT * FROM `markes` WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
@@ -36,7 +32,7 @@ class brands {
    * @param type $offset
    * @return type
    */
-  public function getBrandList($limit = null, $offset = null) {
+  public static function getBrandList($limit = null, $offset = null) {
     $query = "SELECT * FROM `markes`";
     $parameters = array();
 
@@ -60,7 +56,7 @@ class brands {
    * Markių kiekio radimas
    * @return type
    */
-  public function getBrandListCount() {
+  public static function getBrandListCount() {
     $query = "SELECT COUNT(`id`) as `kiekis` FROM `markes`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
@@ -71,7 +67,7 @@ class brands {
    * Markės įrašymas
    * @param type $data
    */
-  public function insertBrand($data) {
+  public static function insertBrand($data) {
     $query = "INSERT INTO `markes` (`id`, `pavadinimas`) VALUES (?,?)";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($data['id'], $data['pavadinimas']));
@@ -81,7 +77,7 @@ class brands {
    * Markės atnaujinimas
    * @param type $data
    */
-  public function updateBrand($data) {
+  public static function updateBrand($data) {
     $query = "UPDATE `markes` SET `pavadinimas` = ? WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($data['pavadinimas'], $data['id']));
@@ -91,7 +87,7 @@ class brands {
    * Markės šalinimas
    * @param type $id
    */
-  public function deleteBrand($id) {
+  public static function deleteBrand($id) {
     $query = "DELETE FROM `markes` WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
@@ -102,7 +98,7 @@ class brands {
    * @param type $id
    * @return type
    */
-  public function getModelCountOfBrand($id) {
+  public static function getModelCountOfBrand($id) {
     $query = "
     SELECT
       COUNT(`modeliai`.`id`) as `kiekis`
@@ -122,7 +118,7 @@ class brands {
    * Didžiausiausios markės id reikšmės radimas
    * @return type
    */
-  public function getMaxIdOfBrand() {
+  public static function getMaxIdOfBrand() {
     $query = "SELECT MAX(`id`) as `latestId` FROM `markes`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
