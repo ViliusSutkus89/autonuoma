@@ -45,14 +45,17 @@ class routing {
     return self::getInstance()->data['pageId'];
   }
 
-  public static function getURL($controller, $action = '', $params = '') {
-    $url = "index.php?module=${controller}";
+  public static function getURL($controller = '', $action = '', $params = '') {
+    $url = 'index.php';
+    if (!empty($controller)) {
+      $url .= "?module=${controller}";
 
-    if (!empty($action))
-      $url .= "&action=" . $action;
+      if (!empty($action))
+        $url .= "&action=" . $action;
 
-    if (!empty($params))
-      $url .= "&" . $params;
+      if (!empty($params))
+        $url .= "&" . $params;
+    }
 
     return $url;
   }
