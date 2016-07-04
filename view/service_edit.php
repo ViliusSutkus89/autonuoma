@@ -1,7 +1,7 @@
 <?php require('header.php'); ?>
 <ul id="pagePath">
-	<li><a href="index.php">Pradžia</a></li>
-	<li><a href="index.php?module=<?php echo $module; ?>">Papildomos paslaugos</a></li>
+	<li><a href="<?php echo routing::getURL(); ?>">Pradžia</a></li>
+	<li><a href="<?php echo routing::getURL($module); ?>">Papildomos paslaugos</a></li>
 	<li><?php if(!empty($id)) echo "Paslaugos redagavimas"; else echo "Nauja paslauga"; ?></li>
 </ul>
 <div class="float-clear"></div>

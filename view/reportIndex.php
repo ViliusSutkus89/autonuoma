@@ -1,6 +1,6 @@
 <?php require('header.php'); ?>
 <ul id="pagePath">
-	<li><a href="index.php">Pradžia</a></li>
+	<li><a href="<?php echo routing::getURL(); ?>">Pradžia</a></li>
 	<li>Ataskaitos</li>
 </ul>
 <div id="actions"></div>
@@ -13,8 +13,8 @@
 foreach ($reports as $report_id => $report) {
   echo "<li>",
     "<p>",
-    '<a href="index.php?module=', $module, '&amp;action=view&amp;id=',
-      $report_id, '" ',
+    '<a href="',
+      routing::getURL($module, 'view', "id={$report_id}"), '" ',
       "target='_blank' title='{$report['title']}'>", $report['title'],
     "</a></p>",
     "<p>", $report['description'], "</p>",

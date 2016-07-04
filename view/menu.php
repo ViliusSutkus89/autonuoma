@@ -17,7 +17,7 @@
 	<ul class="float-left">
 <?php
   foreach ($menuLeft as $key => $val) {
-    echo "<li><a href='index.php?module=${key}' title='${val}'";
+    echo "<li><a href='", routing::getURL($key), "' title='${val}'";
     if ($module == $key) {
       echo ' class="active"';
     }
@@ -30,7 +30,7 @@
 
 <?php
   foreach ($menuRight as $key => $val) {
-    echo "<li><a href='index.php?module=${key}' title='${val}'";
+    echo "<li><a href='", routing::getURL($key), "' title='${val}'";
     if ($module == $key) {
       echo ' class="active"';
     }

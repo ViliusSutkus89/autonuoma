@@ -14,7 +14,7 @@
 	<body>
 		<div id="body">
 			<div id="header">
-				<h3 id="slogan"><a href="index.php">Automobilių nuomos IS</a></h3>
+      <h3 id="slogan"><a href="<?php echo routing::getURL(); ?>">Automobilių nuomos IS</a></h3>
 			</div>
 
 			<div id="content">

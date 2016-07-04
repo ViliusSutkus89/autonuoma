@@ -7,6 +7,8 @@
 		if($value['isActive'] == 1) {
 			$activeClass = " class='active'";
 		}
-		echo "<li{$activeClass}><a href='index.php?module={$module}&amp;page={$value['page']}' title=''>{$value['page']}</a></li>";
+    echo "<li{$activeClass}>",
+      "<a href='", routing::getURL($module, '', "page=${value['page']}"), "'>",
+      $value['page'], "</a></li>";
 	} ?>
 </ul>
