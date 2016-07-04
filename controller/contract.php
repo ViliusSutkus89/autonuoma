@@ -53,114 +53,119 @@ class contractController {
     $template->assign('data', $data);
     $template->assign('pagingData', $paging->data);
 
+    if(!empty($_GET['id_error']))
+      $template->assign('id_error', true);
+
     $template->setView("contract_list");
   }
 
-  public function editAction() {
-    if (!empty($_POST['submit']))
-      $this->insertUpdateAction();
-    else
-      $this->showAction();
+  public function createAction() {
+    $data = $this->validateInput();
+    // If entered data was valid
+    if ($data) {
+      // Insert row into database
+      contracts::insertContract($data);
+
+      // įrašome užsakytas paslaugas
+      contracts::updateOrderedServices($data);
+
+      // Redirect back to the list
+      routing::redirect(routing::getModule(), 'list');
+    } else {
+      $this->showForm();
+    }
   }
 
-  private function showAction() {
+  public function editAction() {
     $id = routing::getId();
 
-    $fields = array();
-    if ($id) {
-      $fields = contracts::getContract($id);
-      $fields['uzsakytos_paslaugos'] = contracts::getOrderedServices($id);
-      $fields['editing'] = 1;
+    $contract = contracts::getContract($id);
+    if ($contract == false) {
+      routing::redirect(routing::getModule(), 'list', 'id_error=1');
+      return;
     }
+    $contract['uzsakytos_paslaugos'] = contracts::getOrderedServices($id);
 
     $template = template::getInstance();
+    $template->assign('fields', $contract);
+    $template->assign('editing', true);
+
+    $data = $this->validateInput();
+    // If Entered data was valid
+    if ($data) {
+      $data['nr'] = $id;
+
+      // Update it in database
+      contracts::updateContract($data);
+
+      // Update ordered services
+      contracts::updateOrderedServices($data);
+
+      // Redirect back to the list
+      routing::redirect(routing::getModule(), 'list');
+    } else {
+      $this->showForm();
+    }
+  }
+
+  private function showForm() {
+    $template = template::getInstance();
+    $servicesList = services::getServicesList();
+
+    $serviceIDs = array();
+    foreach($servicesList as $val)
+      $serviceIDs[] = $val['id'];
+
+    $servicePrices = services::getServicePrices($serviceIDs);
+
+    $template->assign('servicesList', $servicesList);
+    $template->assign('servicePrices', $servicePrices);
 
     $template->assign('customerList', customers::getCustomersList());
     $template->assign('employeesList', employees::getEmployeesList());
     $template->assign('contractStates', contracts::getContractStates());
     $template->assign('carsList', cars::getCarList());
     $template->assign('parkingLots', contracts::getParkingLots());
-
-    $servicesList = sevices::getServicesList();
-
-    $serviceIDs = array();
-    foreach($servicesList as $val)
-      $serviceIDs[] = $val['id'];
-
-    $servicePrices = sevices::getServicePrices($serviceIDs);
-
-    $template->assign('servicesList', $servicesList);
-    $template->assign('servicePrices', $servicePrices);
-
-    $template->assign('fields', $fields);
     $template->assign('required', $this->required);
 
-    $template->setView("contract_edit");
+    $template->setView("contract_form");
   }
 
-  private function insertUpdateAction() {
+  private function validateInput() {
+    // Check if we even have any input
+    if (empty($_POST['submit'])) {
+      return false;
+    }
 
-    // sukuriame validatoriaus objektą
+    // Create Validator object
     $validator = new validator($this->validations, $this->required);
-
-    // laukai įvesti be klaidų
     if($validator->validate($_POST)) {
-      // suformuojame laukų reikšmių masyvą SQL užklausai
+      // Prepare data array to be entered into SQL DB
       $data = $validator->preparePostFieldsForSQL();
 
-      if(isset($data['editing'])) {
-        // atnaujiname sutartį
-        contracts::updateContract($data);
-        // atnaujiname užsakytas paslaugas
-        contracts::updateOrderedServices($data);
-      } else {
-        // patikriname, ar nėra sutarčių su tokiu pačiu numeriu
-        $exists = contracts::getContract($data['nr']);
-        if($exists) {
-          // sudarome klaidų pranešimą
-          $formErrors = "Sutartis su įvestu numeriu jau egzistuoja.";
-          // laukų reikšmių kintamajam priskiriame įvestų laukų reikšmes
-          $fields = $_POST;
-
-          $this->showAction();
-
-          $template = template::getInstance();
-          $template->assign('fields', $fields);
-          $template->assign('formErrors', $formErrors);
-        } else {
-          // įrašome naują sutartį
-          contracts::insertContract($data);
-          // įrašome užsakytas paslaugas
-          contracts::updateOrderedServices($data);
-        }
+      // If We're creating a new entry
+      // We need to make sure that the ID is unique
+      if (routing::getId() || !contracts::getContract($data['nr'])) {
+        return $data;
       }
-
+      $formErrors = "Sutartis su įvestu numeriu jau egzistuoja.";
     } else {
-      // gauname klaidų pranešimą
       $formErrors = $validator->getErrorHTML();
+    }
+    $template = template::getInstance();
 
-      $this->showAction();
-
-      $template = template::getInstance();
-
-      $template->assign('formErrors', $formErrors);
-
-      // laukų reikšmių kintamajam priskiriame įvestų laukų reikšmes
-      $fields = $_POST;
-      if(isset($_POST['kiekiai']) && sizeof($_POST['kiekiai']) > 0) {
-        $i = 0;
-        foreach($_POST['kiekiai'] as $key => $val) {
-          $fields['uzsakytos_paslaugos'][$i]['kiekis'] = $val;
-          $i++;
-        }
+    // laukų reikšmių kintamajam priskiriame įvestų laukų reikšmes
+    $fields = $_POST;
+    if(isset($_POST['kiekiai']) && sizeof($_POST['kiekiai']) > 0) {
+      $i = 0;
+      foreach($_POST['kiekiai'] as $key => $val) {
+        $fields['uzsakytos_paslaugos'][$i]['kiekis'] = $val;
+        $i++;
       }
-      $template->assign('fields', $fields);
     }
-
-    if (empty($formErrors)) {
-      // nukreipiame vartotoją į sutarčių puslapį
-      routing::redirect(routing::getModule(), 'list');
-    }
+    $template->assign('fields', $fields);
+    $template->assign('formErrors', $formErrors);
+    return false;
   }
 
   public function deleteAction() {

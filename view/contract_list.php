@@ -6,9 +6,15 @@
 </ul>
 <div id="actions">
   <a href="<?php echo routing::getURL('report', 'view', 'id=1'); ?>" target="_blank">Sutarčių ataskaita</a>
-	<a href='<?php echo routing::getURL($module, 'edit', 'id=0'); ?>'>Nauja sutartis</a>
+	<a href='<?php echo routing::getURL($module, 'create'); ?>'>Nauja sutartis</a>
 </div>
 <div class="float-clear"></div>
+
+<?php if(!empty($id_error)) { ?>
+  <div class="errorBox">
+    Kontraktas nerastas!
+  </div>
+<?php } ?>
 
 <table>
 	<tr>

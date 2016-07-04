@@ -13,14 +13,12 @@
 		<fieldset>
 			<legend>Sutarties informacija</legend>
 			<p>
-				<?php if(!isset($fields['editing'])) { ?>
+				<?php if(!isset($editing)) { ?>
 					<label class="field" for="nr">Numeris<?php echo in_array('nr', $required) ? '<span> *</span>' : ''; ?></label>
 					<input type="text" id="nr" name="nr" class="textbox-70" value="<?php echo isset($fields['nr']) ? $fields['nr'] : ''; ?>">
 				<?php } else { ?>
 						<label class="field" for="nr">Numeris</label>
 						<span class="input-value"><?php echo $fields['nr']; ?></span>
-						<input type="hidden" name="editing" value="1" />
-						<input type="hidden" name="nr" value="<?php echo $fields['nr']; ?>" />
 				<?php } ?>
 			</p>
 			<p>
@@ -229,7 +227,6 @@
 		<p>
 			<input type="submit" class="submit" name="submit" value="Išsaugoti">
 		</p>
-		<input type="hidden" name="id" value="<?php echo isset($fields['id']) ? $fields['id'] : ''; ?>" />
 	</form>
 </div>
 <?php require('footer.php'); ?>
