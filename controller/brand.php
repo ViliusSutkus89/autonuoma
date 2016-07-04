@@ -33,68 +33,96 @@ class brandController {
 
     $template->assign('data', $data);
     $template->assign('pagingData', $paging->data);
+
     if(!empty($_GET['delete_error']))
       $template->assign('delete_error', true);
+
+    if(!empty($_GET['id_error']))
+      $template->assign('id_error', true);
 
     $template->setView("brand_list");
   }
 
-  public function editAction() {
-    if (!empty($_POST['submit']))
-      $this->insertUpdateAction();
-    else
-      $this->showAction();
+  public function createAction() {
+    $data = $this->validateInput();
+    // If Entered data was valid
+    if ($data) {
+      // Find max Brand ID in the database
+      $latestId = brands::getMaxIdOfBrand();
+      // Increment it by one
+      $data['id'] = $latestId + 1;
+
+      // Insert row into database
+      brands::insertBrand($data);
+
+      // Redirect back to the list
+      routing::redirect(routing::getModule(), 'list');
+    } else {
+      $this->showForm();
+    }
   }
 
-  private function showAction() {
+  public function editAction() {
     $id = routing::getId();
 
-    $fields = ($id) ? brands::getBrand($id) : array();
+    $brand = brands::getBrand($id);
+    if ($brand == false) {
+      routing::redirect(routing::getModule(), 'list', 'id_error=1');
+      return;
+    }
 
+    // Fill form fields with current data
     $template = template::getInstance();
+    $template->assign('fields', $brand);
 
-    $template->assign('fields', $fields);
-    $template->assign('required', $this->required);
-    $template->assign('maxLengths', $this->maxLengths);
+    $data = $this->validateInput();
+    // If Entered data was valid
+    if ($data) {
+      $data['id'] = $id;
 
-    $template->setView("brand_edit");
+      // Update it in DataBase
+      brands::updateBrand($data);
+
+      // Redirect back to the list
+      routing::redirect(routing::getModule(), 'list');
+    } else {
+      $this->showForm();
+    }
+
   }
 
-  private function insertUpdateAction() {
-    // sukuriame validatoriaus objektą
+  private function showForm() {
+    $template = template::getInstance();
+    $template->assign('required', $this->required);
+    $template->assign('maxLengths', $this->maxLengths);
+    $template->setView("brand_form");
+  }
+
+  private function validateInput() {
+    // Check if we even have any input
+    if (empty($_POST['submit'])) {
+      return false;
+    }
+
+    // Create Validator object
     $validator = new validator($this->validations,
       $this->required, $this->maxLengths);
 
-    if($validator->validate($_POST)) {
-      // suformuojame laukų reikšmių masyvą SQL užklausai
-      $data = $validator->preparePostFieldsForSQL();
-      if(isset($data['id'])) {
-        // atnaujiname duomenis
-        brands::updateBrand($data);
-      } else {
-        // randame didžiausią markės id duomenų bazėje
-        $latestId = brands::getMaxIdOfBrand();
-
-        // įrašome naują įrašą
-        $data['id'] = $latestId + 1;
-        brands::insertBrand($data);
-      }
-
-      // nukreipiame į markių puslapį
-      routing::redirect(routing::getModule(), 'list');
-    } else {
-      $this->showAction();
-
+    if(!$validator->validate($_POST)) {
       $template = template::getInstance();
 
       // Overwrite fields array with submitted $_POST values
       $template->assign('fields', $_POST);
 
-      // gauname klaidų pranešimą
+      // Get error message
       $formErrors = $validator->getErrorHTML();
       $template->assign('formErrors', $formErrors);
+      return false;
     }
 
+    // Prepare data array to be entered into SQL DB
+    $data = $validator->preparePostFieldsForSQL();
+    return $data;
   }
 
   public function deleteAction() {

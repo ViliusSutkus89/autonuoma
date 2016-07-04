@@ -1,10 +1,10 @@
 <?php require('header.php'); ?>
 <ul id="pagePath">
-	<li><a href="index.php">Pradžia</a></li>
+  <li><a href="<?php echo routing::getURL(); ?>">Pradžia</a></li>
 	<li>Automobilių markės</li>
 </ul>
 <div id="actions">
-	<a href='<?php echo routing::getURL($module, 'edit', 'id=0'); ?>'>Nauja markė</a>
+	<a href='<?php echo routing::getURL($module, 'create'); ?>'>Nauja markė</a>
 </div>
 <div class="float-clear"></div>
 
@@ -12,6 +12,12 @@
 	<div class="errorBox">
 		Markė nebuvo pašalinta. Pirmiausia pašalinkite markės modelius.
 	</div>
+<?php } ?>
+
+<?php if(!empty($id_error)) { ?>
+  <div class="errorBox">
+    Markė nerasta!
+  </div>
 <?php } ?>
 
 <table>

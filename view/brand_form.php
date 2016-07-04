@@ -1,8 +1,8 @@
 <?php require('header.php'); ?>
 <ul id="pagePath">
-	<li><a href="index.php">Pradžia</a></li>
-	<li><a href="index.php?module=<?php echo $module; ?>">Automobilių markės</a></li>
-	<li><?php if(!empty($id)) echo "Markės redagavimas"; else echo "Nauja markė"; ?></li>
+  <li><a href="<?php echo routing::getURL(); ?>">Pradžia</a></li>
+  <li><a href="<?php echo routing::getURL($module); ?>">Automobilių markės</a></li>
+  <li><?php echo (empty($id)) ? "Nauja markė" : "Markės redagavimas"; ?></li>
 </ul>
 <div class="float-clear"></div>
 <div id="formContainer">
@@ -20,9 +20,6 @@
 		<p>
 			<input type="submit" class="submit" name="submit" value="Išsaugoti">
 		</p>
-		<?php if(isset($fields['id'])) { ?>
-			<input type="hidden" name="id" value="<?php echo $fields['id']; ?>" />
-		<?php } ?>
 	</form>
 </div>
 

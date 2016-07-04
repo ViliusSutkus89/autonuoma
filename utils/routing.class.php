@@ -22,7 +22,7 @@ class routing {
     $this->data['id'] = (!empty($_GET['id'])) ? $_GET['id'] : '';
 	  
 	  // nustatome, ar kuriamas naujas elementas
-    // action = [list, view, remove, update]
+    // action = [list, create, edit, delete]
 	  $this->data['action'] = (!empty($_GET['action'])) ? $_GET['action'] : '';
 	  
 	  // nustatome elementų sąrašo puslapio numerį
