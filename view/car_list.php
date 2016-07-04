@@ -4,7 +4,7 @@
 	<li>Automobiliai</li>
 </ul>
 <div id="actions">
-  <a href='<?php echo routing::getURL($module, 'edit', 'id=0'); ?>'>Naujas automobilis</a>
+  <a href='<?php echo routing::getURL($module, 'create'); ?>'>Naujas automobilis</a>
 </div>
 <div class="float-clear"></div>
 
@@ -12,6 +12,12 @@
 	<div class="errorBox">
 		Automobilis nebuvo pašalinta, nes yra įtrauktas į sutartį (-is).
 	</div>
+<?php } ?>
+
+<?php if(!empty($id_error)) { ?>
+  <div class="errorBox">
+    Automobilis nerastas!
+  </div>
 <?php } ?>
 
 <table>

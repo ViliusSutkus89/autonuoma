@@ -55,21 +55,60 @@ class carController {
     if(!empty($_GET['delete_error']))
       $template->assign('delete_error', true);
 
+    if(!empty($_GET['id_error']))
+      $template->assign('id_error', true);
+
     $template->setView("car_list");
   }
 
-  public function editAction() {
-    if (!empty($_POST['submit']))
-      $this->insertUpdateAction();
-    else
-      $this->showAction();
+  public function createAction() {
+    $data = $this->validateInput();
+    // If entered data was valid
+    if ($data) {
+      // Find max ID in the database
+      $latestId = cars::getMaxIdOfCar();
+      // Increment it by one
+      $data['id'] = $latestId + 1;
+
+      // Insert row into database
+      cars::insertCar($data);
+
+      // Redirect back to the list
+      routing::redirect(routing::getModule(), 'list');
+    } else {
+      $this->showForm();
+    }
   }
 
-  private function showAction() {
+  public function editAction() {
     $id = routing::getId();
 
-    $fields = ($id) ? cars::getcar($id) : array();
+    $car = cars::getCar($id);
+    if ($car == false) {
+      routing::redirect(routing::getModule(), 'list', 'id_error=1');
+      return;
+    }
 
+    // Fill form fields with current data
+    $template = template::getInstance();
+    $template->assign('fields', $car);
+
+    $data = $this->validateInput();
+    // If Entered data was valid
+    if ($data) {
+      $data['id'] = $id;
+
+      // Update it in DataBase
+      cars::updateCar($data);
+
+      // Redirect back to the list
+      routing::redirect(routing::getModule(), 'list');
+    } else {
+      $this->showForm();
+    }
+  }
+
+  private function showForm() {
     $template = template::getInstance();
 
     $brands = brands::getBrandList();
@@ -77,6 +116,10 @@ class carController {
     foreach($brands as $val)
       $brandIDs[] = $val['id'];
     $models = models::getModelsListByBrands($brandIDs);
+    foreach($brandIDs as $val) {
+      if (!isset($models[$val]))
+        $models[$val] = array();
+    }
 
     $template->assign('brands', $brands);
     $template->assign('models', $models);
@@ -91,57 +134,45 @@ class carController {
     $template->assign('fueltypes', $fueltypes);
     $template->assign('bodytypes', $bodytypes);
     $template->assign('luggage', $luggage);
+    $template->assign('car_states', $car_states);
 
-    $template->assign('fields', $fields);
     $template->assign('required', $this->required);
     $template->assign('maxLengths', $this->maxLengths);
-
-    $template->setView("car_edit");
+    $template->setView("car_form");
   }
 
-  private function insertUpdateAction() {
-    // sukuriame validatoriaus objektą
-    $validator = new validator($this->validations, $this->required, $this->maxLengths);
+  private function validateInput() {
+    // Check if we even have any input
+    if (empty($_POST['submit'])) {
+      return false;
+    }
 
-    // laukai įvesti be klaidų
-    if($validator->validate($_POST)) {
-      // suformuojame laukų reikšmių masyvą SQL užklausai
-      $data = $validator->preparePostFieldsForSQL();
+    // Create Validator object
+    $validator = new validator($this->validations,
+      $this->required, $this->maxLengths);
 
-      // sutvarkome checkbox reikšmes
-      $data['radijas'] = (!empty($data['radijas']) && $data['radijas'] == 'on') ? 1 : 0;
-
-      $data['grotuvas'] = (!empty($data['grotuvas']) && $data['grotuvas'] == 'on') ? 1 : 0;
-
-      $data['kondicionierius'] =  (!empty($data['kondicionierius']) && $data['kondicionierius'] == 'on') ? 1 : 0;
-
-      if(isset($data['id'])) {
-        // atnaujiname duomenis
-        cars::updateCar($data);
-      } else {
-        // randame didžiausią markės id duomenų bazėje
-        $latestId = cars::getMaxIdOfcar();
-
-        // įrašome naują įrašą
-        $data['id'] = $latestId + 1;
-        cars::insertCar($data);
-      }
-
-      // nukreipiame į automobilių puslapį
-      routing::redirect(routing::getModule(), 'list');
-    } else {
-      $this->showAction();
-
+    if(!$validator->validate($_POST)) {
       $template = template::getInstance();
 
       // Overwrite fields array with submitted $_POST values
       $template->assign('fields', $_POST);
 
-      // gauname klaidų pranešimą
+      // Get error message
       $formErrors = $validator->getErrorHTML();
       $template->assign('formErrors', $formErrors);
+      return false;
     }
 
+    // Prepare data array to be entered into SQL DB
+    $data = $validator->preparePostFieldsForSQL();
+
+    // Fix checkbox values
+    $data['radijas'] = (!empty($data['radijas']) && $data['radijas'] == 'on') ? 1 : 0;
+
+    $data['grotuvas'] = (!empty($data['grotuvas']) && $data['grotuvas'] == 'on') ? 1 : 0;
+
+    $data['kondicionierius'] =  (!empty($data['kondicionierius']) && $data['kondicionierius'] == 'on') ? 1 : 0;
+    return $data;
   }
 
   public function deleteAction() {
