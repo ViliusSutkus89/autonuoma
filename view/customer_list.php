@@ -4,7 +4,7 @@
 	<li>Klientai</li>
 </ul>
 <div id="actions">
-	<a href='<?php echo routing::getURL($module, 'edit', 'id=0'); ?>'>Naujas klientas</a>
+	<a href='<?php echo routing::getURL($module, 'create'); ?>'>Naujas klientas</a>
 </div>
 <div class="float-clear"></div>
 
@@ -12,6 +12,12 @@
 	<div class="errorBox">
 		Klientas nebuvo pašalintas, nes turi užsakymą (-ų).
 	</div>
+<?php } ?>
+
+<?php if(!empty($id_error)) { ?>
+  <div class="errorBox">
+    Klientas nerastas!
+  </div>
 <?php } ?>
 
 <table>

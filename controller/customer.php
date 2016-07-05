@@ -48,65 +48,91 @@ class customerController {
     if(!empty($_GET['delete_error']))
       $template->assign('delete_error', true);
 
+    if(!empty($_GET['id_error']))
+      $template->assign('id_error', true);
+
     $template->setView("customer_list");
   }
 
-  public function editAction() {
-    if (!empty($_POST['submit']))
-      $this->insertUpdateAction();
-    else
-      $this->showAction();
-  }
+  public function createAction() {
+    $data = $this->validateInput();
+    // If entered data was valid
+    if ($data) {
+      // Insert row into database
+      customers::insertcustomer($data);
 
-  private function showAction() {
-    $id = routing::getId();
-
-    $fields = array();
-    // tikriname, ar nurodytas elemento id. Jeigu taip, išrenkame elemento duomenis ir jais užpildome formos laukus.
-    if ($id) {
-      $fields = customers::getCustomer($id);
-      $fields['editing'] = 1;
-    }
-
-    $template = template::getInstance();
-
-    $template->assign('fields', $fields);
-    $template->assign('required', $this->required);
-    $template->assign('maxLengths', $this->maxLengths);
-
-    $template->setView("customer_edit");
-  }
-
-  private function insertUpdateAction() {
-    // sukuriame validatoriaus objektą
-    $validator = new validator($this->validations, $this->required, $this->maxLengths);
-
-    // laukai įvesti be klaidų
-    if($validator->validate($_POST)) {
-      // suformuojame laukų reikšmių masyvą SQL užklausai
-      $data = $validator->preparePostFieldsForSQL();
-      if(isset($data['editing'])) {
-        // atnaujiname duomenis
-        customers::updateCustomer($data);
-      } else {
-        // įrašome naują klientą
-        customers::insertCustomer($data);
-      }
-
-      // nukreipiame į customerių puslapį
+      // Redirect back to the list
       routing::redirect(routing::getModule(), 'list');
     } else {
-      $this->showAction();
-
-      $template = template::getInstance();
-
-      // Overwrite fields array with submitted $_POST values
-      $template->assign('fields', $_POST);
-
-      // gauname klaidų pranešimą
-      $formErrors = $validator->getErrorHTML();
-      $template->assign('formErrors', $formErrors);
+      $this->showForm();
     }
+  }
+
+  public function editAction() {
+    $id = routing::getId();
+
+    $customer = customers::getCustomer($id);
+    if ($customer == false) {
+      routing::redirect(routing::getModule(), 'list', 'id_error=1');
+      return;
+    }
+
+    // Fill form fields with current data
+    $template = template::getInstance();
+    $template->assign('fields', $customer);
+    $template->assign('editing', true);
+
+    $data = $this->validateInput();
+    // If Entered data was valid
+    if ($data) {
+      $data['asmens_kodas'] = $id;
+
+      // Update it in database
+      customers::updateCustomer($data);
+
+      // Redirect back to the list
+      routing::redirect(routing::getModule(), 'list');
+    } else {
+      $this->showForm();
+    }
+  }
+
+  private function showForm() {
+    $template = template::getInstance();
+    $template->assign('required', $this->required);
+    $template->assign('maxLengths', $this->maxLengths);
+    $template->setView("customer_form");
+  }
+
+  private function validateInput() {
+    // Check if we even have any input
+    if (empty($_POST['submit'])) {
+      return false;
+    }
+
+    // Create Validator object
+    $validator = new validator($this->validations,
+      $this->required, $this->maxLengths);
+
+    if($validator->validate($_POST)) {
+      // Prepare data array to be entered into SQL DB
+      $data = $validator->preparePostFieldsForSQL();
+
+      // If We're creating a new entry
+      // We need to make sure that the ID is unique
+      if (routing::getId() || !customers::getCustomer($data['asmens_kodas'])) {
+        return $data;
+      }
+      $formErrors = "Vartotojas su įvestu asmens kodu jau egzistuoja.";
+    } else {
+      $formErrors = $validator->getErrorHTML();
+    }
+    $template = template::getInstance();
+
+    // Overwrite fields array with submitted $_POST values
+    $template->assign('fields', $_POST);
+    $template->assign('formErrors', $formErrors);
+    return false;
   }
 
   public function deleteAction() {
@@ -125,7 +151,7 @@ class customerController {
       $deleteErrorParameter = 'delete_error=1';
     }
 
-    // nukreipiame į markių puslapį
+    // Redirect back to the list
     routing::redirect(routing::getModule(), 'list',
       $deleteErrorParameter);
   }
