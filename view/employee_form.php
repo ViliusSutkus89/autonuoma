@@ -12,13 +12,11 @@
 			<legend>Darbuotojo informacija</legend>
 				<p>
 					<label class="field" for="tabelio_nr">Tabelio numeris<?php echo in_array('tabelio_nr', $required) ? '<span> *</span>' : ''; ?></label>
-					<?php if(!isset($fields['editing'])) { ?>
+					<?php if(!isset($editing)) { ?>
 						<input type="text" id="tabelio_nr" name="tabelio_nr" class="textbox-150" value="<?php echo isset($fields['tabelio_nr']) ? $fields['tabelio_nr'] : ''; ?>" />
 						<?php if(key_exists('tabelio_nr', $maxLengths)) echo "<span class='max-len'>(iki {$maxLengths['tabelio_nr']} simb.)</span>"; ?>
 					<?php } else { ?>
 						<span class="input-value"><?php echo $fields['tabelio_nr']; ?></span>
-						<input type="hidden" name="editing" value="1" />
-						<input type="hidden" name="tabelio_nr" value="<?php echo $fields['tabelio_nr']; ?>" />
 					<?php } ?>
 				</p>
 			<p>

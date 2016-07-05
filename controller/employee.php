@@ -44,66 +44,87 @@ class employeeController {
     if(!empty($_GET['delete_error']))
       $template->assign('delete_error', true);
 
+    if(!empty($_GET['id_error']))
+      $template->assign('id_error', true);
+
     $template->setView("employee_list");
   }
 
-  public function editAction() {
-    if (!empty($_POST['submit']))
-      $this->insertUpdateAction();
-    else
-      $this->showAction();
-  }
+  public function createAction() {
+    $data = $this->validateInput();
+    // If entered data was valid
+    if ($data) {
+      // Insert row into database
+      employees::insertEmployee($data);
 
-  private function showAction() {
-    $id = routing::getId();
-
-    $fields = array();
-    // tikriname, ar nurodytas elemento id.
-    // Jeigu taip, išrenkame elemento duomenis ir jais užpildome formos laukus.
-    if ($id) {
-      $fields = employees::getEmployee($id);
-      $fields['editing'] = 1;
-    }
-
-    $template = template::getInstance();
-
-    $template->assign('fields', $fields);
-    $template->assign('required', $this->required);
-    $template->assign('maxLengths', $this->maxLengths);
-
-    $template->setView("employee_edit");
-  }
-
-  private function insertUpdateAction() {
-    // sukuriame validatoriaus objektą
-    $validator = new validator($this->validations, $this->required, $this->maxLengths);
-
-    // laukai įvesti be klaidų
-    if($validator->validate($_POST)) {
-      // suformuojame laukų reikšmių masyvą SQL užklausai
-      $data = $validator->preparePostFieldsForSQL();
-      if(isset($data['editing'])) {
-        // atnaujiname duomenis
-        employees::updateEmployee($data);
-      } else {
-        // įrašome naują darbuotoją
-        employees::insertEmployee($data);
-      }
-
-      // nukreipiame į darbuotojų puslapį
+      // Redirect back to the list
       routing::redirect(routing::getModule(), 'list');
     } else {
-      $this->showAction();
+      $this->showForm();
+    }
+  }
 
+  public function editAction() {
+    $id = routing::getId();
+
+    $employee = employees::getEmployee($id);
+    if ($employee == false) {
+      routing::redirect(routing::getModule(), 'list', 'id_error=1');
+      return;
+    }
+
+    // Fill form fields with current data
+    $template = template::getInstance();
+    $template->assign('fields', $employee);
+    $template->assign('editing', true);
+
+    $data = $this->validateInput();
+    // If Entered data was valid
+    if ($data) {
+      $data['tabelio_nr'] = $id;
+
+      // Update it in database
+      employees::updateEmployee($data);
+
+      // Redirect back to the list
+      routing::redirect(routing::getModule(), 'list');
+    } else {
+      $this->showForm();
+    }
+  }
+
+  private function showForm() {
+    $template = template::getInstance();
+    $template->assign('required', $this->required);
+    $template->assign('maxLengths', $this->maxLengths);
+    $template->setView("employee_form");
+  }
+
+  private function validateInput() {
+    // Check if we even have any input
+    if (empty($_POST['submit'])) {
+      return false;
+    }
+
+    // Create Validator object
+    $validator = new validator($this->validations,
+      $this->required, $this->maxLengths);
+
+    if(!$validator->validate($_POST)) {
       $template = template::getInstance();
 
       // Overwrite fields array with submitted $_POST values
       $template->assign('fields', $_POST);
 
-      // gauname klaidų pranešimą
+      // Get error message
       $formErrors = $validator->getErrorHTML();
       $template->assign('formErrors', $formErrors);
+      return false;
     }
+
+    // Prepare data array to be entered into SQL DB
+    $data = $validator->preparePostFieldsForSQL();
+    return $data;
   }
 
   public function deleteAction() {

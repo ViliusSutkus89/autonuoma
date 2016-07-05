@@ -1,17 +1,23 @@
 <?php require('header.php'); ?>
 <ul id="pagePath">
-	<li><a href="index.php">Pradžia</a></li>
+	<li><a href="<?php echo routing::getURL(); ?>">Pradžia</a></li>
 	<li>Darbuotojai</li>
 </ul>
 <div id="actions">
-	<a href='<?php echo routing::getURL($module, 'edit', 'id=0'); ?>'>Naujas darbuotojas</a>
+	<a href='<?php echo routing::getURL($module, 'create'); ?>'>Naujas darbuotojas</a>
 </div>
 <div class="float-clear"></div>
 
 <?php if(!empty($delete_error)) { ?>
 	<div class="errorBox">
-		Klientas nebuvo pašalintas, nes turi užsakymą (-ų).
+    Darbuotojas nebuvo pašalintas, nes turi užsakymą (-ų).
 	</div>
+<?php } ?>
+
+<?php if(!empty($id_error)) { ?>
+  <div class="errorBox">
+    Darbuotojas nerastas!
+  </div>
 <?php } ?>
 
 <table>
