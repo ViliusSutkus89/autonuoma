@@ -4,7 +4,7 @@
 	<li>Automobilių modeliai</li>
 </ul>
 <div id="actions">
-  <a href='<?php echo routing::getURL($module, 'edit', 'id=0'); ?>'>Naujas modelis</a>
+  <a href='<?php echo routing::getURL($module, 'create'); ?>'>Naujas modelis</a>
 </div>
 <div class="float-clear"></div>
 
@@ -12,6 +12,12 @@
 	<div class="errorBox">
 		Modelis nebuvo pašalintas. Pirmiausia pašalinkite to modelio automobilius.
 	</div>
+<?php } ?>
+
+<?php if(!empty($id_error)) { ?>
+  <div class="errorBox">
+    Modelis nerastas!
+  </div>
 <?php } ?>
 
 <table>

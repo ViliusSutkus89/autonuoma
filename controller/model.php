@@ -42,68 +42,92 @@ class modelController {
     if(!empty($_GET['delete_error']))
       $template->assign('delete_error', true);
 
+    if(!empty($_GET['id_error']))
+      $template->assign('id_error', true);
+
     $template->setView("model_list");
   }
 
-  public function editAction() {
-    if (!empty($_POST['submit']))
-      $this->insertUpdateAction();
-    else
-      $this->showAction();
-  }
+  public function createAction() {
+    $data = $this->validateInput();
+    // If entered data was valid
+    if ($data) {
+      // Find max ID in the database
+      $latestId = models::getMaxIdOfModel();
+      // Increment it by one
+      $data['id'] = $latestId + 1;
 
-  private function showAction() {
-    $id = routing::getId();
+      // Insert row into database
+      models::insertModel($data);
 
-    $fields = ($id) ? models::getmodel($id) : array();
-
-    $template = template::getInstance();
-
-    $brands = brands::getBrandList();
-    $template->assign('brands', $brands);
-
-    $template->assign('fields', $fields);
-    $template->assign('required', $this->required);
-    $template->assign('maxLengths', $this->maxLengths);
-
-    $template->setView("model_edit");
-  }
-
-  private function insertUpdateAction() {
-    // sukuriame validatoriaus objektą
-    $validator = new validator($this->validations, $this->required, $this->maxLengths);
-
-    // laukai įvesti be klaidų
-    if($validator->validate($_POST)) {
-      // suformuojame laukų reikšmių masyvą SQL užklausai
-      $data = $validator->preparePostFieldsForSQL();
-      if(isset($data['id'])) {
-        // atnaujiname duomenis
-        models::updateModel($data);
-      } else {
-        // randame didžiausią markės id duomenų bazėje
-        $latestId = models::getMaxIdOfmodel();
-
-        // įrašome naują įrašą
-        $data['id'] = $latestId + 1;
-        models::insertModel($data);
-      }
-
-      // nukreipiame į modelių puslapį
+      // Redirect back to the list
       routing::redirect(routing::getModule(), 'list');
     } else {
-      $this->showAction();
+      $this->showForm();
+    }
+  }
 
+  public function editAction() {
+    $id = routing::getId();
+
+    $model = models::getModel($id);
+    if ($model == false) {
+      routing::redirect(routing::getModule(), 'list', 'id_error=1');
+      return;
+    }
+
+    // Fill form fields with current data
+    $template = template::getInstance();
+    $template->assign('fields', $model);
+
+    $data = $this->validateInput();
+    // If Entered data was valid
+    if ($data) {
+      $data['id'] = $id;
+
+      // Update it in database
+      models::updateModel($data);
+
+      // Redirect back to the list
+      routing::redirect(routing::getModule(), 'list');
+    } else {
+      $this->showForm();
+    }
+  }
+
+  private function showForm() {
+    $template = template::getInstance();
+    $template->assign('brands', brands::getBrandList());
+    $template->assign('required', $this->required);
+    $template->assign('maxLengths', $this->maxLengths);
+    $template->setView("model_form");
+  }
+
+  private function validateInput() {
+    // Check if we even have any input
+    if (empty($_POST['submit'])) {
+      return false;
+    }
+
+    // Create Validator object
+    $validator = new validator($this->validations,
+      $this->required, $this->maxLengths);
+
+    if(!$validator->validate($_POST)) {
       $template = template::getInstance();
 
       // Overwrite fields array with submitted $_POST values
       $template->assign('fields', $_POST);
 
-      // gauname klaidų pranešimą
+      // Get error message
       $formErrors = $validator->getErrorHTML();
       $template->assign('formErrors', $formErrors);
+      return false;
     }
 
+    // Prepare data array to be entered into SQL DB
+    $data = $validator->preparePostFieldsForSQL();
+    return $data;
   }
 
   public function deleteAction() {
