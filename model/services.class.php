@@ -45,11 +45,23 @@ class services {
     return $data[0]['kiekis'];
   }
 
+  public static function getPricedServices() {
+    $query = "SELECT *
+      FROM `paslaugos`
+      LEFT JOIN `paslaugu_kainos`
+        ON `paslaugos`.`id` = `paslaugu_kainos`.`fk_paslauga`
+    ";
+    $stmt = mysql::getInstance()->query($query);
+    $data = $stmt->fetchAll();
+    return $data;
+  }
+
   /**
    * Paslaugos kainų sąrašo radimas
    * @param type $serviceId
    * @return type
    */
+  // @TODO: This no longer needs to accept an array of services
   public static function getServicePrices($serviceIDs) {
     // $serviceIDs can be array of IDs or a single ID
     if (!is_array($serviceIDs))

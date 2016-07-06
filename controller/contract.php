@@ -110,16 +110,8 @@ class contractController {
 
   private function showForm() {
     $template = template::getInstance();
-    $servicesList = services::getServicesList();
-
-    $serviceIDs = array();
-    foreach($servicesList as $val)
-      $serviceIDs[] = $val['id'];
-
-    $servicePrices = services::getServicePrices($serviceIDs);
-
-    $template->assign('servicesList', $servicesList);
-    $template->assign('servicePrices', $servicePrices);
+    $services = services::getPricedServices();
+    $template->assign('services', $services);
 
     $template->assign('customerList', customers::getCustomersList());
     $template->assign('employeesList', employees::getEmployeesList());

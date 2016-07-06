@@ -174,18 +174,23 @@
 				?>
 					<div class="childRow hidden">
 						<select class="elementSelector" name="paslaugos[]" disabled="disabled">
-							<?php
-								foreach($servicesList as $key1 => $val1) {
-									echo "<optgroup label='{$val1['pavadinimas']}'>";
-								  foreach($servicePrices[$val1['id']] as $key2 => $val2) {
-										$selected = "";
-										if(isset($fields['modelis']) && $fields['modelis'] == $val2['id']) {
-											$selected = " selected='selected'";
-										}
-										echo "<option{$selected} value='{$val2['fk_paslauga']}:{$val2['kaina']}:{$val2['galioja_nuo']}'>{$val1['pavadinimas']} {$val2['kaina']} EUR (nuo {$val2['galioja_nuo']})</option>";
-									}
-								}
-							?>
+								<?php
+                $lastService = "";
+                foreach($services as $service) {
+                  if ($lastService != $service['id']) {
+                    if ($lastService != "") {
+                      echo "</optgroup>\n";
+                    }
+                    $lastService = $service['id'];
+										echo "<optgroup label='{$service['pavadinimas']}'>\n";
+                  }
+                  echo "<option value='{$service['id']}:{$service['kaina']}:{$service['galioja_nuo']}'>",
+                    "{$service['pavadinimas']} {$service['kaina']} EUR (nuo {$service['galioja_nuo']})</option>\n";
+                }
+                if ($lastService != "") {
+                  echo "</optgroup>\n";
+                }
+								?>
 						</select>
 						<input type="text" name="kiekiai[]" class="textbox-30" value="" disabled="disabled" />
 						<a href="#" title="" class="removeChild">šalinti</a>
@@ -194,21 +199,30 @@
 
 				<?php
 					} else {
-						foreach($fields['uzsakytos_paslaugos'] as $key => $val) {
+						foreach($fields['uzsakytos_paslaugos'] as $val) {
 				?>
 						<div class="childRow">
 							<select class="elementSelector" name="paslaugos[]">
 								<?php
-									foreach($servicesList as $key1 => $val1) {
-										echo "<optgroup label='{$val1['pavadinimas']}'>";
-										foreach($servicePrices[$val1['id']] as $key2 => $val2) {
-											$selected = "";
-											if($val['fk_kaina_galioja_nuo'] == $val2['galioja_nuo'] && $val['fk_paslauga'] == $val2['fk_paslauga']) {
-												$selected = " selected='selected'";
-											}
-											echo "<option{$selected} value='{$val2['fk_paslauga']}:{$val2['kaina']}:{$val2['galioja_nuo']}'>{$val1['pavadinimas']} {$val2['kaina']} EUR (nuo {$val2['galioja_nuo']})</option>";
-										}
+                $lastService = "";
+                foreach($services as $service) {
+                  if ($lastService != $service['id']) {
+                    if ($lastService != "") {
+                      echo "</optgroup>\n";
+                    }
+                    $lastService = $service['id'];
+										echo "<optgroup label='{$service['pavadinimas']}'>\n";
+                  }
+									$selected = "";
+									if($val['fk_kaina_galioja_nuo'] == $service['galioja_nuo'] && $val['fk_paslauga'] == $service['fk_paslauga']) {
+										$selected = " selected='selected'";
 									}
+                  echo "<option{$selected} value='{$service['id']}:{$service['kaina']}:{$service['galioja_nuo']}'>",
+                    "{$service['pavadinimas']} {$service['kaina']} EUR (nuo {$service['galioja_nuo']})</option>\n";
+                }
+                if ($lastService != "") {
+                  echo "</optgroup>\n";
+                }
 								?>
 							</select>
 							<input type="text" name="kiekiai[]" class="textbox-30" value="<?php echo isset($val['kiekis']) ? $val['kiekis'] : ''; ?>" />
