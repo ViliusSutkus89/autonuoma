@@ -331,54 +331,6 @@ class contracts {
     return $data;
   }
 
-  /**
-   * Paslaugos kainų įtraukimo į užsakymus kiekio radimas
-   * @param type $serviceId
-   * @param type $validFroms
-   * @return type
-   */
-  public static function getPricesCountOfOrderedServices($serviceId, $validFroms) {
-    // One service can have multiple prices with a different valid from date
-    // We need to query then all from the database with a single query
-    if (!is_array($validFroms) || !count($validFroms)) {
-      return array();
-    }
-
-    $WHERE = array();
-    $parameters = array();
-    foreach ($validFroms as $val) {
-      $WHERE[] = "(
-        `paslaugu_kainos`.`fk_paslauga` = ?
-      AND
-        `paslaugu_kainos`.`galioja_nuo` = ?
-      )";
-      $parameters[] = $serviceId;
-      $parameters[] = $val;
-    }
-    $WHERE = implode(" OR ", $WHERE);
-
-
-    $query = "SELECT
-        COUNT(`uzsakytos_paslaugos`.`fk_paslauga`) AS `kiekis`,
-        `paslaugu_kainos`.`galioja_nuo`
-      FROM `paslaugu_kainos`
-      INNER JOIN `uzsakytos_paslaugos`
-        ON `paslaugu_kainos`.`fk_paslauga`=`uzsakytos_paslaugos`.`fk_paslauga`
-        AND `paslaugu_kainos`.`galioja_nuo`=`uzsakytos_paslaugos`.`fk_kaina_galioja_nuo`
-      ";
-    $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute($parameters);
-    $data = $stmt->fetchAll();
-
-    // Reformat output array structure
-    $results = array();
-    foreach($data as $val) {
-      $results[$val['galioja_nuo']] = $val['kiekis'];
-    }
-
-    return $results;
-  }
-
   public static function getCustomerContracts($dateFrom, $dateTo) {
     $whereClauseString = "";
     $parameters = array();

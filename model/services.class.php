@@ -61,36 +61,23 @@ class services {
    * @param type $serviceId
    * @return type
    */
-  // @TODO: This no longer needs to accept an array of services
-  public static function getServicePrices($serviceIDs) {
-    // $serviceIDs can be array of IDs or a single ID
-    if (!is_array($serviceIDs))
-      $serviceIDs = array($serviceIDs);
+  public static function getServicePrices($serviceID) {
+    $query = "SELECT `paslaugu_kainos`.*,
+      IF(COUNT(`uzsakytos_paslaugos`.`fk_paslauga`), '1', '0') as `naudojama_uzsakymuose`
+    FROM `paslaugu_kainos`
+    LEFT JOIN `uzsakytos_paslaugos`
+      ON `paslaugu_kainos`.`fk_paslauga` = `uzsakytos_paslaugos`.`fk_paslauga`
+      AND `paslaugu_kainos`.`galioja_nuo` = `uzsakytos_paslaugos`.`fk_kaina_galioja_nuo`
 
-    // Sanity check
-    if (empty($serviceIDs))
-      return array();
+    WHERE `paslaugu_kainos`.`fk_paslauga` = ?
 
-    $IN = "";
-    $parameters = array();
-    foreach ($serviceIDs as $val) {
-      $IN .= "?,";
-      $parameters[] = $val;
-    }
-    $IN = rtrim($IN, ",");
-
-    $query = "SELECT *
-      FROM `paslaugu_kainos`
-      WHERE `fk_paslauga` IN (${IN})";
-    $stmt = mysql::getInstance()->query($query);
-    $stmt->execute($parameters);
+    GROUP BY `paslaugu_kainos`.`galioja_nuo`
+    ORDER BY `paslaugu_kainos`.`galioja_nuo`
+    ";
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute(array($serviceID));
     $data = $stmt->fetchAll();
-
-    $result = array();
-    foreach ($data as $val) {
-      $result[$val['fk_paslauga']][] = $val;
-    }
-    return $result;
+    return $data;
   }
 
   /**
@@ -174,44 +161,43 @@ class services {
    * @param type $data
    */
   public static function insertServicePrices($data) {
-    if (empty($data['kainos']) || !count($data['kainos']))
+    if (empty($data['kaina']))
       return;
 
-    $query = "INSERT INTO `paslaugu_kainos` (`fk_paslauga`, `galioja_nuo`, `kaina`) VALUES ";
+    $query = "INSERT IGNORE INTO `paslaugu_kainos` (`fk_paslauga`, `galioja_nuo`, `kaina`) VALUES ";
     $parameters = array();
 
-    foreach($data['kainos'] as $key=>$val) {
-      if($data['neaktyvus'] == array() || $data['neaktyvus'][$key] == 0) {
-        $query .= "(?, ?, ?),";
-        $parameters[] = $data['id'];
-        $parameters[] = $data['datos'][$key];
-        $parameters[] = $val;
-      }
+    foreach (array_keys($data['kaina']) as $key) {
+      $query .= "(?, ?, ?),";
+
+      $parameters[] = $data['id'];
+      $parameters[] = $data['galioja_nuo'][$key];
+      $parameters[] = $data['kaina'][$key];
     }
 
-    if (count($parameters)) {
-      $query = rtrim($query, ",");
-      $stmt = mysql::getInstance()->prepare($query);
-      $stmt->execute($parameters);
-    }
+    $query = rtrim($query, ",");
+    $stmt = mysql::getInstance()->prepare($query);
+    $stmt->execute($parameters);
   }
 
   /**
    * Paslaugos kainų šalinimas
    * @param type $serviceId
-   * @param type $clause
    */
-  public static function deleteServicePrices($serviceId, $galiojaNuo = []) {
-    $parameters = array($serviceId);
-    $query = "DELETE FROM `paslaugu_kainos` WHERE `fk_paslauga`= ?";
+  public static function deleteServicePrices($serviceId) {
+    $query = "DELETE FROM `paslaugu_kainos` WHERE `fk_paslauga` = ?";
 
-    foreach($galiojaNuo as $val) {
-      $query .= " AND NOT `galioja_nuo` = ?";
-      $parameters[] = $val;
-    }
-
+    // Make sure not to delete prices that are in use by contracts
+    $query .= " AND `paslaugu_kainos`.`galioja_nuo` NOT IN (
+      SELECT
+        `uzsakytos_paslaugos`.`fk_kaina_galioja_nuo`
+      FROM
+        `uzsakytos_paslaugos`
+      WHERE
+        `uzsakytos_paslaugos`.`fk_paslauga` = `paslaugu_kainos`.`fk_paslauga`
+    )";
     $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute($parameters);
+    $stmt->execute(array($serviceId));
   }
 
   /**

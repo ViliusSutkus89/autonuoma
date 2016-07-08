@@ -5,7 +5,7 @@
 </ul>
 <div id="actions">
   <a href="<?php echo routing::getURL('report', 'view', 'id=2'); ?>" target="_blank">Paslaugų ataskaita</a>
-	<a href='<?php echo routing::getURL($module, 'edit', 'id=0'); ?>'>Nauja paslauga</a>
+	<a href='<?php echo routing::getURL($module, 'create'); ?>'>Nauja paslauga</a>
 </div>
 <div class="float-clear"></div>
 
@@ -13,6 +13,12 @@
 	<div class="errorBox">
 		Paslauga nebuvo pašalinta.
 	</div>
+<?php } ?>
+
+<?php if(!empty($id_error)) { ?>
+  <div class="errorBox">
+    Paslauga nerasta!
+  </div>
 <?php } ?>
 
 <table>

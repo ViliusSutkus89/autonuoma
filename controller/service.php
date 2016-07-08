@@ -9,7 +9,7 @@ class serviceController {
   public static $defaultAction = "list";
 
   // nustatome privalomus laukus
-  private $required = array('pavadinimas', 'kainos', 'datos');
+  private $required = array('pavadinimas', 'kaina', 'galioja_nuo');
 
   // maksimalūs leidžiami laukų ilgiai
   private $maxLengths = array (
@@ -21,8 +21,8 @@ class serviceController {
   private $validations = array (
     'pavadinimas' => 'anything',
     'aprasymas' => 'anything',
-    'kainos' => 'price',
-    'datos' => 'date'
+    'kaina' => 'price',
+    'galioja_nuo' => 'date'
   );
 
   public function listAction() {
@@ -42,120 +42,116 @@ class serviceController {
 
     $template->assign('data', $data);
     $template->assign('pagingData', $paging->data);
+
     if(!empty($_GET['delete_error']))
       $template->assign('delete_error', true);
+
+    if(!empty($_GET['id_error']))
+      $template->assign('id_error', true);
 
     $template->setView("service_list");
   }
 
-  public function editAction() {
-    if (!empty($_POST['submit']))
-      $this->insertUpdateAction();
-    else
-      $this->showAction();
-  }
+  public function createAction() {
+    $data = $this->validateInput();
+    // If entered data was valid
+    if ($data) {
+      // Find max ID in the database
+      $latestId = services::getMaxIdOfService();
+      // Increment it by one
+      $data['id'] = $latestId + 1;
 
-  private function showAction() {
-    $id = routing::getId();
+      // Insert row into database
+      services::insertService($data);
 
-    $fields = array();
-    if ($id) {
-      $fields = services::getService($id);
-      // Check if this service is actually found in the db
-      if ($fields) {
-        $servicePrices = services::getServicePrices($id);
-        //getServicePrices return an array of prices from multiple services, we only need one
-        if (!empty($servicePrices)) {
-          $servicePrices = $servicePrices[$id];
+      // Insert service prices into database
+      services::insertServicePrices($data);
 
-          $galioja_nuo = array();
-
-          foreach($servicePrices as $val) {
-            $galioja_nuo[] = $val['galioja_nuo'];
-          }
-
-          $priceCounts = contracts::getPricesCountOfOrderedServices($id, $galioja_nuo);
-          foreach($servicePrices as $val) {
-            // jeigu paslaugos kaina yra naudojama, jos koreguoti neleidziame ir įvedimo laukelį padarome neaktyvų
-            if (!empty($priceCounts[$val['galioja_nuo']])) {
-              $val['neaktyvus'] = 1;
-            }
-            $fields['paslaugos_kainos'][] = $val;
-          }
-        }
-      }
-    }
-
-    $template = template::getInstance();
-
-    $template->assign('fields', $fields);
-    $template->assign('required', $this->required);
-    $template->assign('maxLengths', $this->maxLengths);
-
-    $template->setView("service_edit");
-  }
-
-  private function insertUpdateAction() {
-    // sukuriame validatoriaus objektą
-    $validator = new validator($this->validations, $this->required, $this->maxLengths);
-
-    // laukai įvesti be klaidų
-    if($validator->validate($_POST)) {
-      // suformuojame laukų reikšmių masyvą SQL užklausai
-      $data = $validator->preparePostFieldsForSQL();
-      if(isset($data['id'])) {
-        // atnaujiname duomenis
-        services::updateService($data);
-
-        // pašaliname paslaugos kainas, kurios nėra naudojamos sutartyse
-        $galiojaNuo = array();
-        if (!empty($data['kainos'])) {
-          foreach($data['kainos'] as $key=>$val) {
-            if($data['neaktyvus'][$key] == 1) {
-              $galiojaNuo[] = $data['datos'][$key];
-
-            }
-          }
-        }
-        services::deleteServicePrices($data['id'], $galiojaNuo);
-
-        // atnaujiname paslaugos kainas, kurios nėra naudojamos sutartyse
-        services::insertServicePrices($data);
-      } else {
-        // randame didžiausią markės id duomenų bazėje
-        $latestId = services::getMaxIdOfService();
-
-        // įrašome naują įrašą
-        $data['id'] = $latestId + 1;
-        services::insertService($data);
-
-        // įrašome paslaugų kainas
-        services::insertServicePrices($data);
-      }
-
-      // nukreipiame į paslaugų puslapį
+      // Redirect back to the list
       routing::redirect(routing::getModule(), 'list');
     } else {
-      $this->showAction();
+      $this->showForm();
+    }
+  }
 
+  public function editAction() {
+    $id = routing::getId();
+
+    $service = services::getService($id);
+    if ($service == false) {
+      routing::redirect(routing::getModule(), 'list', 'id_error=1');
+      return;
+    }
+
+    $service['kaina'] = array();
+    $service['galioja_nuo'] = array();
+    $service['neaktyvus'] = array();
+
+    $servicePrices = services::getServicePrices($id);
+    foreach ($servicePrices as $price) {
+      $service['kaina'][] = $price['kaina'];
+      $service['galioja_nuo'][] = $price['galioja_nuo'];
+      // If the price is used in orders, we shouldn't allow it to be edited
+      $service['neaktyvus'][] = $price['naudojama_uzsakymuose'];
+    }
+
+    // Fill form fields with current data
+    $template = template::getInstance();
+    $template->assign('fields', $service);
+
+    $data = $this->validateInput();
+    // If Entered data was valid
+    if ($data) {
+      $data['id'] = $id;
+
+      // Update it in database
+      services::updateService($data);
+
+      // Remove prices, following method will remove only unused prices
+      services::deleteServicePrices($id);
+
+      // Insert service prices into database
+      services::insertServicePrices($data);
+
+      // Redirect back to the list
+      routing::redirect(routing::getModule(), 'list');
+    } else {
+      $this->showForm();
+    }
+  }
+
+  private function showForm() {
+    $template = template::getInstance();
+    $template->assign('required', $this->required);
+    $template->assign('maxLengths', $this->maxLengths);
+    $template->setView("service_form");
+  }
+
+  private function validateInput() {
+    // Check if we even have any input
+    if (empty($_POST['submit'])) {
+      return false;
+    }
+
+    // Create Validator object
+    $validator = new validator($this->validations,
+      $this->required, $this->maxLengths);
+
+    if(!$validator->validate($_POST)) {
       $template = template::getInstance();
 
-      // gauname klaidų pranešimą
+      // Overwrite fields array with submitted $_POST values
+      $template->assign('fields', $_POST);
+
+      // Get error message
       $formErrors = $validator->getErrorHTML();
       $template->assign('formErrors', $formErrors);
-
-      $fields = $_POST;
-      if(isset($_POST['kainos']) && sizeof($_POST['kainos']) > 0) {
-        $i = 0;
-        foreach($_POST['kainos'] as $key => $val) {
-          $fields['paslaugos_kainos'][$i]['kaina'] = $val;
-          $fields['paslaugos_kainos'][$i]['galioja_nuo'] = $_POST['datos'][$key];
-          $fields['paslaugos_kainos'][$i]['neaktyvus'] = $_POST['neaktyvus'][$key];
-          $i++;
-        }
-      }
-      $template->assign('fields', $fields);
+      return false;
     }
+
+    // Prepare data array to be entered into SQL DB
+    $data = $validator->preparePostFieldsForSQL();
+    return $data;
   }
 
   public function deleteAction() {
