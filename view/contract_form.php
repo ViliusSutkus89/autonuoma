@@ -31,7 +31,7 @@
 					<option value="">---------------</option>
 					<?php
 						// išrenkame klientus
-						foreach($customerList as $key => $val) {
+						foreach($customerList as $val) {
 							$selected = "";
 							if(isset($fields['fk_klientas']) && $fields['fk_klientas'] == $val['asmens_kodas']) {
 								$selected = " selected='selected'";
@@ -47,7 +47,7 @@
 					<option value="">---------------</option>
 					<?php
 						// išrenkame vartotojus
-						foreach($employeesList as $key => $val) {
+						foreach($employeesList as $val) {
 							$selected = "";
 							if(isset($fields['fk_darbuotojas']) && $fields['fk_darbuotojas'] == $val['tabelio_nr']) {
 								$selected = " selected='selected'";
@@ -75,7 +75,7 @@
 					<option value="">---------------</option>
 					<?php
 						// išrenkame būsenas
-						foreach($contractStates as $key => $val) {
+						foreach($contractStates as $val) {
 							$selected = "";
 							if(isset($fields['busena']) && $fields['busena'] == $val['id']) {
 								$selected = " selected='selected'";
@@ -103,7 +103,7 @@
 					<option value="">---------------</option>
 					<?php
 						// išrenkame automobilius
-						foreach($carsList as $key => $val) {
+						foreach($carsList as $val) {
 							$selected = "";
 							if(isset($fields['fk_automobilis']) && $fields['fk_automobilis'] == $val['id']) {
 								$selected = " selected='selected'";
@@ -119,7 +119,7 @@
 					<option value="">---------------</option>
 					<?php
 						// išrenkame aikšteles
-						foreach($parkingLots as $key => $val) {
+						foreach($parkingLots as $val) {
 							$selected = "";
 							if(isset($fields['fk_paemimo_vieta']) && $fields['fk_paemimo_vieta'] == $val['id']) {
 								$selected = " selected='selected'";
@@ -143,7 +143,7 @@
 					<option value="">---------------</option>
 					<?php
 						// išrenkame aikšteles
-						foreach($parkingLots as $key => $val) {
+						foreach($parkingLots as $val) {
 							$selected = "";
 							if(isset($fields['fk_grazinimo_vieta']) && $fields['fk_grazinimo_vieta'] == $val['id']) {
 								$selected = " selected='selected'";
@@ -166,11 +166,11 @@
 		<fieldset>
 			<legend>Papildomos paslaugos</legend>
 			<div class="childRowContainer">
-				<div class="labelLeft wide<?php if(empty($fields['uzsakytos_paslaugos']) || sizeof($fields['uzsakytos_paslaugos']) == 0) echo ' hidden'; ?>">Paslauga</div>
-				<div class="labelRight<?php if(empty($fields['uzsakytos_paslaugos']) || sizeof($fields['uzsakytos_paslaugos']) == 0) echo ' hidden'; ?>">Kiekis</div>
+				<div class="labelLeft wide<?php if(empty($fields['uzsakytos_paslaugos'])) echo ' hidden'; ?>">Paslauga</div>
+				<div class="labelRight<?php if(empty($fields['uzsakytos_paslaugos'])) echo ' hidden'; ?>">Kiekis</div>
 				<div class="float-clear"></div>
 				<?php
-					if(empty($fields['uzsakytos_paslaugos']) || sizeof($fields['uzsakytos_paslaugos']) == 0) {
+					if(empty($fields['uzsakytos_paslaugos'])) {
 				?>
 					<div class="childRow hidden">
 						<select class="elementSelector" name="paslaugos[]" disabled="disabled">

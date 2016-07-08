@@ -45,9 +45,9 @@ class brandController {
 
   public function createAction() {
     $data = $this->validateInput();
-    // If Entered data was valid
+    // If entered data was valid
     if ($data) {
-      // Find max Brand ID in the database
+      // Find max ID in the database
       $latestId = brands::getMaxIdOfBrand();
       // Increment it by one
       $data['id'] = $latestId + 1;
@@ -80,7 +80,7 @@ class brandController {
     if ($data) {
       $data['id'] = $id;
 
-      // Update it in DataBase
+      // Update it in database
       brands::updateBrand($data);
 
       // Redirect back to the list
@@ -88,7 +88,6 @@ class brandController {
     } else {
       $this->showForm();
     }
-
   }
 
   private function showForm() {
