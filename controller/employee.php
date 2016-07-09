@@ -128,23 +128,11 @@ class employeeController {
 
   public function deleteAction() {
     $id = routing::getId();
-
-    // patikriname, ar darbuotojas neturi sudarytų sutarčių
-    $count = employees::getContractCountOfEmployee($id);
-
-    $deleteErrorParameter = '';
-    if($count == 0) {
-      // šaliname darbuotoją
-      employees::deleteEmployee($id);
-    } else {
-      // nepašalinome, nes klientas sudaręs bent vieną sutartį, rodome klaidos pranešimą
-      // rodome klaidos pranešimą
-      $deleteErrorParameter = 'delete_error=1';
-    }
+    // šaliname darbuotoją
+    $err = (employees::deleteEmployee($id)) ? '' : 'delete_error=1';
 
     // nukreipiame į darbuotojų puslapį
-    routing::redirect(routing::getModule(), 'list',
-      $deleteErrorParameter);
+    routing::redirect(routing::getModule(), 'list', $err);
   }
 
 };

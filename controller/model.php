@@ -133,22 +133,11 @@ class modelController {
   public function deleteAction() {
     $id = routing::getId();
 
-    // patikriname, ar šalinamas modelis nenaudojamas, t.y. nepriskirtas jokiam automobiliui
-    $count = models::getCarCountOfModel($id);
+    // remove model
+    $err = (models::deleteModel($id)) ? '' : 'delete_error=1';
 
-    $deleteErrorParameter = '';
-    if($count == 0) {
-      // pašaliname modelį
-      models::deleteModel($id);
-    } else {
-      // nepašalinome, nes modelis priskirtas bent vienam automobiliui, rodome klaidos pranešimą
-      // rodome klaidos pranešimą
-      $deleteErrorParameter = 'delete_error=1';
-    }
-
-    // nukreipiame į markių puslapį
-    routing::redirect(routing::getModule(), 'list',
-      $deleteErrorParameter);
+    // redirect back to list page
+    routing::redirect(routing::getModule(), 'list', $err);
   }
 
 };

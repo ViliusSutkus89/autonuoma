@@ -178,25 +178,14 @@ class serviceController {
   public function deleteAction() {
     $id = routing::getId();
 
-    // patikriname, ar šalinama paslauga nenaudojama jokioje sutartyje
-    $count = services::getContractCountOfService($id);
+    // pašaliname paslaugos kainas
+    services::deleteServicePrices($id);
 
-    $deleteErrorParameter = '';
-    if($count == 0) {
-      // pašaliname paslaugos kainas
-      services::deleteServicePrices($id);
+    // pašaliname paslaugą
+    $err = (services::deleteService($id)) ? '' : 'delete_error=1';
 
-      // pašaliname paslaugą
-      services::deleteService($id);
-    } else {
-      // nepašalinome, nes paslauga naudojama bent vienoje sutartyje
-      // rodome klaidos pranešimą
-      $deleteErrorParameter = 'delete_error=1';
-    }
-
-    // nukreipiame į paslaugų puslapį
-    routing::redirect(routing::getModule(), 'list',
-      $deleteErrorParameter);
+    // Redirect back to the list
+    routing::redirect(routing::getModule(), 'list', $err);
   }
 
 };

@@ -137,22 +137,10 @@ class customerController {
   public function deleteAction() {
     $id = routing::getId();
 
-    // patikriname, ar klientas neturi sudarytų sutarčių
-    $count = customers::getContractCountOfCustomer($id);
-
-    $deleteErrorParameter = '';
-    if($count == 0) {
-      // šaliname klientą
-      customers::deleteCustomer($id);
-    } else {
-      // nepašalinome, nes klientas sudaręs bent vieną sutartį, rodome klaidos pranešimą
-      // rodome klaidos pranešimą
-      $deleteErrorParameter = 'delete_error=1';
-    }
+    $err = (customers::deleteCustomer($id)) ? '' : 'delete_error=1';
 
     // Redirect back to the list
-    routing::redirect(routing::getModule(), 'list',
-      $deleteErrorParameter);
+    routing::redirect(routing::getModule(), 'list', $err);
   }
 
 };

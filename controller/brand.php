@@ -127,22 +127,11 @@ class brandController {
   public function deleteAction() {
     $id = routing::getId();
 
-    // patikriname, ar šalinama markė nepriskirta modeliui
-    $count = brands::getModelCountOfBrand($id);
-
-    $deleteErrorParameter = '';
-    if($count == 0) {
-      // šaliname markę
-      brands::deleteBrand($id);
-    } else {
-      // nepašalinome, nes markė priskirta modeliui,
-      // rodome klaidos pranešimą
-      $deleteErrorParameter = 'delete_error=1';
-    }
+    // šaliname markę
+    $err = (brands::deleteBrand($id)) ? '' : 'delete_error=1';
 
     // nukreipiame į markių puslapį
-    routing::redirect(routing::getModule(), 'list',
-      $deleteErrorParameter);
+    routing::redirect(routing::getModule(), 'list', $err);
   }
 
 };

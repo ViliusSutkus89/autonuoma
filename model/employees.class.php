@@ -69,7 +69,12 @@ class employees {
   public static function deleteEmployee($id) {
     $query = "DELETE FROM `darbuotojai` WHERE `tabelio_nr`= ?";
     $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array($id));
+    try {
+      $stmt->execute(array($id));
+    } catch (PDOException $e) {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -95,25 +100,6 @@ class employees {
     $stmt->execute(array(
       $data['tabelio_nr'], $data['vardas'], $data['pavarde']
     ));
-  }
-
-  /**
-   * Sutarčių, į kurias įtrauktas darbuotojas, kiekio radimas
-   * @param type $id
-   * @return type
-   */
-  public static function getContractCountOfEmployee($id) {
-    $query = "SELECT
-        COUNT(`sutartys`.`nr`) AS `kiekis`
-      FROM `darbuotojai`
-      INNER JOIN `sutartys`
-        ON `darbuotojai`.`tabelio_nr`=`sutartys`.`fk_darbuotojas`
-      WHERE `darbuotojai`.`tabelio_nr`= ?";
-
-    $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array($id));
-    $data = $stmt->fetchAll();
-    return $data[0]['kiekis'];
   }
 
 }

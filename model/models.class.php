@@ -122,25 +122,12 @@ class models {
   public static function deleteModel($id) {
     $query = "DELETE FROM `modeliai` WHERE `id`=?";
     $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array($id));
-  }
-
-  /**
-   * Nurodyto modelio automobilių kiekio radimas
-   * @param type $id
-   * @return type
-   */
-  public static function getCarCountOfModel($id) {
-    $query = "SELECT
-        COUNT(`automobiliai`.`id`) AS `kiekis`
-      FROM `modeliai`
-      INNER JOIN `automobiliai`
-        ON `modeliai`.`id`=`automobiliai`.`fk_modelis`
-      WHERE `modeliai`.`id`=?";
-    $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array($id));
-    $data = $stmt->fetchAll();
-    return $data[0]['kiekis'];
+    try {
+      $stmt->execute(array($id));
+    } catch (PDOException $e) {
+      return false;
+    }
+    return true;
   }
 
   /**

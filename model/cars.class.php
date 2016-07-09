@@ -199,26 +199,12 @@ class cars {
   public static function deleteCar($id) {
     $query = "DELETE FROM `automobiliai` WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array($id));
-  }
-
-  /**
-   * Sutačių, į kurias įtrauktas automobilis, kiekio radimas
-   * @param type $id
-   * @return type
-   */
-  public static function getContractCountOfCar($id) {
-    $query = "SELECT
-        COUNT(`sutartys`.`nr`) AS `kiekis`
-      FROM
-        `automobiliai`
-      INNER JOIN `sutartys`
-        ON `automobiliai`.`id`=`sutartys`.`fk_automobilis`
-      WHERE `automobiliai`.`id`= ?";
-    $stmt = mysql::getInstance()->query($query);
-    $stmt->execute(array($id));
-    $data = $stmt->fetchAll();
-    return $data[0]['kiekis'];
+    try {
+      $stmt->execute(array($id));
+    } catch (PDOException $e) {
+      return false;
+    }
+    return true;
   }
 
   /**

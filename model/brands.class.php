@@ -90,28 +90,12 @@ class brands {
   public static function deleteBrand($id) {
     $query = "DELETE FROM `markes` WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array($id));
-  }
-
-  /**
-   * Markės modelių kiekio radimas
-   * @param type $id
-   * @return type
-   */
-  public static function getModelCountOfBrand($id) {
-    $query = "
-    SELECT
-      COUNT(`modeliai`.`id`) as `kiekis`
-    FROM `markes`
-      INNER JOIN `modeliai`
-        ON `markes`.`id` = `modeliai`.`fk_marke`
-    WHERE `markes`.`id` = ?
-    ";
-
-    $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array($id));
-    $data = $stmt->fetchAll();
-    return $data[0]['kiekis'];
+    try {
+      $stmt->execute(array($id));
+    } catch (PDOException $e) {
+      return false;
+    }
+    return true;
   }
 
   /**

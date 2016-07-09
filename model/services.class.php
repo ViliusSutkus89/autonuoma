@@ -84,32 +84,6 @@ class services {
   }
 
   /**
-   * Sutarčių, į kurias įtraukta paslauga, kiekio radimas
-   * @param type $serviceId
-   * @return type
-   */
-  public static function getContractCountOfService($serviceId) {
-    $query = "SELECT
-        COUNT(`sutartys`.`nr`) AS `kiekis`
-      FROM `paslaugos`
-
-      INNER JOIN `paslaugu_kainos`
-        ON `paslaugos`.`id` = `paslaugu_kainos`.`fk_paslauga`
-
-      INNER JOIN `uzsakytos_paslaugos`
-        ON `paslaugu_kainos`.`fk_paslauga` = `uzsakytos_paslaugos`.`fk_paslauga`
-
-      INNER JOIN `sutartys`
-        ON `uzsakytos_paslaugos`.`fk_sutartis` = `sutartys`.`nr`
-
-      WHERE `paslaugos`.`id` = ?";
-    $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array($serviceId));
-    $data = $stmt->fetchAll();
-    return $data[0]['kiekis'];
-  }
-
-  /**
    * Paslaugos išrinkimas
    * @param type $id
    * @return type
@@ -156,7 +130,12 @@ class services {
   public static function deleteService($id) {
     $query = "DELETE FROM `paslaugos` WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array($id));
+    try {
+      $stmt->execute(array($id));
+    } catch (PDOException $e) {
+      return false;
+    }
+    return true;
   }
 
   /**

@@ -167,22 +167,11 @@ class carController {
   public function deleteAction() {
     $id = routing::getId();
 
-    // patikriname, ar automobilis neįtrauktas į sutartis
-    $count = cars::getContractCountOfCar($id);
+    // pašaliname automobilį
+    $err = (cars::deleteCar($id)) ? '' : 'delete_error=1';
 
-    $deleteErrorParameter = '';
-    if($count == 0) {
-      // pašaliname automobilį
-      cars::deleteCar($id);
-    } else {
-      // nepašalinome, nes automobilis įtrauktas bent į vieną sutartį, rodome klaidos pranešimą
-      // rodome klaidos pranešimą
-      $deleteErrorParameter = 'delete_error=1';
-    }
-
-    // nukreipiame į markių puslapį
-    routing::redirect(routing::getModule(), 'list',
-      $deleteErrorParameter);
+    // nukreipiame į automobilių puslapį
+    routing::redirect(routing::getModule(), 'list', $err);
   }
 
 };

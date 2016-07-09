@@ -69,7 +69,12 @@ class customers {
   public static function deleteCustomer($id) {
     $query = "DELETE FROM `klientai` WHERE `asmens_kodas`= ?";
     $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array($id));
+    try {
+      $stmt->execute(array($id));
+    } catch (PDOException $e) {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -119,24 +124,6 @@ class customers {
       $data['telefonas'],
       $data['epastas']
     ));
-  }
-
-  /**
-   * Sutarčių, į kurias įtrauktas klientas, kiekio radimas
-   * @param type $id
-   * @return type
-   */
-  public static function getContractCountOfCustomer($id) {
-    $query = "SELECT
-        COUNT(`sutartys`.`nr`) AS `kiekis`
-      FROM `klientai`
-      INNER JOIN `sutartys`
-        ON `klientai`.`asmens_kodas`=`sutartys`.`fk_klientas`
-      WHERE `klientai`.`asmens_kodas`= ?";
-    $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array($id));
-    $data = $stmt->fetchAll();
-    return $data[0]['kiekis'];
   }
 
 }
