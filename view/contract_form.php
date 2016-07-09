@@ -184,8 +184,10 @@
                     $lastService = $service['id'];
 										echo "<optgroup label='{$service['pavadinimas']}'>\n";
                   }
-                  echo "<option value='{$service['id']}:{$service['kaina']}:{$service['galioja_nuo']}'>",
-                    "{$service['pavadinimas']} {$service['kaina']} EUR (nuo {$service['galioja_nuo']})</option>\n";
+                  if ($service['kaina']) {
+                    echo "<option value='{$service['id']}:{$service['kaina']}:{$service['galioja_nuo']}'>",
+                      "{$service['pavadinimas']} {$service['kaina']} EUR (nuo {$service['galioja_nuo']})</option>\n";
+                  }
                 }
                 if ($lastService != "") {
                   echo "</optgroup>\n";
