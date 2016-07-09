@@ -12,7 +12,7 @@
 			<legend>Kliento informacija</legend>
 				<p>
 					<label class="field" for="asmens_kodas">Asmens kodas<?php echo in_array('asmens_kodas', $required) ? '<span> *</span>' : ''; ?></label>
-					<?php if(!isset($editing)) { ?>
+					<?php if(empty($id)) { ?>
 						<input type="text" id="asmens_kodas" name="asmens_kodas" class="textbox-150" value="<?php echo isset($fields['asmens_kodas']) ? $fields['asmens_kodas'] : ''; ?>" />
 						<?php if(key_exists('asmens_kodas', $maxLengths)) echo "<span class='max-len'>(iki {$maxLengths['asmens_kodas']} simb.)</span>"; ?>
 					<?php } else { ?>

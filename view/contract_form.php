@@ -13,7 +13,7 @@
 		<fieldset>
 			<legend>Sutarties informacija</legend>
 			<p>
-				<?php if(!isset($editing)) { ?>
+				<?php if(empty($id)) { ?>
 					<label class="field" for="nr">Numeris<?php echo in_array('nr', $required) ? '<span> *</span>' : ''; ?></label>
 					<input type="text" id="nr" name="nr" class="textbox-70" value="<?php echo isset($fields['nr']) ? $fields['nr'] : ''; ?>">
 				<?php } else { ?>

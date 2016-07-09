@@ -76,7 +76,6 @@ class employeeController {
     // Fill form fields with current data
     $template = template::getInstance();
     $template->assign('fields', $employee);
-    $template->assign('editing', true);
 
     $data = $this->validateInput();
     // If Entered data was valid

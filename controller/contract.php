@@ -88,7 +88,6 @@ class contractController {
 
     $template = template::getInstance();
     $template->assign('fields', $contract);
-    $template->assign('editing', true);
 
     $data = $this->validateInput();
     // If Entered data was valid

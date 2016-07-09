@@ -80,7 +80,6 @@ class customerController {
     // Fill form fields with current data
     $template = template::getInstance();
     $template->assign('fields', $customer);
-    $template->assign('editing', true);
 
     $data = $this->validateInput();
     // If Entered data was valid
