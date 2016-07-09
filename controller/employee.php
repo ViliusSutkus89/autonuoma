@@ -54,11 +54,18 @@ class employeeController {
     $data = $this->validateInput();
     // If entered data was valid
     if ($data) {
-      // Insert row into database
-      employees::insertEmployee($data);
 
-      // Redirect back to the list
-      routing::redirect(routing::getModule(), 'list');
+      // Insert row into database
+      if (employees::insertEmployee($data)) {
+        // Redirect back to the list
+        routing::redirect(routing::getModule(), 'list');
+      } else {
+        // Overwrite fields array with submitted $_POST values
+        $template = template::getInstance();
+        $template->assign('fields', $_POST);
+        $template->assign('formErrors', "Duplicate ID!");
+        $this->showForm();
+      }
     } else {
       $this->showForm();
     }

@@ -97,9 +97,14 @@ class employees {
     $query = "INSERT INTO `darbuotojai`
       (`tabelio_nr`, `vardas`, `pavarde`) VALUES ( ?, ?, ? )";
     $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array(
+    try {
+      $stmt->execute(array(
       $data['tabelio_nr'], $data['vardas'], $data['pavarde']
     ));
+    } catch (PDOException $e) {
+      return false;
+    }
+    return true;
   }
 
 }
