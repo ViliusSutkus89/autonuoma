@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 // nuskaitome konfigūracijų failą
 require_once 'config.php';
 

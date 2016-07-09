@@ -15,8 +15,9 @@ class routing {
   public function __construct() {
 	  // nustatome pasirinktą modulį
     // Module name can only be a-Z0-9._-
-    $this->data['module'] = (!empty($_GET['module'])) ? 
+    $module = (!empty($_GET['module'])) ?
       preg_replace('/[^a-zA-Z0-9\.\-\_]/', '', $_GET['module']) : DEFAULT_CONTROLLER;
+    $this->data['module'] = $module;
 
 	  // jeigu pasirinktas elementas (sutartis, automobilis ir kt.), nustatome elemento id
     $this->data['id'] = (!empty($_GET['id'])) ? $_GET['id'] : '';
@@ -26,7 +27,14 @@ class routing {
 	  $this->data['action'] = (!empty($_GET['action'])) ? $_GET['action'] : '';
 	  
 	  // nustatome elementų sąrašo puslapio numerį
-	  $this->data['pageId'] = (!empty($_GET['page'])) ? $_GET['page'] : 1;
+    if (!empty($_GET['page']))
+      $this->data['pageId'] = $_GET['page'];
+    else if (!empty($_SESSION['lastUsedPages'][$module]))
+      $this->data['pageId'] = $_SESSION['lastUsedPages'][$module];
+    else
+      $this->data['pageId'] = 1;
+
+    $_SESSION['lastUsedPages'][$module] = $this->data['pageId'];
   }
 
   public static function getModule() {
