@@ -9,4 +9,5 @@ class config {
 
 // nustatome, kiek įrašų rodysime elementų sąraše
 define('NUMBER_OF_ROWS_IN_PAGE', 10);
+define('DEFAULT_CONTROLLER', 'index');
 
