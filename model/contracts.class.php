@@ -191,7 +191,7 @@ class contracts {
         `fk_paemimo_vieta`
       ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array(
+    $parameters = array(
       $data['nr'],
       $data['sutarties_data'],
       $data['nuomos_data_laikas'],
@@ -208,7 +208,13 @@ class contracts {
       $data['fk_automobilis'],
       $data['fk_grazinimo_vieta'],
       $data['fk_paemimo_vieta']
-    ));
+    );
+    try {
+      $stmt->execute($parameters);
+    } catch (PDOException $e) {
+      return false;
+    }
+    return true;
   }
 
   /**

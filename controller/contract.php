@@ -64,13 +64,19 @@ class contractController {
     // If entered data was valid
     if ($data) {
       // Insert row into database
-      contracts::insertContract($data);
+      if (contracts::insertContract($data)) {
+        // Enter ordered services into database
+        contracts::updateOrderedServices($data);
 
-      // įrašome užsakytas paslaugas
-      contracts::updateOrderedServices($data);
-
-      // Redirect back to the list
-      routing::redirect(routing::getModule(), 'list');
+        // Redirect back to the list
+        routing::redirect(routing::getModule(), 'list');
+      } else {
+        // Overwrite fields array with submitted $_POST values
+        $template = template::getInstance();
+        $template->assign('fields', $_POST);
+        $template->assign('formErrors', "Duplicate ID!");
+        $this->showForm();
+      }
     } else {
       $this->showForm();
     }
@@ -130,33 +136,24 @@ class contractController {
 
     // Create Validator object
     $validator = new validator($this->validations, $this->required);
-    if($validator->validate($_POST)) {
-      // Prepare data array to be entered into SQL DB
-      $data = $validator->preparePostFieldsForSQL();
+    if(!$validator->validate($_POST)) {
+      // laukų reikšmių kintamajam priskiriame įvestų laukų reikšmes
+      $fields = $_POST;
 
-      // If We're creating a new entry
-      // We need to make sure that the ID is unique
-      if (routing::getId() || !contracts::getContract($data['nr'])) {
-        return $data;
+      if(!empty($_POST['kiekiai'])) {
+        foreach(array_values($_POST['kiekiai']) as $key => $val) {
+          $fields['uzsakytos_paslaugos'][$key]['kiekis'] = $val;
+        }
       }
-      $formErrors = "Sutartis su įvestu numeriu jau egzistuoja.";
-    } else {
-      $formErrors = $validator->getErrorHTML();
+      $template = template::getInstance();
+      $template->assign('fields', $fields);
+      $template->assign('formErrors', $formErrors);
+      return false;
     }
-    $template = template::getInstance();
 
-    // laukų reikšmių kintamajam priskiriame įvestų laukų reikšmes
-    $fields = $_POST;
-    if(isset($_POST['kiekiai']) && sizeof($_POST['kiekiai']) > 0) {
-      $i = 0;
-      foreach($_POST['kiekiai'] as $key => $val) {
-        $fields['uzsakytos_paslaugos'][$i]['kiekis'] = $val;
-        $i++;
-      }
-    }
-    $template->assign('fields', $fields);
-    $template->assign('formErrors', $formErrors);
-    return false;
+    // Prepare data array to be entered into SQL DB
+    $data = $validator->preparePostFieldsForSQL();
+    return $data;
   }
 
   public function deleteAction() {
