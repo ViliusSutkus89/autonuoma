@@ -14,10 +14,9 @@ class mysql extends PDO {
       PDO::ATTR_EMULATE_PREPARES   => false,
     ];
     try {
-      parent::__construct($dsn, config::DB_USERNAME,
-        config::DB_PASSWORD, $options);
-    } catch(PROException $e) {
-      die("Could not connect to the db!\n");
+      parent::__construct($dsn, DB_USERNAME, DB_PASSWORD, $options);
+    } catch(PDOException $e) {
+      die("Could not connect to the database!\n");
     }
   }
 
