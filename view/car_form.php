@@ -160,9 +160,6 @@
 		<p>
 			<input type="submit" class="submit" name="submit" value="Išsaugoti">
 		</p>
-		<?php if(isset($fields['id'])) { ?>
-			<input type="hidden" name="id" value="<?php echo $fields['id']; ?>" />
-		<?php } ?>
 	</form>
 </div>
 
