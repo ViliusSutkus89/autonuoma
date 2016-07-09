@@ -14,7 +14,7 @@ class models {
    * @return type
    */
   public static function getModel($id) {
-    $query = "SELECT * FROM `modeliai` WHERE `id`= ?";
+    $query = "SELECT * FROM `" . DB_PREFIX . "modeliai` WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
     $data = $stmt->fetchAll();
@@ -35,12 +35,12 @@ class models {
     $parameters = array();
 
     $query = "SELECT
-      `modeliai`.`id`,
-      `modeliai`.`pavadinimas`,
-      `markes`.`pavadinimas` AS `marke`
-      FROM `modeliai`
-      LEFT JOIN `markes`
-        ON `modeliai`.`fk_marke`=`markes`.`id`";
+      `" . DB_PREFIX . "modeliai`.`id`,
+      `" . DB_PREFIX . "modeliai`.`pavadinimas`,
+      `" . DB_PREFIX . "markes`.`pavadinimas` AS `marke`
+      FROM `" . DB_PREFIX . "modeliai`
+      LEFT JOIN `" . DB_PREFIX . "markes`
+        ON `" . DB_PREFIX . "modeliai`.`fk_marke` = `" . DB_PREFIX . "markes`.`id`";
 
     if(isset($limit)) {
       $query .= " LIMIT ?";
@@ -64,10 +64,10 @@ class models {
    */
   public static function getModelListCount() {
     $query = "SELECT
-        COUNT(`modeliai`.`id`) AS `kiekis`
-      FROM `modeliai`
-      LEFT JOIN `markes`
-        ON `modeliai`.`fk_marke` = `markes`.`id`";
+        COUNT(`" . DB_PREFIX . "modeliai`.`id`) AS `kiekis`
+      FROM `" . DB_PREFIX . "modeliai`
+      LEFT JOIN `" . DB_PREFIX . "markes`
+        ON `" . DB_PREFIX . "modeliai`.`fk_marke` = `" . DB_PREFIX . "markes`.`id`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data[0]['kiekis'];
@@ -75,14 +75,14 @@ class models {
 
   public static function getBrandsAndModels() {
     $query = "SELECT
-      `modeliai`.`id`,
-      `modeliai`.`pavadinimas` as `modelis`,
-      `markes`.`pavadinimas` as `marke`
+      `" . DB_PREFIX . "modeliai`.`id`,
+      `" . DB_PREFIX . "modeliai`.`pavadinimas` as `modelis`,
+      `" . DB_PREFIX . "markes`.`pavadinimas` as `marke`
     FROM
-      `markes`
+      `" . DB_PREFIX . "markes`
     LEFT JOIN
-      `modeliai`
-      ON `modeliai`.`fk_marke` = `markes`.`id`
+      `" . DB_PREFIX . "modeliai`
+      ON `" . DB_PREFIX . "modeliai`.`fk_marke` = `" . DB_PREFIX . "markes`.`id`
     ORDER BY `marke`, `modelis`
       ";
     $stmt = mysql::getInstance()->query($query);
@@ -96,7 +96,7 @@ class models {
    * @param type $data
    */
   public static function updateModel($data) {
-    $query = "UPDATE `modeliai` SET `pavadinimas`= ?, `fk_marke`= ? WHERE `id`= ?";
+    $query = "UPDATE `" . DB_PREFIX . "modeliai` SET `pavadinimas` = ?, `fk_marke` = ? WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
       $data['pavadinimas'], $data['fk_marke'], $data['id']
@@ -108,7 +108,7 @@ class models {
    * @param type $data
    */
   public static function insertModel($data) {
-    $query = "INSERT INTO `modeliai` (`id`, `pavadinimas`, `fk_marke`) VALUES (?, ?, ?)";
+    $query = "INSERT INTO `" . DB_PREFIX . "modeliai` (`id`, `pavadinimas`, `fk_marke`) VALUES (?, ?, ?)";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
       $data['id'], $data['pavadinimas'], $data['fk_marke']
@@ -120,7 +120,7 @@ class models {
    * @param type $id
    */
   public static function deleteModel($id) {
-    $query = "DELETE FROM `modeliai` WHERE `id`=?";
+    $query = "DELETE FROM `" . DB_PREFIX . "modeliai` WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     try {
       $stmt->execute(array($id));
@@ -135,7 +135,7 @@ class models {
    * @return type
    */
   public static function getMaxIdOfModel() {
-    $query = "SELECT MAX(`id`) AS `latestId` FROM `modeliai`";
+    $query = "SELECT MAX(`id`) AS `latestId` FROM `" . DB_PREFIX . "modeliai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data[0]['latestId'];

@@ -16,20 +16,20 @@ class contracts {
    */
   public static function getContractList($limit, $offset) {
     $query = "SELECT
-        `sutartys`.`nr`,
-        `sutartys`.`sutarties_data`,
-        `darbuotojai`.`vardas` AS `darbuotojo_vardas`,
-        `darbuotojai`.`pavarde` AS `darbuotojo_pavarde`,
-        `klientai`.`vardas` AS `kliento_vardas`,
-        `klientai`.`pavarde` AS `kliento_pavarde`,
-        `sutarties_busenos`.`name` AS `busena`
-      FROM `sutartys`
-      LEFT JOIN `darbuotojai`
-        ON `sutartys`.`fk_darbuotojas`=`darbuotojai`.`tabelio_nr`
-      LEFT JOIN `klientai`
-        ON `sutartys`.`fk_klientas`=`klientai`.`asmens_kodas`
-      LEFT JOIN `sutarties_busenos`
-        ON `sutartys`.`busena`=`sutarties_busenos`.`id`";
+        `" . DB_PREFIX . "sutartys`.`nr`,
+        `" . DB_PREFIX . "sutartys`.`sutarties_data`,
+        `" . DB_PREFIX . "darbuotojai`.`vardas` AS `darbuotojo_vardas`,
+        `" . DB_PREFIX . "darbuotojai`.`pavarde` AS `darbuotojo_pavarde`,
+        `" . DB_PREFIX . "klientai`.`vardas` AS `kliento_vardas`,
+        `" . DB_PREFIX . "klientai`.`pavarde` AS `kliento_pavarde`,
+        `" . DB_PREFIX . "sutarties_busenos`.`name` AS `busena`
+      FROM `" . DB_PREFIX . "sutartys`
+      LEFT JOIN `" . DB_PREFIX . "darbuotojai`
+        ON `" . DB_PREFIX . "sutartys`.`fk_darbuotojas` = `" . DB_PREFIX . "darbuotojai`.`tabelio_nr`
+      LEFT JOIN `" . DB_PREFIX . "klientai`
+        ON `" . DB_PREFIX . "sutartys`.`fk_klientas` = `" . DB_PREFIX . "klientai`.`asmens_kodas`
+      LEFT JOIN `" . DB_PREFIX . "sutarties_busenos`
+        ON `" . DB_PREFIX . "sutartys`.`busena` = `" . DB_PREFIX . "sutarties_busenos`.`id`";
     $parameters = array();
 
     if(isset($limit)) {
@@ -53,14 +53,14 @@ class contracts {
    */
   public static function getContractListCount() {
     $query = "SELECT
-        COUNT(`sutartys`.`nr`) AS `kiekis`
-      FROM `sutartys`
-      LEFT JOIN `darbuotojai`
-        ON `sutartys`.`fk_darbuotojas`=`darbuotojai`.`tabelio_nr`
-      LEFT JOIN `klientai`
-        ON `sutartys`.`fk_klientas`=`klientai`.`asmens_kodas`
-      LEFT JOIN `sutarties_busenos`
-        ON `sutartys`.`busena`=`sutarties_busenos`.`id`";
+        COUNT(`" . DB_PREFIX . "sutartys`.`nr`) AS `kiekis`
+      FROM `" . DB_PREFIX . "sutartys`
+      LEFT JOIN `" . DB_PREFIX . "darbuotojai`
+        ON `" . DB_PREFIX . "sutartys`.`fk_darbuotojas` = `" . DB_PREFIX . "darbuotojai`.`tabelio_nr`
+      LEFT JOIN `" . DB_PREFIX . "klientai`
+        ON `" . DB_PREFIX . "sutartys`.`fk_klientas` = `" . DB_PREFIX . "klientai`.`asmens_kodas`
+      LEFT JOIN `" . DB_PREFIX . "sutarties_busenos`
+        ON `" . DB_PREFIX . "sutartys`.`busena` = `" . DB_PREFIX . "sutarties_busenos`.`id`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
 
@@ -74,31 +74,31 @@ class contracts {
    */
   public static function getContract($id) {
     $query = "SELECT
-        `sutartys`.`nr`,
-        `sutartys`.`sutarties_data`,
-        `sutartys`.`nuomos_data_laikas`,
-        `sutartys`.`planuojama_grazinimo_data_laikas`,
-        `sutartys`.`faktine_grazinimo_data_laikas`,
-        `sutartys`.`pradine_rida`,
-        `sutartys`.`galine_rida`,
-        `sutartys`.`kaina`,
-        `sutartys`.`degalu_kiekis_paimant`,
-        `sutartys`.`dagalu_kiekis_grazinus`,
-        `sutartys`.`busena`,
-        `sutartys`.`fk_klientas`,
-        `sutartys`.`fk_darbuotojas`,
-        `sutartys`.`fk_automobilis`,
-        `sutartys`.`fk_grazinimo_vieta`,
-        `sutartys`.`fk_paemimo_vieta`,
-        (IFNULL(SUM(`uzsakytos_paslaugos`.`kaina` * `uzsakytos_paslaugos`.`kiekis`), 0) + `sutartys`.`kaina`)
+        `" . DB_PREFIX . "sutartys`.`nr`,
+        `" . DB_PREFIX . "sutartys`.`sutarties_data`,
+        `" . DB_PREFIX . "sutartys`.`nuomos_data_laikas`,
+        `" . DB_PREFIX . "sutartys`.`planuojama_grazinimo_data_laikas`,
+        `" . DB_PREFIX . "sutartys`.`faktine_grazinimo_data_laikas`,
+        `" . DB_PREFIX . "sutartys`.`pradine_rida`,
+        `" . DB_PREFIX . "sutartys`.`galine_rida`,
+        `" . DB_PREFIX . "sutartys`.`kaina`,
+        `" . DB_PREFIX . "sutartys`.`degalu_kiekis_paimant`,
+        `" . DB_PREFIX . "sutartys`.`dagalu_kiekis_grazinus`,
+        `" . DB_PREFIX . "sutartys`.`busena`,
+        `" . DB_PREFIX . "sutartys`.`fk_klientas`,
+        `" . DB_PREFIX . "sutartys`.`fk_darbuotojas`,
+        `" . DB_PREFIX . "sutartys`.`fk_automobilis`,
+        `" . DB_PREFIX . "sutartys`.`fk_grazinimo_vieta`,
+        `" . DB_PREFIX . "sutartys`.`fk_paemimo_vieta`,
+        (IFNULL(SUM(`" . DB_PREFIX . "uzsakytos_paslaugos`.`kaina` * `" . DB_PREFIX . "uzsakytos_paslaugos`.`kiekis`), 0) + `" . DB_PREFIX . "sutartys`.`kaina`)
           AS `bendra_kaina`
-      FROM `sutartys`
-      LEFT JOIN `uzsakytos_paslaugos`
-        ON `sutartys`.`nr`=`uzsakytos_paslaugos`.`fk_sutartis`
+      FROM `" . DB_PREFIX . "sutartys`
+      LEFT JOIN `" . DB_PREFIX . "uzsakytos_paslaugos`
+        ON `" . DB_PREFIX . "sutartys`.`nr` = `" . DB_PREFIX . "uzsakytos_paslaugos`.`fk_sutartis`
       WHERE
-        `sutartys`.`nr`= ?
+        `" . DB_PREFIX . "sutartys`.`nr` = ?
       GROUP BY
-        `sutartys`.`nr`";
+        `" . DB_PREFIX . "sutartys`.`nr`";
 
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
@@ -115,7 +115,7 @@ class contracts {
    * @return type
    */
   public static function getOrderedServices($orderId) {
-    $query = "SELECT * FROM `uzsakytos_paslaugos` WHERE `fk_sutartis`= ?";
+    $query = "SELECT * FROM `" . DB_PREFIX . "uzsakytos_paslaugos` WHERE `fk_sutartis` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($orderId));
     $data = $stmt->fetchAll();
@@ -127,7 +127,7 @@ class contracts {
    * @param type $data
    */
   public static function updateContract($data) {
-    $query = "UPDATE `sutartys` SET
+    $query = "UPDATE `" . DB_PREFIX . "sutartys` SET
         `sutarties_data`= ?,
         `nuomos_data_laikas`= ?,
         `planuojama_grazinimo_data_laikas`= ?,
@@ -171,7 +171,7 @@ class contracts {
    * @param type $data
    */
   public static function insertContract($data) {
-    $query = "INSERT INTO `sutartys`
+    $query = "INSERT INTO `" . DB_PREFIX . "sutartys`
       (
         `nr`,
         `sutarties_data`,
@@ -222,7 +222,7 @@ class contracts {
    * @param type $id
    */
   public static function deleteContract($id) {
-    $query = "DELETE FROM `sutartys` WHERE `nr`=?";
+    $query = "DELETE FROM `" . DB_PREFIX . "sutartys` WHERE `nr` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
   }
@@ -242,12 +242,7 @@ class contracts {
       $parameters[] = $var['fk_paslauga'];
     }
 
-    $query = "
-      DELETE FROM
-        `uzsakytos_paslaugos`
-      WHERE
-        `fk_sutartis` = ?
-      ";
+    $query = "DELETE FROM `" . DB_PREFIX . "uzsakytos_paslaugos` WHERE `fk_sutartis` = ?";
     if (count($keepQuery)) {
       $query .= "AND
         (`fk_kaina_galioja_nuo`, `fk_paslauga`) NOT IN
@@ -295,7 +290,7 @@ class contracts {
     if (count($valuesQuery)) {
       $valuesQuery = implode(",", $valuesQuery);
 
-      $query = "INSERT INTO `uzsakytos_paslaugos`
+      $query = "INSERT INTO `" . DB_PREFIX . "uzsakytos_paslaugos`
         (
           `fk_sutartis`,
           `fk_kaina_galioja_nuo`,
@@ -320,7 +315,7 @@ class contracts {
    * @return type
    */
   public static function getContractStates() {
-    $query = "SELECT * FROM `sutarties_busenos`";
+    $query = "SELECT * FROM `" . DB_PREFIX . "sutarties_busenos`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data;
@@ -331,7 +326,7 @@ class contracts {
    * @return type
    */
   public static function getParkingLots() {
-    $query = "SELECT * FROM `aiksteles`";
+    $query = "SELECT * FROM `" . DB_PREFIX . "aiksteles`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data;
@@ -342,15 +337,15 @@ class contracts {
     $parameters = array();
 
     if(!empty($dateFrom)) {
-      $whereClauseString .= " WHERE `sutartys`.`sutarties_data` >= ?";
+      $whereClauseString .= " WHERE `" . DB_PREFIX . "sutartys`.`sutarties_data` >= ?";
       $parameters[] = $dateFrom;
       if(!empty($dateTo)) {
-        $whereClauseString .= " AND `sutartys`.`sutarties_data` <= ?";
+        $whereClauseString .= " AND `" . DB_PREFIX . "sutartys`.`sutarties_data` <= ?";
         $parameters[] = $dateTo;
       }
     } else {
       if(!empty($dateTo)) {
-        $whereClauseString .= " WHERE `sutartys`.`sutarties_data`<= ?";
+        $whereClauseString .= " WHERE `" . DB_PREFIX . "sutartys`.`sutarties_data` <= ?";
         $parameters[] = $dateTo;
       }
     }
@@ -360,53 +355,53 @@ class contracts {
     $parameters = array_merge($parameters, $parameters, $parameters);
 
     $query = "SELECT
-        `sutartys`.`nr`,
-        `sutartys`.`sutarties_data`,
-        `klientai`.`asmens_kodas`,
-        `klientai`.`vardas`,
-        `klientai`.`pavarde`,
-        `sutartys`.`kaina` as `sutarties_kaina`,
-        IFNULL(sum(`uzsakytos_paslaugos`.`kiekis` * `uzsakytos_paslaugos`.`kaina`), 0)
+        `" . DB_PREFIX . "sutartys`.`nr`,
+        `" . DB_PREFIX . "sutartys`.`sutarties_data`,
+        `" . DB_PREFIX . "klientai`.`asmens_kodas`,
+        `" . DB_PREFIX . "klientai`.`vardas`,
+        `" . DB_PREFIX . "klientai`.`pavarde`,
+        `" . DB_PREFIX . "sutartys`.`kaina` as `sutarties_kaina`,
+        IFNULL(sum(`" . DB_PREFIX . "uzsakytos_paslaugos`.`kiekis` * `" . DB_PREFIX . "uzsakytos_paslaugos`.`kaina`), 0)
           AS `sutarties_paslaugu_kaina`,
         `t`.`bendra_kliento_sutarciu_kaina`,
         `s`.`bendra_kliento_paslaugu_kaina`
-      FROM `sutartys`
+      FROM `" . DB_PREFIX . "sutartys`
 
-      INNER JOIN `klientai`
-        ON `sutartys`.`fk_klientas`=`klientai`.`asmens_kodas`
+      INNER JOIN `" . DB_PREFIX . "klientai`
+        ON `" . DB_PREFIX . "sutartys`.`fk_klientas` = `" . DB_PREFIX . "klientai`.`asmens_kodas`
 
-      LEFT JOIN `uzsakytos_paslaugos`
-        ON `sutartys`.`nr`=`uzsakytos_paslaugos`.`fk_sutartis`
+      LEFT JOIN `" . DB_PREFIX . "uzsakytos_paslaugos`
+        ON `" . DB_PREFIX . "sutartys`.`nr` = `" . DB_PREFIX . "uzsakytos_paslaugos`.`fk_sutartis`
 
       LEFT JOIN (
         SELECT
           `asmens_kodas`,
-          SUM(`sutartys`.`kaina`) AS `bendra_kliento_sutarciu_kaina`
-        FROM `sutartys`
-        INNER JOIN `klientai`
-          ON `sutartys`.`fk_klientas`=`klientai`.`asmens_kodas`
+          SUM(`" . DB_PREFIX . "sutartys`.`kaina`) AS `bendra_kliento_sutarciu_kaina`
+        FROM `" . DB_PREFIX . "sutartys`
+        INNER JOIN `" . DB_PREFIX . "klientai`
+          ON `" . DB_PREFIX . "sutartys`.`fk_klientas` = `" . DB_PREFIX . "klientai`.`asmens_kodas`
         {$whereClauseString}
         GROUP BY `asmens_kodas`
       ) `t`
-        ON `t`.`asmens_kodas`=`klientai`.`asmens_kodas`
+        ON `t`.`asmens_kodas` = `" . DB_PREFIX . "klientai`.`asmens_kodas`
 
       LEFT JOIN (
         SELECT
           `asmens_kodas`,
-          IFNULL(sum(`uzsakytos_paslaugos`.`kiekis` * `uzsakytos_paslaugos`.`kaina`), 0)
+          IFNULL(sum(`" . DB_PREFIX . "uzsakytos_paslaugos`.`kiekis` * `" . DB_PREFIX . "uzsakytos_paslaugos`.`kaina`), 0)
             AS `bendra_kliento_paslaugu_kaina`
-        FROM `sutartys`
-        INNER JOIN `klientai`
-          ON `sutartys`.`fk_klientas`=`klientai`.`asmens_kodas`
-        LEFT JOIN `uzsakytos_paslaugos`
-          ON `sutartys`.`nr`=`uzsakytos_paslaugos`.`fk_sutartis`
+        FROM `" . DB_PREFIX . "sutartys`
+        INNER JOIN `" . DB_PREFIX . "klientai`
+          ON `" . DB_PREFIX . "sutartys`.`fk_klientas` = `" . DB_PREFIX . "klientai`.`asmens_kodas`
+        LEFT JOIN `" . DB_PREFIX . "uzsakytos_paslaugos`
+          ON `" . DB_PREFIX . "sutartys`.`nr` = `" . DB_PREFIX . "uzsakytos_paslaugos`.`fk_sutartis`
         {$whereClauseString}							
         GROUP BY `asmens_kodas`
       ) `s`
-        ON `s`.`asmens_kodas`=`klientai`.`asmens_kodas`
+        ON `s`.`asmens_kodas` = `" . DB_PREFIX . "klientai`.`asmens_kodas`
       {$whereClauseString}
-      GROUP BY `sutartys`.`nr`
-      ORDER BY `klientai`.`pavarde` ASC";
+      GROUP BY `" . DB_PREFIX . "sutartys`.`nr`
+      ORDER BY `" . DB_PREFIX . "klientai`.`pavarde` ASC";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute($parameters);
     $data = $stmt->fetchAll();
@@ -418,22 +413,22 @@ class contracts {
     $parameters = array();
 
     if(!empty($dateFrom)) {
-      $whereClauseString .= " WHERE `sutartys`.`sutarties_data` >= ?";
+      $whereClauseString .= " WHERE `" . DB_PREFIX . "sutartys`.`sutarties_data` >= ?";
       $parameters[] = $dateFrom;
       if(!empty($dateTo)) {
-        $whereClauseString .= " AND `sutartys`.`sutarties_data` <= ?";
+        $whereClauseString .= " AND `" . DB_PREFIX . "sutartys`.`sutarties_data` <= ?";
         $parameters[] = $dateTo;
       }
     } else {
       if(!empty($dateTo)) {
-        $whereClauseString .= " WHERE `sutartys`.`sutarties_data`<=?";
+        $whereClauseString .= " WHERE `" . DB_PREFIX . "sutartys`.`sutarties_data` <= ?";
         $parameters[] = $dateTo;
       }
     }
 
     $query = "SELECT
-        SUM(`sutartys`.`kaina`) AS `nuomos_suma`
-      FROM `sutartys`
+        SUM(`" . DB_PREFIX . "sutartys`.`kaina`) AS `nuomos_suma`
+      FROM `" . DB_PREFIX . "sutartys`
       {$whereClauseString}";
 
     $stmt = mysql::getInstance()->prepare($query);
@@ -447,25 +442,25 @@ class contracts {
     $parameters = array();
 
     if(!empty($dateFrom)) {
-      $whereClauseString .= " WHERE `sutartys`.`sutarties_data` >= ?";
+      $whereClauseString .= " WHERE `" . DB_PREFIX . "sutartys`.`sutarties_data` >= ?";
       $parameters[] = $dateFrom;
       if(!empty($dateTo)) {
-        $whereClauseString .= " AND `sutartys`.`sutarties_data` <= ?";
+        $whereClauseString .= " AND `" . DB_PREFIX . "sutartys`.`sutarties_data` <= ?";
         $parameters[] = $dateTo;
       }
     } else {
       if(!empty($dateTo)) {
-        $whereClauseString .= " WHERE `sutartys`.`sutarties_data`<=?";
+        $whereClauseString .= " WHERE `" . DB_PREFIX . "sutartys`.`sutarties_data` <= ?";
         $parameters[] = $dateTo;
       }
     }
 
     $query = "SELECT
-        SUM(`uzsakytos_paslaugos`.`kiekis` * `uzsakytos_paslaugos`.`kaina`)
+        SUM(`" . DB_PREFIX . "uzsakytos_paslaugos`.`kiekis` * `" . DB_PREFIX . "uzsakytos_paslaugos`.`kaina`)
           AS `paslaugu_suma`
-      FROM `sutartys`
-      INNER JOIN `uzsakytos_paslaugos`
-        ON `sutartys`.`nr`=`uzsakytos_paslaugos`.`fk_sutartis`
+      FROM `" . DB_PREFIX . "sutartys`
+      INNER JOIN `" . DB_PREFIX . "uzsakytos_paslaugos`
+        ON `" . DB_PREFIX . "sutartys`.`nr` = `" . DB_PREFIX . "uzsakytos_paslaugos`.`fk_sutartis`
       {$whereClauseString}";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute($parameters);
@@ -478,15 +473,15 @@ class contracts {
     $parameters = array();
 
     if(!empty($dateFrom)) {
-      $whereClauseString .= " AND `sutartys`.`sutarties_data` >= ?";
+      $whereClauseString .= " AND `" . DB_PREFIX . "sutartys`.`sutarties_data` >= ?";
       $parameters[] = $dateFrom;
       if(!empty($dateTo)) {
-        $whereClauseString .= " AND `sutartys`.`sutarties_data` <= ?";
+        $whereClauseString .= " AND `" . DB_PREFIX . "sutartys`.`sutarties_data` <= ?";
         $parameters[] = $dateTo;
       }
     } else {
       if(!empty($dateTo)) {
-        $whereClauseString .= " AND `sutartys`.`sutarties_data`<=?";
+        $whereClauseString .= " AND `" . DB_PREFIX . "sutartys`.`sutarties_data` <= ?";
         $parameters[] = $dateTo;
       }
     }
@@ -497,11 +492,11 @@ class contracts {
         `planuojama_grazinimo_data_laikas`,
         IF(`faktine_grazinimo_data_laikas`='0000-00-00 00:00:00', 'negrąžinta', `faktine_grazinimo_data_laikas`)
           AS `grazinta`,
-        `klientai`.`vardas`,
-        `klientai`.`pavarde`
-      FROM `sutartys`
-      INNER JOIN `klientai`
-        ON `sutartys`.`fk_klientas`=`klientai`.`asmens_kodas`
+        `" . DB_PREFIX . "klientai`.`vardas`,
+        `" . DB_PREFIX . "klientai`.`pavarde`
+      FROM `" . DB_PREFIX . "sutartys`
+      INNER JOIN `" . DB_PREFIX . "klientai`
+        ON `" . DB_PREFIX . "sutartys`.`fk_klientas` = `" . DB_PREFIX . "klientai`.`asmens_kodas`
       WHERE (
           DATEDIFF(`faktine_grazinimo_data_laikas`, `planuojama_grazinimo_data_laikas`) >= 1
         OR (

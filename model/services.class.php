@@ -15,7 +15,7 @@ class services {
    * @return type
    */
   public static function getServicesList($limit = null, $offset = null) {
-    $query = "SELECT * FROM `paslaugos`";
+    $query = "SELECT * FROM `" . DB_PREFIX . "paslaugos`";
 
     $parameters = array();
     if(isset($limit)) {
@@ -39,7 +39,7 @@ class services {
    * @return type
    */
   public static function getServicesListCount() {
-    $query = "SELECT COUNT(`paslaugos`.`id`) as `kiekis` FROM `paslaugos`";
+    $query = "SELECT COUNT(`id`) as `kiekis` FROM `" . DB_PREFIX . "paslaugos`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data[0]['kiekis'];
@@ -47,9 +47,9 @@ class services {
 
   public static function getPricedServices() {
     $query = "SELECT *
-      FROM `paslaugos`
-      LEFT JOIN `paslaugu_kainos`
-        ON `paslaugos`.`id` = `paslaugu_kainos`.`fk_paslauga`
+      FROM `" . DB_PREFIX . "paslaugos`
+      LEFT JOIN `" . DB_PREFIX . "paslaugu_kainos`
+        ON `" . DB_PREFIX . "paslaugos`.`id` = `" . DB_PREFIX . "paslaugu_kainos`.`fk_paslauga`
     ";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
@@ -63,18 +63,18 @@ class services {
    */
   public static function getServicePrices($serviceID, $isInUse) {
     $query = "SELECT
-      `paslaugu_kainos`.`kaina`,
-      `paslaugu_kainos`.`galioja_nuo`,
-      IF(COUNT(`uzsakytos_paslaugos`.`fk_paslauga`), '1', '0') as `naudojama_uzsakymuose`
-    FROM `paslaugu_kainos`
-    LEFT JOIN `uzsakytos_paslaugos`
-      ON `paslaugu_kainos`.`fk_paslauga` = `uzsakytos_paslaugos`.`fk_paslauga`
-      AND `paslaugu_kainos`.`galioja_nuo` = `uzsakytos_paslaugos`.`fk_kaina_galioja_nuo`
+      `" . DB_PREFIX . "paslaugu_kainos`.`kaina`,
+      `" . DB_PREFIX . "paslaugu_kainos`.`galioja_nuo`,
+      IF(COUNT(`" . DB_PREFIX . "uzsakytos_paslaugos`.`fk_paslauga`), '1', '0') as `naudojama_uzsakymuose`
+    FROM `" . DB_PREFIX . "paslaugu_kainos`
+    LEFT JOIN `" . DB_PREFIX . "uzsakytos_paslaugos`
+      ON `" . DB_PREFIX . "paslaugu_kainos`.`fk_paslauga` = `" . DB_PREFIX . "uzsakytos_paslaugos`.`fk_paslauga`
+      AND `" . DB_PREFIX . "paslaugu_kainos`.`galioja_nuo` = `" . DB_PREFIX . "uzsakytos_paslaugos`.`fk_kaina_galioja_nuo`
 
-    WHERE `paslaugu_kainos`.`fk_paslauga` = ?
-    GROUP BY `paslaugu_kainos`.`galioja_nuo`
+    WHERE `" . DB_PREFIX . "paslaugu_kainos`.`fk_paslauga` = ?
+    GROUP BY `" . DB_PREFIX . "paslaugu_kainos`.`galioja_nuo`
     HAVING `naudojama_uzsakymuose` = ?
-    ORDER BY `paslaugu_kainos`.`galioja_nuo`
+    ORDER BY `" . DB_PREFIX . "paslaugu_kainos`.`galioja_nuo`
     ";
 
     $stmt = mysql::getInstance()->prepare($query);
@@ -89,7 +89,7 @@ class services {
    * @return type
    */
   public static function getService($id) {
-    $query = "SELECT * FROM `paslaugos` WHERE `id`= ?";
+    $query = "SELECT * FROM `" . DB_PREFIX . "paslaugos` WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
     $data = $stmt->fetchAll();
@@ -104,7 +104,7 @@ class services {
    * @param type $data
    */
   public static function insertService($data) {
-    $query = "INSERT INTO `paslaugos` (`id`, `pavadinimas`, `aprasymas`) VALUES (?, ?, ?)";
+    $query = "INSERT INTO `" . DB_PREFIX . "paslaugos` (`id`, `pavadinimas`, `aprasymas`) VALUES (?, ?, ?)";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
       $data['id'], $data['pavadinimas'], $data['aprasymas']
@@ -116,7 +116,7 @@ class services {
    * @param type $data
    */
   public static function updateService($data) {
-    $query = "UPDATE `paslaugos` SET `pavadinimas`= ?, `aprasymas`= ? WHERE `id`= ?";
+    $query = "UPDATE `" . DB_PREFIX . "paslaugos` SET `pavadinimas` = ?, `aprasymas` = ? WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
       $data['pavadinimas'], $data['aprasymas'], $data['id']
@@ -128,7 +128,7 @@ class services {
    * @param type $id
    */
   public static function deleteService($id) {
-    $query = "DELETE FROM `paslaugos` WHERE `id` = ?";
+    $query = "DELETE FROM `" . DB_PREFIX . "paslaugos` WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     try {
       $stmt->execute(array($id));
@@ -146,7 +146,7 @@ class services {
     if (empty($data['kaina']))
       return;
 
-    $query = "INSERT IGNORE INTO `paslaugu_kainos` (`fk_paslauga`, `galioja_nuo`, `kaina`) VALUES ";
+    $query = "INSERT IGNORE INTO `" . DB_PREFIX . "paslaugu_kainos` (`fk_paslauga`, `galioja_nuo`, `kaina`) VALUES ";
     $parameters = array();
 
     foreach (array_keys($data['kaina']) as $key) {
@@ -167,16 +167,16 @@ class services {
    * @param type $serviceId
    */
   public static function deleteServicePrices($serviceId) {
-    $query = "DELETE FROM `paslaugu_kainos` WHERE `fk_paslauga` = ?";
+    $query = "DELETE FROM `" . DB_PREFIX . "paslaugu_kainos` WHERE `fk_paslauga` = ?";
 
     // Make sure not to delete prices that are in use by contracts
-    $query .= " AND `paslaugu_kainos`.`galioja_nuo` NOT IN (
+    $query .= " AND `" . DB_PREFIX . "paslaugu_kainos`.`galioja_nuo` NOT IN (
       SELECT
-        `uzsakytos_paslaugos`.`fk_kaina_galioja_nuo`
+        `" . DB_PREFIX . "uzsakytos_paslaugos`.`fk_kaina_galioja_nuo`
       FROM
-        `uzsakytos_paslaugos`
+        `" . DB_PREFIX . "uzsakytos_paslaugos`
       WHERE
-        `uzsakytos_paslaugos`.`fk_paslauga` = `paslaugu_kainos`.`fk_paslauga`
+        `" . DB_PREFIX . "uzsakytos_paslaugos`.`fk_paslauga` = `" . DB_PREFIX . "paslaugu_kainos`.`fk_paslauga`
     )";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($serviceId));
@@ -187,7 +187,7 @@ class services {
    * @return type
    */
   public static function getMaxIdOfService() {
-    $query = "SELECT MAX(`id`) AS `latestId` FROM `paslaugos`";
+    $query = "SELECT MAX(`id`) AS `latestId` FROM `" . DB_PREFIX . "paslaugos`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data[0]['latestId'];
@@ -198,15 +198,15 @@ class services {
     $parameters = array();
 
     if(!empty($dateFrom)) {
-      $whereClauseString .= " WHERE `sutartys`.`sutarties_data` >= ?";
+      $whereClauseString .= " WHERE `" . DB_PREFIX . "sutartys`.`sutarties_data` >= ?";
       $parameters[] = $dateFrom;
       if(!empty($dateTo)) {
-        $whereClauseString .= " AND `sutartys`.`sutarties_data` <= ?";
+        $whereClauseString .= " AND `" . DB_PREFIX . "sutartys`.`sutarties_data` <= ?";
         $parameters[] = $dateTo;
       }
     } else {
       if(!empty($dateTo)) {
-        $whereClauseString .= " WHERE `sutartys`.`sutarties_data` <= ?";
+        $whereClauseString .= " WHERE `" . DB_PREFIX . "sutartys`.`sutarties_data` <= ?";
         $parameters[] = $dateTo;
       }
     }
@@ -215,14 +215,14 @@ class services {
         `id`,
         `pavadinimas`,
         SUM(`kiekis`) AS `uzsakyta`,
-        SUM(`kiekis`*`uzsakytos_paslaugos`.`kaina`) AS `bendra_suma`
-      FROM `paslaugos`
-      INNER JOIN `uzsakytos_paslaugos`
-        ON `paslaugos`.`id` = `uzsakytos_paslaugos`.`fk_paslauga`
-      INNER JOIN `sutartys`
-        ON `uzsakytos_paslaugos`.`fk_sutartis` = `sutartys`.`nr`
+        SUM(`kiekis`*`" . DB_PREFIX . "uzsakytos_paslaugos`.`kaina`) AS `bendra_suma`
+      FROM `" . DB_PREFIX . "paslaugos`
+      INNER JOIN `" . DB_PREFIX . "uzsakytos_paslaugos`
+        ON `" . DB_PREFIX . "paslaugos`.`id` = `" . DB_PREFIX . "uzsakytos_paslaugos`.`fk_paslauga`
+      INNER JOIN `" . DB_PREFIX . "sutartys`
+        ON `" . DB_PREFIX . "uzsakytos_paslaugos`.`fk_sutartis` = `" . DB_PREFIX . "sutartys`.`nr`
       {$whereClauseString}
-      GROUP BY `paslaugos`.`id`
+      GROUP BY `" . DB_PREFIX . "paslaugos`.`id`
       ORDER BY `bendra_suma` DESC";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute($parameters);
@@ -235,27 +235,27 @@ class services {
     $parameters = array();
 
     if(!empty($dateFrom)) {
-      $whereClauseString .= " WHERE `sutartys`.`sutarties_data` >= ?";
+      $whereClauseString .= " WHERE `" . DB_PREFIX . "sutartys`.`sutarties_data` >= ?";
       $parameters[] = $dateFrom;
       if(!empty($dateTo)) {
-        $whereClauseString .= " AND `sutartys`.`sutarties_data` <= ?";
+        $whereClauseString .= " AND `" . DB_PREFIX . "sutartys`.`sutarties_data` <= ?";
         $parameters[] = $dateTo;
       }
     } else {
       if(!empty($dateTo)) {
-        $whereClauseString .= " WHERE `sutartys`.`sutarties_data` <= ?";
+        $whereClauseString .= " WHERE `" . DB_PREFIX . "sutartys`.`sutarties_data` <= ?";
         $parameters[] = $dateTo;
       }
     }
 
     $query = "SELECT
         SUM(`kiekis`) AS `uzsakyta`,
-        SUM(`kiekis`*`uzsakytos_paslaugos`.`kaina`) AS `bendra_suma`
-      FROM `paslaugos`
-      INNER JOIN `uzsakytos_paslaugos`
-        ON `paslaugos`.`id`=`uzsakytos_paslaugos`.`fk_paslauga`
-      INNER JOIN `sutartys`
-        ON `uzsakytos_paslaugos`.`fk_sutartis`=`sutartys`.`nr`
+        SUM(`kiekis`*`" . DB_PREFIX . "uzsakytos_paslaugos`.`kaina`) AS `bendra_suma`
+      FROM `" . DB_PREFIX . "paslaugos`
+      INNER JOIN `" . DB_PREFIX . "uzsakytos_paslaugos`
+        ON `" . DB_PREFIX . "paslaugos`.`id` = `" . DB_PREFIX . "uzsakytos_paslaugos`.`fk_paslauga`
+      INNER JOIN `" . DB_PREFIX . "sutartys`
+        ON `" . DB_PREFIX . "uzsakytos_paslaugos`.`fk_sutartis` = `" . DB_PREFIX . "sutartys`.`nr`
       {$whereClauseString}";
 
     $stmt = mysql::getInstance()->prepare($query);

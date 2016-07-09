@@ -15,24 +15,24 @@ class cars {
    */
   public static function getCar($id) {
     $query = "SELECT
-        `automobiliai`.`id`,
-        `automobiliai`.`valstybinis_nr`,
-        `automobiliai`.`pagaminimo_data`,
-        `automobiliai`.`rida`,
-        `automobiliai`.`radijas`,
-        `automobiliai`.`grotuvas`,
-        `automobiliai`.`kondicionierius`,
-        `automobiliai`.`vietu_skaicius`,
-        `automobiliai`.`registravimo_data`,
-        `automobiliai`.`verte`,
-        `automobiliai`.`pavaru_deze`,
-        `automobiliai`.`degalu_tipas`,
-        `automobiliai`.`kebulas`,
-        `automobiliai`.`bagazo_dydis`,
-        `automobiliai`.`busena`,
-        `automobiliai`.`fk_modelis` AS `modelis`
-      FROM `automobiliai`
-      WHERE `automobiliai`.`id`= ?";
+        `id`,
+        `valstybinis_nr`,
+        `pagaminimo_data`,
+        `rida`,
+        `radijas`,
+        `grotuvas`,
+        `kondicionierius`,
+        `vietu_skaicius`,
+        `registravimo_data`,
+        `verte`,
+        `pavaru_deze`,
+        `degalu_tipas`,
+        `kebulas`,
+        `bagazo_dydis`,
+        `busena`,
+        `fk_modelis` AS `modelis`
+      FROM `" . DB_PREFIX . "automobiliai`
+      WHERE `id`= ?";
 
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
@@ -51,24 +51,24 @@ class cars {
    */
   public static function updateCar($data) {
     $query = "
-    UPDATE `automobiliai`
+    UPDATE `" . DB_PREFIX . "automobiliai`
     SET
-      `valstybinis_nr`= ?,
-      `pagaminimo_data`= ?,
-      `rida`= ?,
-      `radijas`= ?,
-      `grotuvas`= ?,
-      `kondicionierius`= ?,
-      `vietu_skaicius`= ?,
-      `registravimo_data`= ?,
-      `verte`= ?,
-      `pavaru_deze`= ?,
-      `degalu_tipas`= ?,
-      `kebulas`= ?,
-      `bagazo_dydis`= ?,
-      `busena`= ?,
-      `fk_modelis`= ?
-    WHERE `id`= ?";
+      `valstybinis_nr` = ?,
+      `pagaminimo_data` = ?,
+      `rida` = ?,
+      `radijas` = ?,
+      `grotuvas` = ?,
+      `kondicionierius` = ?,
+      `vietu_skaicius` = ?,
+      `registravimo_data` = ?,
+      `verte` = ?,
+      `pavaru_deze` = ?,
+      `degalu_tipas` = ?,
+      `kebulas` = ?,
+      `bagazo_dydis` = ?,
+      `busena` = ?,
+      `fk_modelis` = ?
+    WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
       $data['valstybinis_nr'],
@@ -95,7 +95,7 @@ class cars {
    * @param type $data
    */
   public static function insertCar($data) {
-    $query = "INSERT INTO `automobiliai` (
+    $query = "INSERT INTO `" . DB_PREFIX . "automobiliai` (
         `id`,
         `valstybinis_nr`,
         `pagaminimo_data`,
@@ -142,19 +142,19 @@ class cars {
    */
   public static function getCarList($limit = null, $offset = null) {
     $query = "SELECT
-        `automobiliai`.`id`,
-        `automobiliai`.`valstybinis_nr`,
-        `auto_busenos`.`name` AS `busena`,
-        `modeliai`.`pavadinimas` AS `modelis`,
-        `markes`.`pavadinimas` AS `marke`
+        `" . DB_PREFIX . "automobiliai`.`id`,
+        `" . DB_PREFIX . "automobiliai`.`valstybinis_nr`,
+        `" . DB_PREFIX . "auto_busenos`.`name` AS `busena`,
+        `" . DB_PREFIX . "modeliai`.`pavadinimas` AS `modelis`,
+        `" . DB_PREFIX . "markes`.`pavadinimas` AS `marke`
       FROM
-        `automobiliai`
-      LEFT JOIN `modeliai`
-        ON `automobiliai`.`fk_modelis`=`modeliai`.`id`
-      LEFT JOIN `markes`
-        ON `modeliai`.`fk_marke`=`markes`.`id`
-      LEFT JOIN `auto_busenos`
-        ON `automobiliai`.`busena`=`auto_busenos`.`id`";
+        `" . DB_PREFIX . "automobiliai`
+      LEFT JOIN `" . DB_PREFIX . "modeliai`
+        ON `" . DB_PREFIX . "automobiliai`.`fk_modelis` = `" . DB_PREFIX . "modeliai`.`id`
+      LEFT JOIN `" . DB_PREFIX . "markes`
+        ON `" . DB_PREFIX . "modeliai`.`fk_marke` = `" . DB_PREFIX . "markes`.`id`
+      LEFT JOIN `" . DB_PREFIX . "auto_busenos`
+        ON `" . DB_PREFIX . "automobiliai`.`busena` = `" . DB_PREFIX . "auto_busenos`.`id`";
     $parameters = array();
 
     if(isset($limit)) {
@@ -177,15 +177,15 @@ class cars {
    */
   public static function getCarListCount() {
     $query = "SELECT
-        COUNT(`automobiliai`.`id`) AS `kiekis`
+        COUNT(`" . DB_PREFIX . "automobiliai`.`id`) AS `kiekis`
       FROM
-        `automobiliai`
-      LEFT JOIN `modeliai`
-        ON `automobiliai`.`fk_modelis`=`modeliai`.`id`
-      LEFT JOIN `markes` 
-        ON `modeliai`.`fk_marke`=`markes`.`id`
-      LEFT JOIN `auto_busenos`
-        ON `automobiliai`.`busena`=`auto_busenos`.`id`";
+        `" . DB_PREFIX . "automobiliai`
+      LEFT JOIN `" . DB_PREFIX . "modeliai`
+        ON `" . DB_PREFIX . "automobiliai`.`fk_modelis` = `" . DB_PREFIX . "modeliai`.`id`
+      LEFT JOIN `" . DB_PREFIX . "markes`
+        ON `" . DB_PREFIX . "modeliai`.`fk_marke` = `" . DB_PREFIX . "markes`.`id`
+      LEFT JOIN `" . DB_PREFIX . "auto_busenos`
+        ON `" . DB_PREFIX . "automobiliai`.`busena` = `" . DB_PREFIX . "auto_busenos`.`id`";
 
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
@@ -197,7 +197,7 @@ class cars {
    * @param type $id
    */
   public static function deleteCar($id) {
-    $query = "DELETE FROM `automobiliai` WHERE `id` = ?";
+    $query = "DELETE FROM `" . DB_PREFIX . "automobiliai` WHERE `id` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     try {
       $stmt->execute(array($id));
@@ -212,7 +212,7 @@ class cars {
    * @return type
    */
   public static function getMaxIdOfCar() {
-    $query = "SELECT MAX(`id`) as `latestId` FROM `automobiliai`";
+    $query = "SELECT MAX(`id`) as `latestId` FROM `" . DB_PREFIX . "automobiliai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data[0]['latestId'];
@@ -223,7 +223,7 @@ class cars {
    * @return type
    */
   public static function getGearboxList() {
-    $query = "SELECT * FROM `pavaru_dezes`";
+    $query = "SELECT * FROM `" . DB_PREFIX . "pavaru_dezes`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data;
@@ -234,7 +234,7 @@ class cars {
    * @return type
    */
   public static function getFuelTypeList() {
-    $query = "SELECT * FROM `degalu_tipai`";
+    $query = "SELECT * FROM `" . DB_PREFIX . "degalu_tipai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data;
@@ -245,7 +245,7 @@ class cars {
    * @return type
    */
   public static function getBodyTypeList() {
-    $query = "SELECT * FROM `kebulu_tipai`";
+    $query = "SELECT * FROM `" . DB_PREFIX . "kebulu_tipai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data;
@@ -256,7 +256,7 @@ class cars {
    * @return type
    */
   public static function getLuggageTypeList() {
-    $query = "SELECT * FROM `lagaminai`";
+    $query = "SELECT * FROM `" . DB_PREFIX . "lagaminai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data;
@@ -267,7 +267,7 @@ class cars {
    * @return type
    */
   public static function getCarStateList() {
-    $query = "SELECT * FROM `auto_busenos`";
+    $query = "SELECT * FROM `" . DB_PREFIX . "auto_busenos`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data;

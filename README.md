@@ -3,7 +3,6 @@
 Data entry system to be used as an example solution for lab work assignments in Databases module.
 
 ## TODO
-- Prefix DB table names
 - Organize View folder
 - Fix comments, add PHPDoc
 

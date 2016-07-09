@@ -14,7 +14,7 @@ class customers {
    * @return type
    */
   public static function getCustomer($id) {
-    $query = "SELECT * FROM `klientai` WHERE `asmens_kodas`= ?";
+    $query = "SELECT * FROM `" . DB_PREFIX . "klientai` WHERE `asmens_kodas` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
     $data = $stmt->fetchAll();
@@ -33,7 +33,7 @@ class customers {
    * @return type
    */
   public static function getCustomersList($limit = null, $offset = null) {
-    $query = "SELECT * FROM `klientai`";
+    $query = "SELECT * FROM `" . DB_PREFIX . "klientai`";
     $parameters = array();
 
     if(isset($limit)) {
@@ -56,7 +56,7 @@ class customers {
    * @return type
    */
   public static function getCustomersListCount() {
-    $query = "SELECT COUNT(`asmens_kodas`) AS `kiekis` FROM `klientai`";
+    $query = "SELECT COUNT(`asmens_kodas`) AS `kiekis` FROM `" . DB_PREFIX . "klientai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data[0]['kiekis'];
@@ -67,7 +67,7 @@ class customers {
    * @param type $id
    */
   public static function deleteCustomer($id) {
-    $query = "DELETE FROM `klientai` WHERE `asmens_kodas`= ?";
+    $query = "DELETE FROM `" . DB_PREFIX . "klientai` WHERE `asmens_kodas` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     try {
       $stmt->execute(array($id));
@@ -82,7 +82,7 @@ class customers {
    * @param type $data
    */
   public static function updateCustomer($data) {
-    $query = "UPDATE `klientai` SET
+    $query = "UPDATE `" . DB_PREFIX . "klientai` SET
         `vardas`= ?,
         `pavarde`= ?,
         `gimimo_data`= ?,
@@ -105,7 +105,7 @@ class customers {
    * @param type $data
    */
   public static function insertCustomer($data) {
-    $query = "INSERT INTO `klientai`
+    $query = "INSERT INTO `" . DB_PREFIX . "klientai`
       (
         `asmens_kodas`,
         `vardas`,

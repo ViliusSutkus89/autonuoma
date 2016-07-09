@@ -14,7 +14,7 @@ class employees {
    * @return type
    */
   public static function getEmployee($id) {
-    $query = "SELECT * FROM `darbuotojai` WHERE `tabelio_nr`= ?";
+    $query = "SELECT * FROM `" . DB_PREFIX . "darbuotojai` WHERE `tabelio_nr` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));
     $data = $stmt->fetchAll();
@@ -33,7 +33,7 @@ class employees {
    * @return type
    */
   public static function getEmployeesList($limit = null, $offset = null) {
-    $query = "SELECT * FROM `darbuotojai`";
+    $query = "SELECT * FROM `" . DB_PREFIX . "darbuotojai`";
     $parameters = array();
 
     if(isset($limit)) {
@@ -56,7 +56,7 @@ class employees {
    * @return type
    */
   public static function getEmployeesListCount() {
-    $query = "SELECT COUNT(`tabelio_nr`) AS `kiekis` FROM `darbuotojai`";
+    $query = "SELECT COUNT(`tabelio_nr`) AS `kiekis` FROM `" . DB_PREFIX . "darbuotojai`";
     $stmt = mysql::getInstance()->query($query);
     $data = $stmt->fetchAll();
     return $data[0]['kiekis'];
@@ -67,7 +67,7 @@ class employees {
    * @param type $id
    */
   public static function deleteEmployee($id) {
-    $query = "DELETE FROM `darbuotojai` WHERE `tabelio_nr`= ?";
+    $query = "DELETE FROM `" . DB_PREFIX . "darbuotojai` WHERE `tabelio_nr` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     try {
       $stmt->execute(array($id));
@@ -82,7 +82,7 @@ class employees {
    * @param type $data
    */
   public static function updateEmployee($data) {
-    $query = "UPDATE `darbuotojai` SET `vardas`= ?, `pavarde`= ? WHERE `tabelio_nr`= ?";
+    $query = "UPDATE `" . DB_PREFIX . "darbuotojai` SET `vardas` = ?, `pavarde` = ? WHERE `tabelio_nr` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
       $data['vardas'], $data['pavarde'], $data['tabelio_nr']
@@ -94,7 +94,7 @@ class employees {
    * @param type $data
    */
   public static function insertEmployee($data) {
-    $query = "INSERT INTO `darbuotojai`
+    $query = "INSERT INTO `" . DB_PREFIX . "darbuotojai`
       (`tabelio_nr`, `vardas`, `pavarde`) VALUES ( ?, ?, ? )";
     $stmt = mysql::getInstance()->prepare($query);
     try {
