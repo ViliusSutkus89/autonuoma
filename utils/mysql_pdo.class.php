@@ -7,18 +7,12 @@ class mysql extends PDO {
   private static $instance = null;
 
   public function __construct() {
-    
-    $dsn =
-      "mysql:host=" . config::DB_SERVER . ";"
-      ."dbname=" . config::DB_NAME . ";"
-      . "charset=utf8";
-
+    $dsn = sprintf("mysql:host=a%s;dbname=%s;charset=utf8", DB_SERVER, DB_NAME);
     $options  = [
       PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
       PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
       PDO::ATTR_EMULATE_PREPARES   => false,
     ];
-
     try {
       parent::__construct($dsn, config::DB_USERNAME,
         config::DB_PASSWORD, $options);

@@ -1,13 +1,11 @@
 <?php
 
-class config {
-	const DB_SERVER    = 'localhost';
-	const DB_NAME      = 'autonuoma';
-	const DB_USERNAME  = 'root';
-	const DB_PASSWORD  = '4dfg8fdg';
-}
+define('DB_SERVER', 'localhost');
+define('DB_NAME', 'autonuoma');
+define('DB_USERNAME', 'root');
+define('DB_PASSWORD', '[ENTER_REAL_PASSWORD_HERE]');
 
-// nustatome, kiek įrašų rodysime elementų sąraše
 define('NUMBER_OF_ROWS_IN_PAGE', 10);
+
 define('DEFAULT_CONTROLLER', 'index');
 
