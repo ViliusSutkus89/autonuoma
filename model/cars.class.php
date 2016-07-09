@@ -32,7 +32,7 @@ class cars {
         `busena`,
         `fk_modelis` AS `modelis`
       FROM `" . DB_PREFIX . "automobiliai`
-      WHERE `id`= ?";
+      WHERE `id` = ?";
 
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array($id));

@@ -128,22 +128,22 @@ class contracts {
    */
   public static function updateContract($data) {
     $query = "UPDATE `" . DB_PREFIX . "sutartys` SET
-        `sutarties_data`= ?,
-        `nuomos_data_laikas`= ?,
-        `planuojama_grazinimo_data_laikas`= ?,
-        `faktine_grazinimo_data_laikas`= ?,
-        `pradine_rida`= ?,
-        `galine_rida`= ?,
-        `kaina`= ?,
-        `degalu_kiekis_paimant`= ?,
-        `dagalu_kiekis_grazinus`= ?,
-        `busena`= ?,
-        `fk_klientas`= ?,
-        `fk_darbuotojas`= ?,
-        `fk_automobilis`= ?,
-        `fk_grazinimo_vieta`= ?,
-        `fk_paemimo_vieta`= ?
-      WHERE `nr`= ?";
+        `sutarties_data` = ?,
+        `nuomos_data_laikas` = ?,
+        `planuojama_grazinimo_data_laikas` = ?,
+        `faktine_grazinimo_data_laikas` = ?,
+        `pradine_rida` = ?,
+        `galine_rida` = ?,
+        `kaina` = ?,
+        `degalu_kiekis_paimant` = ?,
+        `dagalu_kiekis_grazinus` = ?,
+        `busena` = ?,
+        `fk_klientas` = ?,
+        `fk_darbuotojas` = ?,
+        `fk_automobilis` = ?,
+        `fk_grazinimo_vieta` = ?,
+        `fk_paemimo_vieta` = ?
+      WHERE `nr` = ?";
 
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
@@ -490,7 +490,7 @@ class contracts {
         `nr`,
         `sutarties_data`,
         `planuojama_grazinimo_data_laikas`,
-        IF(`faktine_grazinimo_data_laikas`='0000-00-00 00:00:00', 'negrąžinta', `faktine_grazinimo_data_laikas`)
+        IF(`faktine_grazinimo_data_laikas` = '0000-00-00 00:00:00', 'negrąžinta', `faktine_grazinimo_data_laikas`)
           AS `grazinta`,
         `" . DB_PREFIX . "klientai`.`vardas`,
         `" . DB_PREFIX . "klientai`.`pavarde`

@@ -83,12 +83,12 @@ class customers {
    */
   public static function updateCustomer($data) {
     $query = "UPDATE `" . DB_PREFIX . "klientai` SET
-        `vardas`= ?,
-        `pavarde`= ?,
-        `gimimo_data`= ?,
-        `telefonas`= ?,
-        `epastas`= ?
-      WHERE `asmens_kodas`= ?";
+        `vardas` = ?,
+        `pavarde` = ?,
+        `gimimo_data` = ?,
+        `telefonas` = ?,
+        `epastas` = ?
+      WHERE `asmens_kodas` = ?";
     $stmt = mysql::getInstance()->prepare($query);
     $stmt->execute(array(
       $data['vardas'],
