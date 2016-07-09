@@ -18,6 +18,7 @@ $(window).ready(function (){
             
             // pašaliname išjungtų elementų požymius
             $(rowClone).children("input[type=text], select").removeClass('disabledInput');
+            $(rowClone).children("input[type=text], select").prop("disabled", false);
             $(rowClone).children(".removeChild").removeClass('hidden');
             $(rowClone).children("input.isDisabledForEditing").val(0);
             

@@ -83,17 +83,6 @@ class serviceController {
       return;
     }
 
-    $service['kaina'] = array();
-    $service['galioja_nuo'] = array();
-    $service['neaktyvus'] = array();
-
-    $servicePrices = services::getServicePrices($id);
-    foreach ($servicePrices as $price) {
-      $service['kaina'][] = $price['kaina'];
-      $service['galioja_nuo'][] = $price['galioja_nuo'];
-      // If the price is used in orders, we shouldn't allow it to be edited
-      $service['neaktyvus'][] = $price['naudojama_uzsakymuose'];
-    }
 
     // Fill form fields with current data
     $template = template::getInstance();
@@ -125,6 +114,38 @@ class serviceController {
     $template->assign('required', $this->required);
     $template->assign('maxLengths', $this->maxLengths);
     $template->setView("service_form");
+
+    // prices array is composed of:
+    // list of immutable prices, that are in use by contracts. supplied from the database
+    // list of editable prices, supplied either from
+    //   * $_POST - if the form was submitted
+    //   * database
+    $usedPrices = array();
+    $unusedPrices = array();
+
+    $id = routing::getId();
+    if ($id) {
+      $usedPrices = services::getServicePrices($id, 1);
+      if (empty($_POST['submit'])) {
+        $unusedPrices = services::getServicePrices($id, 0);
+      }
+    }
+
+    if (!empty($_POST['kaina'])) {
+      foreach(array_keys($_POST['kaina']) as $key) {
+        $unusedPrices[] = array(
+          'kaina' => $_POST['kaina'][$key],
+          'galioja_nuo' => $_POST['galioja_nuo'][$key]
+        );
+      }
+    }
+
+    $prices = array_merge(
+      array_values($usedPrices),
+      array_values($unusedPrices)
+    );
+
+    $template->assign('prices', $prices);
   }
 
   private function validateInput() {

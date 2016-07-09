@@ -25,27 +25,27 @@
 		<fieldset>
 			<legend>Paslaugos kainos</legend>
 			<div class="childRowContainer">
-				<div class="labelLeft<?php if(empty($fields['kaina'])) echo ' hidden'; ?>">Kaina</div>
-				<div class="labelRight<?php if(empty($fields['kaina'])) echo ' hidden'; ?>">Galioja nuo</div>
+				<div class="labelLeft<?php if(empty($prices)) echo ' hidden'; ?>">Kaina</div>
+				<div class="labelRight<?php if(empty($prices)) echo ' hidden'; ?>">Galioja nuo</div>
 				<div class="float-clear"></div>
 				<?php
-					if(empty($fields['kaina'])) {
+					if(empty($prices)) {
 				?>
 					<div class="childRow hidden">
 						<input type="text" name="kaina[]" value="" class="textbox-70" disabled="disabled" />
-						<input type="text" name="galioja_nuo[]" value="" class="textbox-70" disabled="disabled" />
+						<input type="text" name="galioja_nuo[]" value="" class="textbox-70 date" disabled="disabled" />
 						<a href="#" title="" class="removeChild">šalinti</a>
 					</div>
 					<div class="float-clear"></div>
 				<?php
 					} else {
-            foreach (array_keys($fields['kaina']) as $key) {
-              $disabledInput = ($fields['neaktyvus'][$key]) ? ' disabledInput' : '';
+            foreach ($prices as $price) {
+              $d = (!empty($price['naudojama_uzsakymuose'])) ? 'disabled="disabled"' : '';
 				?>
 							<div class="childRow">
-								<input type="text" name="kaina[]" value="<?php echo $fields['kaina'][$key]; ?>" class="textbox-70<?php echo $disabledInput; ?>" />
-								<input type="text" name="galioja_nuo[]" value="<?php echo $fields['galioja_nuo'][$key]; ?>" class="textbox-70<?php  echo $disabledInput; ?> date" />
-								<a href="#" title="" class="removeChild<?php if($disabledInput) echo " hidden"; ?>">šalinti</a>
+								<input type="text" name="kaina[]" value="<?php echo $price['kaina']; ?>" class="textbox-70" <?php echo $d; ?> />
+								<input type="text" name="galioja_nuo[]" value="<?php echo $price['galioja_nuo']; ?>" class="textbox-70 date" <?php echo $d; ?> />
+								<a href="#" title="" class="removeChild<?php if($d) echo " hidden"; ?>">šalinti</a>
 							</div>
 							<div class="float-clear"></div>
 				<?php 

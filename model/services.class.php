@@ -61,8 +61,10 @@ class services {
    * @param type $serviceId
    * @return type
    */
-  public static function getServicePrices($serviceID) {
-    $query = "SELECT `paslaugu_kainos`.*,
+  public static function getServicePrices($serviceID, $isInUse) {
+    $query = "SELECT
+      `paslaugu_kainos`.`kaina`,
+      `paslaugu_kainos`.`galioja_nuo`,
       IF(COUNT(`uzsakytos_paslaugos`.`fk_paslauga`), '1', '0') as `naudojama_uzsakymuose`
     FROM `paslaugu_kainos`
     LEFT JOIN `uzsakytos_paslaugos`
@@ -70,12 +72,13 @@ class services {
       AND `paslaugu_kainos`.`galioja_nuo` = `uzsakytos_paslaugos`.`fk_kaina_galioja_nuo`
 
     WHERE `paslaugu_kainos`.`fk_paslauga` = ?
-
     GROUP BY `paslaugu_kainos`.`galioja_nuo`
+    HAVING `naudojama_uzsakymuose` = ?
     ORDER BY `paslaugu_kainos`.`galioja_nuo`
     ";
+
     $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array($serviceID));
+    $stmt->execute(array($serviceID, $isInUse));
     $data = $stmt->fetchAll();
     return $data;
   }
