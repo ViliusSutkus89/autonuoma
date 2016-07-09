@@ -111,25 +111,14 @@ class carController {
   private function showForm() {
     $template = template::getInstance();
 
-    $brands = brands::getBrandList();
-    $brandIDs = array();
-    foreach($brands as $val)
-      $brandIDs[] = $val['id'];
-    $models = models::getModelsListByBrands($brandIDs);
-    foreach($brandIDs as $val) {
-      if (!isset($models[$val]))
-        $models[$val] = array();
-    }
-
-    $template->assign('brands', $brands);
-    $template->assign('models', $models);
-
+    $brandsModels = models::getBrandsAndModels();
     $gearboxes = cars::getGearboxList();
     $fueltypes = cars::getFuelTypeList();
     $bodytypes = cars::getBodyTypeList();
     $luggage = cars::getLuggageTypeList();
     $car_states = cars::getCarStateList();
 
+    $template->assign('brandsModels', $brandsModels);
     $template->assign('gearboxes', $gearboxes);
     $template->assign('fueltypes', $fueltypes);
     $template->assign('bodytypes', $bodytypes);

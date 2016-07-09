@@ -73,36 +73,22 @@ class models {
     return $data[0]['kiekis'];
   }
 
-  /**
-   * Modelių išrinkimas pagal markę
-   * @param type $brandId
-   * @return type
-   */
-  public static function getModelsListByBrands($brandIDs) {
-    $IN = "";
-    $parameters = array();
-    foreach ($brandIDs as $val) {
-      $IN .= "?,";
-      $parameters[] = $val;
-    }
-    $IN = rtrim($IN, ",");
-
-    if (empty($parameters))
-      return array();
-
-    $query = "SELECT * FROM `modeliai` WHERE `fk_marke` IN (${IN})";
-
-    $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute($parameters);
+  public static function getBrandsAndModels() {
+    $query = "SELECT
+      `modeliai`.`id`,
+      `modeliai`.`pavadinimas` as `modelis`,
+      `markes`.`pavadinimas` as `marke`
+    FROM
+      `markes`
+    LEFT JOIN
+      `modeliai`
+      ON `modeliai`.`fk_marke` = `markes`.`id`
+    ORDER BY `marke`, `modelis`
+      ";
+    $stmt = mysql::getInstance()->query($query);
+    $stmt->execute();
     $data = $stmt->fetchAll();
-    $d = array();
-    foreach ($data as $val) {
-      if (empty($d[$val['fk_marke']]))
-        $d[$val['fk_marke']] = array();
-
-      $d[$val['fk_marke']][] = $val;
-    }
-    return $d;
+    return $data;
   }
 
   /**

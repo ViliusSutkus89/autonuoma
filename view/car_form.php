@@ -15,18 +15,27 @@
 				<select id="modelis" name="modelis">
 					<option value="-1">---------------</option>
 					<?php
-						// išrenkame visas kategorijas sugeneruoti pasirinkimų lauką
-						foreach($brands as $key => $val) {
-							echo "<optgroup label='{$val['pavadinimas']}'>";
+            $lastBrand = "";
+            foreach($brandsModels as $model) {
+              if ($lastBrand != $model['marke']) {
+                if ($lastBrand != "") {
+                  echo "</optgroup>\n";
+                }
+                $lastBrand = $model['marke'];
+								echo "<optgroup label='{$model['marke']}'>\n";
+              }
 
-							foreach($models[$val['id']] as $key2 => $val2) {
+              if ($model['modelis']) {
 								$selected = "";
-								if(isset($fields['modelis']) && $fields['modelis'] == $val2['id']) {
+                if (!empty($fields['modelis']) && $fields['modelis'] == $model['id']) {
 									$selected = " selected='selected'";
 								}
-								echo "<option{$selected} value='{$val2['id']}'>{$val2['pavadinimas']}</option>\n";
-							}
-						}
+								echo "<option{$selected} value='{$model['id']}'>{$model['modelis']}</option>\n";
+              }
+            }
+            if ($lastBrand != "") {
+              echo "</optgroup>\n";
+            }
 					?>
 				</select>
 			</p>
