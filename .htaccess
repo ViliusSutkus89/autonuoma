@@ -11,12 +11,6 @@
     Deny from all
 </Files>
 
-<Files ~ "controller|model|view|utils|controls">
-    <Limit GET POST PUT>
-        Deny from all
-    </Limit>
-</Files>
-
 # Išjungiam išvesties bufferizavimą,
 # kuris kartais paslepia errorus,
 # išspausdintus prieš peradresavimą
