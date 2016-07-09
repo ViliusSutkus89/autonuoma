@@ -116,14 +116,20 @@ class customers {
       ) 
       VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = mysql::getInstance()->prepare($query);
-    $stmt->execute(array(
+    $parameters = array(
       $data['asmens_kodas'],
       $data['vardas'],
       $data['pavarde'],
       $data['gimimo_data'],
       $data['telefonas'],
       $data['epastas']
-    ));
+    );
+    try {
+      $stmt->execute($parameters);
+    } catch (PDOException $e) {
+      return false;
+    }
+    return true;
   }
 
 }

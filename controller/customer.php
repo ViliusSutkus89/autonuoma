@@ -59,10 +59,16 @@ class customerController {
     // If entered data was valid
     if ($data) {
       // Insert row into database
-      customers::insertcustomer($data);
-
-      // Redirect back to the list
-      routing::redirect(routing::getModule(), 'list');
+      if (customers::insertcustomer($data)) {
+        // Redirect back to the list
+        routing::redirect(routing::getModule(), 'list');
+      } else {
+        // Overwrite fields array with submitted $_POST values
+        $template = template::getInstance();
+        $template->assign('fields', $_POST);
+        $template->assign('formErrors', "Duplicate ID!");
+        $this->showForm();
+      }
     } else {
       $this->showForm();
     }
@@ -113,25 +119,19 @@ class customerController {
     $validator = new validator($this->validations,
       $this->required, $this->maxLengths);
 
-    if($validator->validate($_POST)) {
-      // Prepare data array to be entered into SQL DB
-      $data = $validator->preparePostFieldsForSQL();
+    if(!$validator->validate($_POST)) {
+      // Overwrite fields array with submitted $_POST values
+      $template = template::getInstance();
+      $template->assign('fields', $_POST);
 
-      // If We're creating a new entry
-      // We need to make sure that the ID is unique
-      if (routing::getId() || !customers::getCustomer($data['asmens_kodas'])) {
-        return $data;
-      }
-      $formErrors = "Vartotojas su įvestu asmens kodu jau egzistuoja.";
-    } else {
       $formErrors = $validator->getErrorHTML();
+      $template->assign('formErrors', $formErrors);
+      return false;
     }
-    $template = template::getInstance();
 
-    // Overwrite fields array with submitted $_POST values
-    $template->assign('fields', $_POST);
-    $template->assign('formErrors', $formErrors);
-    return false;
+    // Prepare data array to be entered into SQL DB
+    $data = $validator->preparePostFieldsForSQL();
+    return $data;
   }
 
   public function deleteAction() {
